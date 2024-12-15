@@ -5,6 +5,25 @@ pub const IMPLEMENTED_SPECIFICATION_VERSION: SpecVersion = SpecVersion::new(0, 0
 /// Description of a version of the FEF specification.
 ///
 /// Holds information about the major, minor, and micro version of the FEF specification.
+///
+/// # Examples
+///
+/// Retrieve the major version number currently implemented:
+/// ```rust
+/// let major = fef::version::IMPLEMENTED_SPECIFICATION_VERSION.major();
+/// assert_eq!(major, 0);
+/// ```
+///
+/// Get this version at compile time:
+/// ```rust
+/// const MAJOR: u32 = fef::version::IMPLEMENTED_SPECIFICATION_VERSION.major();
+/// ```
+///
+/// Getting a version string:
+/// ```rust
+/// let version = fef::version::IMPLEMENTED_SPECIFICATION_VERSION;
+/// assert_eq!(format!("{}", version), format!("v{}.{}.{}", version.major(), version.minor(), version.micro()));
+/// ```
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SpecVersion {
     major: u32,
