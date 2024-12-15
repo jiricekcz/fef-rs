@@ -2,6 +2,9 @@
 
 Implementation of the FEF format in rust as a cargo package.
 
+## Documentation
+
+The documentation is available at [docs.rs](https://docs.rs/fef).
 
 ## License
 
