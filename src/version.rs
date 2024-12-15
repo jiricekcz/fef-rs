@@ -1,5 +1,7 @@
 //! Module for runtime handling of version information.
 
+pub const IMPLEMENTED_SPECIFICATION_VERSION: SpecVersion = SpecVersion::new(0, 0, 0);
+
 /// Description of a version of the FEF specification.
 ///
 /// Holds information about the major, minor, and micro version of the FEF specification.
@@ -21,7 +23,7 @@ impl SpecVersion {
     /// assert_eq!(version.minor(), 2);
     /// assert_eq!(version.micro(), 3);
     /// ```
-    pub fn new(major: u32, minor: u32, micro: u32) -> SpecVersion {
+    pub const fn new(major: u32, minor: u32, micro: u32) -> SpecVersion {
         SpecVersion {
             major: major,
             minor: minor,
@@ -37,7 +39,7 @@ impl SpecVersion {
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.major(), 1);
     /// ```
-    pub fn major(&self) -> u32 {
+    pub const fn major(&self) -> u32 {
         self.major
     }
 
@@ -49,7 +51,7 @@ impl SpecVersion {
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.minor(), 2);
     /// ```
-    pub fn minor(&self) -> u32 {
+    pub const fn minor(&self) -> u32 {
         self.minor
     }
 
@@ -61,7 +63,7 @@ impl SpecVersion {
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.micro(), 3);
     /// ```
-    pub fn micro(&self) -> u32 {
+    pub const fn micro(&self) -> u32 {
         self.micro
     }
 }
@@ -141,5 +143,43 @@ impl Ord for SpecVersion {
 impl PartialOrd for SpecVersion {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+/// Serializes the version as a string in the format "v{MAJOR}.{MINOR}.{MICRO}".
+#[cfg(feature = "serde")]
+impl Serialize for SpecVersion {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let version = format!("{}", self);
+        serializer.serialize_str(&version)
+    }
+}
+
+/// Deserializes the version from a string in the format "v{MAJOR}.{MINOR}.{MICRO}".
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for SpecVersion {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let version = String::deserialize(deserializer)?;
+        let version = version.trim_start_matches("v");
+        let version = version.split('.').collect::<Vec<&str>>();
+        if version.len() != 3 {
+            return Err(serde::de::Error::custom("Invalid version format"));
+        }
+        let major = version[0]
+            .parse::<u32>()
+            .map_err(serde::de::Error::custom)?;
+        let minor = version[1]
+            .parse::<u32>()
+            .map_err(serde::de::Error::custom)?;
+        let micro = version[2]
+            .parse::<u32>()
+            .map_err(serde::de::Error::custom)?;
+        Ok(SpecVersion::new(major, minor, micro))
     }
 }
