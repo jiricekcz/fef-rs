@@ -6,11 +6,10 @@ repository = "https://github.com/jiricekcz/fef-rs"
 license = "MIT OR Apache-2.0"
 keywords = ["fef"]
 categories = ["parser-implementations", "mathematics"]
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 [dependencies]
-serde = { version = "1.0", optional = true, features = ["derive"] }
 
 [package.metadata.docs.rs]
 # document all features
