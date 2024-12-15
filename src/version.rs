@@ -22,7 +22,7 @@ pub const IMPLEMENTED_SPECIFICATION_VERSION: SpecVersion = SpecVersion::new(0, 0
 /// Getting a version string:
 /// ```rust
 /// let version = fef::version::IMPLEMENTED_SPECIFICATION_VERSION;
-/// assert_eq!(format!("{}", version), format!("v{}.{}.{}", version.major(), version.minor(), version.micro()));
+/// assert_eq!(format!("{}", version), "v0.0.0");
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SpecVersion {
