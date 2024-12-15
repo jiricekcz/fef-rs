@@ -1,5 +1,6 @@
 //! Module for runtime handling of version information.
 
+/// Currently implemented version of the FEF specification.
 pub const IMPLEMENTED_SPECIFICATION_VERSION: SpecVersion = SpecVersion::new(0, 0, 0);
 
 /// Description of a version of the FEF specification.
