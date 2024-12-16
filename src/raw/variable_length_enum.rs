@@ -1,5 +1,3 @@
-//! Data-types representing raw FEF values.
-
 use std::{cmp::Ordering, io::Bytes};
 
 /// Represents a variable length enum in the FEF specification.
