@@ -1,5 +1,7 @@
 use std::{cmp::Ordering, io::Bytes};
 
+use crate::traits::{private::Sealed, ReadFrom};
+
 /// Represents a variable length enum in the FEF specification.
 ///
 /// Holds an unsigned integer of arbitrary size. Implementation of this type is not stabilized.
@@ -90,6 +92,8 @@ impl From<usize> for VariableLengthEnum {
     }
 }
 
+impl Sealed for VariableLengthEnum {}
+
 /// Reading a variable length enum from a byte stream.
 ///
 /// This reads from a bytes reader and interprets the bytes as a variable length enum.
@@ -101,12 +105,13 @@ impl From<usize> for VariableLengthEnum {
 /// Simple reading of a small variable length enum:
 /// ```rust
 /// # use fef::raw::VariableLengthEnum;
+/// # use fef::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), std::io::Error> {
 /// let file: Vec<u8> = vec![0x81, 0x80, 0x00, 0x12];
 /// let mut bytes = file.bytes();
 ///
-/// let variable_length_enum = VariableLengthEnum::try_from(&mut bytes)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes)?;
 ///
 /// assert_eq!(variable_length_enum, VariableLengthEnum::from(0b1_0000000_0000000));
 /// assert_eq!(bytes.next().unwrap()?, 0x12);
@@ -118,6 +123,7 @@ impl From<usize> for VariableLengthEnum {
 /// Reading a large variable length enum with leading `0x80` bytes:
 /// ```rust
 /// # use fef::raw::VariableLengthEnum;
+/// # use fef::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let file: Vec<u8> = vec![0x80, 0xFF, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x00, 0x12];
@@ -126,8 +132,8 @@ impl From<usize> for VariableLengthEnum {
 ///
 /// bytes1.next().ok_or("First exists")?; // Skip the first leading `0x80` byte. It has no effect
 ///
-/// let variable_length_enum = VariableLengthEnum::try_from(&mut bytes1)?;
-/// let variable_length_enum2 = VariableLengthEnum::try_from(&mut bytes2)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes1)?;
+/// let variable_length_enum2 = VariableLengthEnum::read_from_bytes(&mut bytes2)?;
 ///
 /// assert_eq!(variable_length_enum, variable_length_enum2);
 ///
@@ -145,9 +151,10 @@ impl From<usize> for VariableLengthEnum {
 /// # use fef::raw::VariableLengthEnum;
 /// # use std::io::Read;
 /// # use std::io::Bytes;
+/// # use fef::traits::ReadFrom;
 /// fn read_two_variable_length_enums<R: std::io::Read>(bytes: &mut Bytes<R>) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
-///     let enum1 = VariableLengthEnum::try_from(&mut *bytes)?; // Notice the reborrowing here
-///     let enum2 = VariableLengthEnum::try_from(&mut *bytes)?;
+///     let enum1 = VariableLengthEnum::read_from_bytes(&mut *bytes)?; // Notice the reborrowing here
+///     let enum2 = VariableLengthEnum::read_from_bytes(&mut *bytes)?;
 ///
 ///     Ok((enum1, enum2))
 /// }
@@ -164,13 +171,13 @@ impl From<usize> for VariableLengthEnum {
 /// assert!(bytes.next().is_none());
 /// # Ok(())
 /// # }
-impl<R> TryFrom<&mut Bytes<R>> for VariableLengthEnum
+impl<R> ReadFrom<R> for VariableLengthEnum
 where
     R: std::io::Read,
 {
-    type Error = std::io::Error;
+    type ReadError = std::io::Error;
 
-    fn try_from(bytes: &mut Bytes<R>) -> Result<Self, Self::Error> {
+    fn read_from_bytes(bytes: &mut Bytes<R>) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
         let mut accumulator: Option<u64> = Some(0);
 
@@ -251,9 +258,10 @@ where
 /// ```rust
 /// # use fef::raw::VariableLengthEnum;
 /// # use std::io::Read;
+/// # use fef::traits::ReadFrom;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let mut bytes = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00].bytes();
-/// let variable_length_enum = VariableLengthEnum::try_from(&mut bytes)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes)?;
 /// let value: Result<usize, _> = variable_length_enum.try_into(); // This will error
 ///
 /// assert!(value.is_err());
