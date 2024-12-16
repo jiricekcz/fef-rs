@@ -1,6 +1,8 @@
 //! Public and sealed traits
 use std::io::Bytes;
 
+use crate::config::Config;
+
 pub(crate) mod private {
     pub trait Sealed {}
 }
@@ -14,5 +16,8 @@ where
     type ReadError: std::error::Error;
 
     /// Reads a value from the given reader.
-    fn read_from_bytes(reader: &mut Bytes<T>) -> Result<Self, Self::ReadError>;
+    fn read_from_bytes<C: Config>(
+        reader: &mut Bytes<T>,
+        configuration: &C,
+    ) -> Result<Self, Self::ReadError>;
 }

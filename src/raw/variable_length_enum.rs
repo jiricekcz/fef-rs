@@ -1,6 +1,9 @@
 use std::{cmp::Ordering, io::Bytes};
 
-use crate::traits::{private::Sealed, ReadFrom};
+use crate::{
+    config::Config,
+    traits::{private::Sealed, ReadFrom},
+};
 
 /// Represents a variable length enum in the FEF specification.
 ///
@@ -177,7 +180,7 @@ where
 {
     type ReadError = std::io::Error;
 
-    fn read_from_bytes(bytes: &mut Bytes<R>) -> Result<Self, Self::ReadError> {
+    fn read_from_bytes<C: Config>(bytes: &mut Bytes<R>, _: &C) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
         let mut accumulator: Option<u64> = Some(0);
 
