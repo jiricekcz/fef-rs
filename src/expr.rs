@@ -1,5 +1,7 @@
 //! Expression representation as defined in the FEF specification.
 
+use crate::raw::VariableLengthEnum;
+
 /// Represents any expression in the FEF specification.
 ///
 /// # Non-exhaustive
@@ -69,7 +71,14 @@ pub enum Expr {
     Reciprocal(ExprReciprocal),
 }
 
-pub struct ExprVariable {}
+/// Variable expression as defined in the FEF specification.
+///
+/// Holds only the id of the variable.
+#[derive(Clone, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
+pub struct ExprVariable {
+    /// The id of the variable.
+    pub id: VariableLengthEnum, // This structure is stable in the spec and thus can be used as is.
+}
 
 pub struct ExprIntLiteral {}
 
