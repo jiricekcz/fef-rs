@@ -3,3 +3,7 @@
                                             // #![doc(html_playground_url = SOME_LINK)] - When we get a playground that has fef installed, we can add this to the docs
 
 pub mod version;
+
+pub mod expr;
+
+pub mod raw;
