@@ -1,3 +1,9 @@
+use std::io::Read;
+
+use crate::traits::{private::Sealed, ReadFrom};
+
+use super::error::IntegerReadError;
+
 /// Any integer type defined in the FEF specification.
 #[non_exhaustive]
 pub enum Integer {
@@ -26,4 +32,18 @@ pub enum Integer {
     UInt64(u64),
 }
 
+impl Sealed for Integer {}
 
+impl<R> ReadFrom<R> for Integer
+where
+    R: Read,
+{
+    type ReadError = IntegerReadError;
+
+    fn read_from_bytes<C: crate::config::Config>(
+        reader: &mut std::io::Bytes<R>,
+        configuration: &C,
+    ) -> Result<Self, Self::ReadError> {
+        todo!("Implement parsing integer from bytes.")
+    }
+}

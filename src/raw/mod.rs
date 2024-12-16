@@ -7,3 +7,5 @@ pub use variable_length_enum::*;
 mod integer;
 
 pub use integer::*;
+
+pub mod error;
