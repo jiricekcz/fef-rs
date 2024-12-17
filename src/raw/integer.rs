@@ -41,9 +41,48 @@ where
     type ReadError = IntegerReadError;
 
     fn read_from_bytes<C: crate::config::Config>(
-        reader: &mut std::io::Bytes<R>,
+        bytes: &mut std::io::Bytes<R>,
         configuration: &C,
     ) -> Result<Self, Self::ReadError> {
-        todo!("Implement parsing integer from bytes.")
+        match configuration.integer_format() {
+            crate::config::IntFormat::I8 => {
+                let value = bytes.next().ok_or(std::io::Error::new(
+                    std::io::ErrorKind::UnexpectedEof,
+                    "unexpected end of stream",
+                ))??;
+                Ok(Integer::Int8(i8::from_be_bytes([value])))
+            }
+            crate::config::IntFormat::I16 => {
+                let value = crate::raw::bytes::read_exact::<2, R>(bytes)?;
+                Ok(Integer::Int16(i16::from_be_bytes(value)))
+            }
+            crate::config::IntFormat::I32 => {
+                let value = crate::raw::bytes::read_exact::<4, R>(bytes)?;
+                Ok(Integer::Int32(i32::from_be_bytes(value)))
+            }
+            crate::config::IntFormat::I64 => {
+                let value = crate::raw::bytes::read_exact::<8, R>(bytes)?;
+                Ok(Integer::Int64(i64::from_be_bytes(value)))
+            }
+            crate::config::IntFormat::U8 => {
+                let value = bytes.next().ok_or(std::io::Error::new(
+                    std::io::ErrorKind::UnexpectedEof,
+                    "unexpected end of stream",
+                ))??;
+                Ok(Integer::UInt8(value))
+            }
+            crate::config::IntFormat::U16 => {
+                let value = crate::raw::bytes::read_exact::<2, R>(bytes)?;
+                Ok(Integer::UInt16(u16::from_be_bytes(value)))
+            }
+            crate::config::IntFormat::U32 => {
+                let value = crate::raw::bytes::read_exact::<4, R>(bytes)?;
+                Ok(Integer::UInt32(u32::from_be_bytes(value)))
+            }
+            crate::config::IntFormat::U64 => {
+                let value = crate::raw::bytes::read_exact::<8, R>(bytes)?;
+                Ok(Integer::UInt64(u64::from_be_bytes(value)))
+            }
+        }
     }
 }

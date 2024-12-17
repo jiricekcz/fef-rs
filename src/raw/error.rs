@@ -2,5 +2,11 @@
 
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Error, Hash)]
-pub enum IntegerReadError {}
+#[derive(Debug, Error)]
+pub enum IntegerReadError {
+    #[error("encountered error while reading byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+}

@@ -9,3 +9,5 @@ mod integer;
 pub use integer::*;
 
 pub mod error;
+
+pub mod bytes;

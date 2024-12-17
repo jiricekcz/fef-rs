@@ -17,7 +17,7 @@ where
 
     /// Reads a value from the given reader.
     fn read_from_bytes<C: Config>(
-        reader: &mut Bytes<T>,
+        bytes: &mut Bytes<T>,
         configuration: &C,
     ) -> Result<Self, Self::ReadError>;
 }
