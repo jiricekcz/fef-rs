@@ -5,7 +5,7 @@
 /// # Breaking Changes
 /// It is not expected, that downstream crates will implement this trait together with other traits that may cause name conflicts.
 /// It is thus not considered a breaking change to add new methods to this trait.
-/// If you must implement this trait together with other traits, use [disambiguation syntax](https://doc.rust-lang.org/reference/expressions/call-expr.html#disambiguating-function-calls).
+/// If you must implement this trait together with other traits, use [disambiguation syntax].
 /// ```rust
 /// # use fef::config::IntFormat;
 /// struct MyConfig;
@@ -90,5 +90,31 @@ pub enum FloatFormat {
 impl Default for FloatFormat {
     fn default() -> Self {
         FloatFormat::F64
+    }
+}
+
+pub struct OverridableConfig {
+    integer_format: Option<IntFormat>,
+    float_format: Option<FloatFormat>,
+}
+
+impl Config for OverridableConfig {
+    fn integer_format(&self) -> IntFormat {
+        self.integer_format.unwrap_or_default()
+    }
+
+    fn float_format(&self) -> FloatFormat {
+        self.float_format.unwrap_or_default()
+    }
+}
+
+impl OverridableConfig {}
+
+impl Default for OverridableConfig {
+    fn default() -> Self {
+        OverridableConfig {
+            integer_format: None,
+            float_format: None,
+        }
     }
 }

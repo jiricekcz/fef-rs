@@ -111,10 +111,11 @@ impl Sealed for VariableLengthEnum {}
 /// # use fef::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), std::io::Error> {
+/// let configuration = fef::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x81, 0x80, 0x00, 0x12];
 /// let mut bytes = file.bytes();
 ///
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes, &configuration)?;
 ///
 /// assert_eq!(variable_length_enum, VariableLengthEnum::from(0b1_0000000_0000000));
 /// assert_eq!(bytes.next().unwrap()?, 0x12);
@@ -129,14 +130,15 @@ impl Sealed for VariableLengthEnum {}
 /// # use fef::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let configuration = fef::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x80, 0xFF, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x00, 0x12];
 /// let mut bytes1 = file.bytes();
 /// let mut bytes2 = file.bytes();
 ///
 /// bytes1.next().ok_or("First exists")?; // Skip the first leading `0x80` byte. It has no effect
 ///
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes1)?;
-/// let variable_length_enum2 = VariableLengthEnum::read_from_bytes(&mut bytes2)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes1, &configuration)?;
+/// let variable_length_enum2 = VariableLengthEnum::read_from_bytes(&mut bytes2, &configuration)?;
 ///
 /// assert_eq!(variable_length_enum, variable_length_enum2);
 ///
@@ -155,18 +157,22 @@ impl Sealed for VariableLengthEnum {}
 /// # use std::io::Read;
 /// # use std::io::Bytes;
 /// # use fef::traits::ReadFrom;
-/// fn read_two_variable_length_enums<R: std::io::Read>(bytes: &mut Bytes<R>) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
-///     let enum1 = VariableLengthEnum::read_from_bytes(&mut *bytes)?; // Notice the reborrowing here
-///     let enum2 = VariableLengthEnum::read_from_bytes(&mut *bytes)?;
+/// # use fef::config::Config;
+///
+/// fn read_two_variable_length_enums<R: std::io::Read, C: Config>(bytes: &mut Bytes<R>, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
+///     let enum1 = VariableLengthEnum::read_from_bytes(&mut *bytes, & *configuration)?; // Notice the reborrowing here
+///     let enum2 = VariableLengthEnum::read_from_bytes(&mut *bytes, & *configuration)?;
 ///
 ///     Ok((enum1, enum2))
 /// }
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let configuration = fef::config::OverridableConfig::default();
 /// let file = vec![0x80, 0x80, 0x00, 0x82, 0x80, 0x04, 0x12];
 /// let mut bytes = file.bytes();
 ///
-/// let (enum1, enum2) = read_two_variable_length_enums(&mut bytes)?;
+/// let (enum1, enum2) = read_two_variable_length_enums(&mut bytes, &configuration)?;
+///
 /// assert_eq!(enum1, VariableLengthEnum::from(0));
 /// assert_eq!(enum2, VariableLengthEnum::from(0b10_0000000_0000100));
 ///
@@ -263,8 +269,9 @@ where
 /// # use std::io::Read;
 /// # use fef::traits::ReadFrom;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let configuration = fef::config::OverridableConfig::default();
 /// let mut bytes = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00].bytes();
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes)?;
+/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes, &configuration)?;
 /// let value: Result<usize, _> = variable_length_enum.try_into(); // This will error
 ///
 /// assert!(value.is_err());
