@@ -192,7 +192,7 @@ where
                 // If we reached the end of the stream, we return an error
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::UnexpectedEof,
-                    "Unexpected end of stream",
+                    "unexpected end of stream",
                 ));
             };
             if byte == 0x80 && byte_vec.is_empty() {
