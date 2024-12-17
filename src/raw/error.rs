@@ -2,9 +2,11 @@
 
 use thiserror::Error;
 
+/// Errors that can occur while reading an integer from a byte stream.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum IntegerReadError {
+    /// An io error occurred while reading the byte stream.
     #[error("encountered error while reading byte stream {source}")]
     StreamError {
         #[from]
@@ -12,12 +14,37 @@ pub enum IntegerReadError {
     },
 }
 
+/// Errors that can occur while reading a float from a byte stream.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum FloatReadError {
+    /// An io error occurred while reading the byte stream.
     #[error("encountered error while reading byte stream {source}")]
     StreamError {
         #[from]
         source: std::io::Error,
     },
+}
+
+/// Errors that can occur while reading a string from a byte stream.
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum StringReadError {
+    /// An io error occurred while reading the length of the string.
+    #[error("encountered error while reading byte stream {source}")]
+    LengthReadingError {
+        #[from]
+        source: std::io::Error,
+    },
+
+    /// An io error occurred while reading the string.
+    #[error("bytes are not valid utf-8 {source}")]
+    InvalidUtf8 {
+        #[from]
+        source: std::string::FromUtf8Error,
+    },
+
+    /// The length of the string is larger than `usize::MAX`.
+    #[error("string length is too large")]
+    LengthTooLarge,
 }

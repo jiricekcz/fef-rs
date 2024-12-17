@@ -12,3 +12,6 @@ pub use float::*;
 pub mod error;
 
 pub mod bytes;
+
+mod string;
+pub use string::*;

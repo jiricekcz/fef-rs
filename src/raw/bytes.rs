@@ -36,3 +36,38 @@ pub fn read_exact<const N: usize, R: std::io::Read>(
     }
     Ok(buffer)
 }
+
+/// Reads a dynamic number of bytes from the given reader.
+///
+/// # Examples
+/// ```rust
+/// # use std::io::Read;
+/// # use fef::raw::bytes::read_dynamic;
+/// # use std::io::Bytes;
+/// # fn main() -> Result<(), std::io::Error> {
+/// let file = vec![0x01u8, 0x02u8, 0x03u8];
+/// let mut bytes = file.bytes();
+///
+/// let value = read_dynamic(&mut bytes, 2)?;
+/// assert_eq!(value, vec![0x01u8, 0x02u8]);
+/// # Ok(())
+/// # }
+pub fn read_dynamic<R: std::io::Read>(
+    bytes: &mut Bytes<R>,
+    length: usize,
+) -> Result<Vec<u8>, std::io::Error> {
+    let mut buffer = Vec::with_capacity(length);
+
+    for _ in 0..length {
+        buffer.push(match bytes.next() {
+            Some(byte) => byte?,
+            None => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::UnexpectedEof,
+                    "unexpected end of stream",
+                ))
+            }
+        });
+    }
+    Ok(buffer)
+}
