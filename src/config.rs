@@ -30,12 +30,12 @@
 /// assert_eq!(int_format, IntFormat::I32);
 /// ```
 pub trait Config: Sized {
-    /// See [IntFormat](crate::config::IntFormat).
+    /// See [IntFormat].
     fn integer_format(&self) -> IntFormat {
         IntFormat::default()
     }
 
-    /// See [FloatFormat](crate::config::FloatFormat).
+    /// See [FloatFormat].
     fn float_format(&self) -> FloatFormat {
         FloatFormat::default()
     }
