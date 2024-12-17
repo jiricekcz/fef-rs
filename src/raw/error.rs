@@ -3,6 +3,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum IntegerReadError {
     #[error("encountered error while reading byte stream {source}")]
     StreamError {
