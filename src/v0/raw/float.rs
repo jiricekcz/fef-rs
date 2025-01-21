@@ -1,6 +1,7 @@
 use std::io::Read;
 
-use crate::traits::{private::Sealed, ReadFrom};
+use crate::v0::config;
+use crate::v0::traits::{private::Sealed, ReadFrom};
 
 use super::error::FloatReadError;
 
@@ -19,7 +20,7 @@ impl Sealed for Float {}
 
 impl<R> ReadFrom<R> for Float
 where
-    R: Read,
+    R: Read + ?Sized,
 {
     type ReadError = FloatReadError;
 
@@ -30,36 +31,38 @@ where
     /// # Example
     /// ```rust
     /// # use std::io::Read;
-    /// # use fef::traits::ReadFrom;
-    /// # use fef::config::OverridableConfig;
-    /// # use fef::raw::Float;
+    /// # use fef::v0::traits::ReadFrom;
+    /// # use fef::v0::config::OverridableConfig;
+    /// # use fef::v0::raw::Float;
     /// # use std::io::Bytes;
-    /// # fn main() -> Result<(), fef::raw::error::FloatReadError> {
+    /// # fn main() -> Result<(), fef::v0::raw::error::FloatReadError> {
     ///
     /// let file = vec![0x40, 0x09, 0x21, 0xfb, 0x54, 0x44, 0x2d, 0x18];
-    /// let mut bytes = file.bytes();
+    /// let mut file_reader = file.as_slice();
     ///
     /// let configuration = OverridableConfig::default();
     ///
-    /// let float = Float::read_from_bytes(&mut bytes, &configuration)?;
+    /// let float = Float::read_from(&mut file_reader, &configuration)?;
     ///
     /// assert_eq!(float, Float::Float64(3.141592653589793));
     ///
     /// # Ok(())
     /// # }
     /// ```
-    fn read_from_bytes<C: crate::config::Config>(
-        bytes: &mut std::io::Bytes<R>,
+    fn read_from<C: config::Config>(
+        bytes: &mut R,
         configuration: &C,
     ) -> Result<Self, Self::ReadError> {
         match configuration.float_format() {
-            crate::config::FloatFormat::F32 => {
-                let value = crate::raw::bytes::read_exact::<4, R>(bytes)?;
+            config::FloatFormat::F32 => {
+                let mut value: [u8; 4] = [0; 4];
+                bytes.read_exact(&mut value)?;
                 let float = f32::from_be_bytes(value);
                 Ok(Float::Float32(float))
             }
-            crate::config::FloatFormat::F64 => {
-                let value = crate::raw::bytes::read_exact::<8, R>(bytes)?;
+            config::FloatFormat::F64 => {
+                let mut value: [u8; 8] = [0; 8];
+                bytes.read_exact(&mut value)?;
                 let float = f64::from_be_bytes(value);
                 Ok(Float::Float64(float))
             }

@@ -13,7 +13,8 @@ It is generally considered a good practice to use disambiguation syntax if you n
 
 Example of bad usage, that we don't guarantee backwards compatibility for:
 ```rust
-use fef::config::Config;
+# trait Config {
+# }
 
 struct MyConfig;
 

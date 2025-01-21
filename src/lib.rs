@@ -4,4 +4,5 @@
 
 pub mod common;
 
+#[cfg(feature = "v0")]
 pub mod v0;

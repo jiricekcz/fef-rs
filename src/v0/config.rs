@@ -7,10 +7,10 @@
 /// It is thus not considered a breaking change to add new methods to this trait.
 /// If you must implement this trait together with other traits, use [disambiguation syntax].
 /// ```rust
-/// # use fef::config::IntFormat;
+/// # use fef::v0::config::IntFormat;
 /// struct MyConfig;
 ///
-/// impl fef::config::Config for MyConfig {}
+/// impl fef::v0::config::Config for MyConfig {}
 ///
 /// trait MyTrait {
 ///     fn integer_format(&self) -> IntFormat;
@@ -61,7 +61,7 @@ pub enum IntFormat {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::config::IntFormat;
+/// # use fef::v0::config::IntFormat;
 /// assert_eq!(IntFormat::default(), IntFormat::I64);
 /// ```
 impl Default for IntFormat {
@@ -84,7 +84,7 @@ pub enum FloatFormat {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::config::FloatFormat;
+/// # use fef::v0::config::FloatFormat;
 /// assert_eq!(FloatFormat::default(), FloatFormat::F64);
 /// ```
 impl Default for FloatFormat {

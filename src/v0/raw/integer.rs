@@ -1,8 +1,8 @@
 use std::io::Read;
 
-use crate::traits::{private::Sealed, ReadFrom};
-
 use super::error::IntegerReadError;
+use crate::v0::config;
+use crate::v0::traits::{private::Sealed, ReadFrom};
 
 /// Any integer type defined in the FEF specification.
 #[non_exhaustive]
@@ -37,7 +37,7 @@ impl Sealed for Integer {}
 
 impl<R> ReadFrom<R> for Integer
 where
-    R: Read,
+    R: Read + ?Sized,
 {
     type ReadError = IntegerReadError;
 
@@ -48,64 +48,66 @@ where
     /// # Example
     /// ```rust
     /// # use std::io::Read;
-    /// # use fef::traits::ReadFrom;
-    /// # use fef::config::OverridableConfig;
-    /// # use fef::raw::Integer;
+    /// # use fef::v0::traits::ReadFrom;
+    /// # use fef::v0::config::OverridableConfig;
+    /// # use fef::v0::raw::Integer;
     /// # use std::io::Bytes;
-    /// # fn main() -> Result<(), fef::raw::error::IntegerReadError> {
+    /// # fn main() -> Result<(), fef::v0::raw::error::IntegerReadError> {
     ///
     /// let file = vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F];
-    /// let mut bytes = file.bytes();
+    /// let mut file_reader = file.as_slice();
     ///
     /// let configuration = OverridableConfig::default();
     ///
-    /// let uint64 = Integer::read_from_bytes(&mut bytes, &configuration)?;
+    /// let uint64 = Integer::read_from(&mut file_reader, &configuration)?;
     /// assert_eq!(uint64, Integer::Int64(0x0102030405060708));
     ///
     /// # Ok(())
     /// # }
     ///```
-    fn read_from_bytes<C: crate::config::Config>(
-        bytes: &mut std::io::Bytes<R>,
+    fn read_from<C: config::Config>(
+        reader: &mut R,
         configuration: &C,
     ) -> Result<Self, Self::ReadError> {
         match configuration.integer_format() {
-            crate::config::IntFormat::I8 => {
-                let value = bytes.next().ok_or(std::io::Error::new(
-                    std::io::ErrorKind::UnexpectedEof,
-                    "unexpected end of stream",
-                ))??;
-                Ok(Integer::Int8(i8::from_be_bytes([value])))
+            config::IntFormat::I8 => {
+                let mut value: [u8; 1] = [0; 1];
+                reader.read_exact(&mut value)?;
+                Ok(Integer::Int8(i8::from_be_bytes(value)))
             }
-            crate::config::IntFormat::I16 => {
-                let value = crate::raw::bytes::read_exact::<2, R>(bytes)?;
+            config::IntFormat::I16 => {
+                let mut value: [u8; 2] = [0; 2];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::Int16(i16::from_be_bytes(value)))
             }
-            crate::config::IntFormat::I32 => {
-                let value = crate::raw::bytes::read_exact::<4, R>(bytes)?;
+            config::IntFormat::I32 => {
+                let mut value: [u8; 4] = [0; 4];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::Int32(i32::from_be_bytes(value)))
             }
-            crate::config::IntFormat::I64 => {
-                let value = crate::raw::bytes::read_exact::<8, R>(bytes)?;
+            config::IntFormat::I64 => {
+                let mut value: [u8; 8] = [0; 8];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::Int64(i64::from_be_bytes(value)))
             }
-            crate::config::IntFormat::U8 => {
-                let value = bytes.next().ok_or(std::io::Error::new(
-                    std::io::ErrorKind::UnexpectedEof,
-                    "unexpected end of stream",
-                ))??;
-                Ok(Integer::UInt8(value))
+            config::IntFormat::U8 => {
+                let mut value: [u8; 1] = [0; 1];
+                reader.read_exact(&mut value)?;
+                Ok(Integer::UInt8(u8::from_be_bytes(value)))
             }
-            crate::config::IntFormat::U16 => {
-                let value = crate::raw::bytes::read_exact::<2, R>(bytes)?;
+            config::IntFormat::U16 => {
+                let mut value: [u8; 2] = [0; 2];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::UInt16(u16::from_be_bytes(value)))
             }
-            crate::config::IntFormat::U32 => {
-                let value = crate::raw::bytes::read_exact::<4, R>(bytes)?;
+            config::IntFormat::U32 => {
+                let mut value: [u8; 4] = [0; 4];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::UInt32(u32::from_be_bytes(value)))
             }
-            crate::config::IntFormat::U64 => {
-                let value = crate::raw::bytes::read_exact::<8, R>(bytes)?;
+            config::IntFormat::U64 => {
+                let mut value: [u8; 8] = [0; 8];
+                reader.read_exact(&mut value)?;
                 Ok(Integer::UInt64(u64::from_be_bytes(value)))
             }
         }

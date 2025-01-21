@@ -1,6 +1,6 @@
 //! Expression representation as defined in the FEF specification.
 
-use crate::raw::VariableLengthEnum;
+use crate::v0::raw::VariableLengthEnum;
 
 /// Represents any expression in the FEF specification.
 ///

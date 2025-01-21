@@ -9,6 +9,9 @@ categories = ["parser-implementations", "mathematics"]
 version = "0.0.2"
 edition = "2021"
 
+[features]
+v0 = []
+
 [dependencies]
 thiserror = "2"
 
