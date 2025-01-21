@@ -10,6 +10,7 @@ version = "0.0.2"
 edition = "2021"
 
 [dependencies]
+thiserror = "2"
 
 [package.metadata.docs.rs]
 # document all features
