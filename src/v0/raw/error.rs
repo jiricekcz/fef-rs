@@ -48,3 +48,12 @@ pub enum StringReadError {
     #[error("string length is too large")]
     LengthTooLarge,
 }
+
+/// Errors that occur while using variable length enums.
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum VariableLengthEnumError {
+    /// A fallible conversion to a numeric type failed, because the value was too large to fit this type.
+    #[error("value is too large to fit in the target type")]
+    TooBig,
+}

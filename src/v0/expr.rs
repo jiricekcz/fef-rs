@@ -10,64 +10,64 @@ use crate::v0::raw::VariableLengthEnum;
 /// # Examples
 #[non_exhaustive]
 pub enum Expr {
-    /// Variable expression as defined in the FEF specification. See more [here](crate::expr::ExprVariable).
+    /// Variable expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprVariable).
     Variable(ExprVariable),
 
-    /// Integer literal expression as defined in the FEF specification. See more [here](crate::expr::ExprIntLiteral).
+    /// Integer literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprIntLiteral).
     IntLiteral(ExprIntLiteral),
 
-    /// Float literal expression as defined in the FEF specification. See more [here](crate::expr::ExprFloatLiteral).
+    /// Float literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprFloatLiteral).
     FloatLiteral(ExprFloatLiteral),
 
-    /// True literal expression as defined in the FEF specification. See more [here](crate::expr::ExprTrueLiteral).
+    /// True literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprTrueLiteral).
     TrueLiteral(ExprTrueLiteral),
 
-    /// False literal expression as defined in the FEF specification. See more [here](crate::expr::ExprFalseLiteral).
+    /// False literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprFalseLiteral).
     FalseLiteral(ExprFalseLiteral),
 
-    /// Addition expression as defined in the FEF specification. See more [here](crate::expr::ExprAddition).
+    /// Addition expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprAddition).
     Addition(ExprAddition),
 
-    /// Subtraction expression as defined in the FEF specification. See more [here](crate::expr::ExprSubtraction).
+    /// Subtraction expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprSubtraction).
     Subtraction(ExprSubtraction),
 
-    /// Multiplication expression as defined in the FEF specification. See more [here](crate::expr::ExprMultiplication).
+    /// Multiplication expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprMultiplication).
     Multiplication(ExprMultiplication),
 
-    /// Division expression as defined in the FEF specification. See more [here](crate::expr::ExprDivision).
+    /// Division expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprDivision).
     Division(ExprDivision),
 
-    /// Integer division expression as defined in the FEF specification. See more [here](crate::expr::ExprIntDivision).
+    /// Integer division expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprIntDivision).
     IntDivision(ExprIntDivision),
 
-    /// Modulo expression as defined in the FEF specification. See more [here](crate::expr::ExprModulo).
+    /// Modulo expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprModulo).
     Modulo(ExprModulo),
 
-    /// Power expression as defined in the FEF specification. See more [here](crate::expr::ExprPower).
+    /// Power expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprPower).
     Power(ExprPower),
 
-    /// Negation expression as defined in the FEF specification. See more [here](crate::expr::ExprNegation).
+    /// Negation expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprNegation).
     Negation(ExprNegation),
 
-    /// Root expression as defined in the FEF specification. See more [here](crate::expr::ExprRoot).
+    /// Root expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprRoot).
     Root(ExprRoot),
 
-    /// Integer root expression as defined in the FEF specification. See more [here](crate::expr::ExprIntRoot).
+    /// Integer root expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprIntRoot).
     IntRoot(ExprIntRoot),
 
-    /// Square expression as defined in the FEF specification. See more [here](crate::expr::ExprSquare).
+    /// Square expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprSquare).
     Square(ExprSquare),
 
-    /// Cube expression as defined in the FEF specification. See more [here](crate::expr::ExprCube).
+    /// Cube expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprCube).
     Cube(ExprCube),
 
-    /// Square root expression as defined in the FEF specification. See more [here](crate::expr::ExprSquareRoot).
+    /// Square root expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprSquareRoot).
     SquareRoot(ExprSquareRoot),
 
-    /// Cube root expression as defined in the FEF specification. See more [here](crate::expr::ExprCubeRoot).
+    /// Cube root expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprCubeRoot).
     CubeRoot(ExprCubeRoot),
 
-    /// Reciprocal expression as defined in the FEF specification. See more [here](crate::expr::ExprReciprocal).
+    /// Reciprocal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprReciprocal).
     Reciprocal(ExprReciprocal),
 }
 

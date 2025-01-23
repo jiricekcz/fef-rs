@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 
 use crate::v0::{
     config::Config,
+    raw::error,
     traits::{private::Sealed, ReadFrom},
 };
 
@@ -295,14 +296,55 @@ where
 /// # }
 /// ```
 impl TryInto<usize> for VariableLengthEnum {
-    type Error = &'static str; // This is a placeholder, we can change it to a more specific error type later
+    type Error = error::VariableLengthEnumError; // This is a placeholder, we can change it to a more specific error type later
 
     fn try_into(self) -> Result<usize, Self::Error> {
         match self.value {
             VariableLengthEnumStorage::U64(u64_value) => u64_value
                 .try_into()
-                .map_err(|_| "Value is too large to fit into usize"),
-            VariableLengthEnumStorage::Overflow(_) => Err("Value is too large to fit into usize"),
+                .map_err(|_| error::VariableLengthEnumError::TooBig),
+            VariableLengthEnumStorage::Overflow(_) => Err(error::VariableLengthEnumError::TooBig),
+        }
+    }
+}
+
+/// Conversion to string of a variable length enum
+///
+/// For values lower than or equal to `u64::MAX`, this implementation guarantees that it will format the value as a decimal string representation.
+/// For values over `u64::MAX`, the exact output of this formatting is unspecified.
+///
+/// # Examples
+/// ```rust
+/// # use fef::v0::raw::VariableLengthEnum;
+/// let value = 51;
+/// let vre = VariableLengthEnum::from(value);
+///
+/// println!("{}", value); // Prints "51"
+/// # assert_eq!("51", format!("{}", value));
+/// println!("{}", vre); // Also prints "51"
+/// # assert_eq!("51", format!("{}", vre));
+/// # assert_eq!(format!("{}", usize::MAX), format!("{}", VariableLengthEnum::from(usize::MAX)));
+/// ```
+impl std::fmt::Display for VariableLengthEnum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.value {
+            VariableLengthEnumStorage::U64(u64_value) => write!(f, "{}", u64_value),
+            VariableLengthEnumStorage::Overflow(byte_vec) => {
+                write!(f, "0x")?;
+                let mut accumulator: u16 = 0;
+                let mut bit_length: u8 = 0;
+                for byte in byte_vec {
+                    accumulator = accumulator << 7 | (byte & 0x7F) as u16;
+                    bit_length += 7;
+
+                    if bit_length >= 8 {
+                        let byte = ((accumulator >> (bit_length - 8)) & 0xFF) as u8;
+                        bit_length -= 8;
+                        write!(f, "{:02x}", byte)?
+                    }
+                }
+                Ok(())
+            }
         }
     }
 }
