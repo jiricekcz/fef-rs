@@ -1,6 +1,7 @@
 use crate::v0 as fef;
 /// Interpretation of a [VariableLengthEnum](crate::v0::raw::VariableLengthEnum) as an expression identifier.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum ExprToken {
     Variable = 0x04,
     IntLiteral = 0x08,
@@ -73,7 +74,25 @@ impl TryFrom<usize> for ExprToken {
     }
 }
 
+/// A fallible interpretation of a variable length enum as an expression identifier
 ///
+/// Fails, if the identifier doesn't represent a known token
+///
+/// # Example
+/// ```rust
+/// # use fef::v0::tokens::ExprToken;
+/// # use fef::raw::VariableLengthEnum;
+/// let raw_enum = VariableLengthEnum::from(4);
+/// match ExprToken::try_from(raw_enum) {
+///     Ok(token) => match token { // identifier `0x04` is a variable identifier
+///         ExprToken::Variable => assert!(true),
+///         _ => unreachable!()
+///     }
+///     Err(_) => assert!(false) // This identifier exists, so the operation doesn't fail
+/// }
+/// ```
+///
+/// A possible distinct fail condition is when the enum is to large. This is a special condition, that terminates interpretation early, if the value is far out of range.
 impl TryFrom<fef::raw::VariableLengthEnum> for ExprToken {
     type Error = fef::tokens::error::ExprTokenError;
 
