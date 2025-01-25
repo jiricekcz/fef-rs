@@ -29,7 +29,7 @@
 /// let int_format = <MyConfig as MyTrait>::integer_format(&config);
 /// assert_eq!(int_format, IntFormat::I32);
 /// ```
-pub trait Config: Sized {
+pub trait Config {
     /// See [IntFormat].
     fn integer_format(&self) -> IntFormat {
         IntFormat::default()
