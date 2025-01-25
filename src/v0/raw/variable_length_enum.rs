@@ -1,9 +1,8 @@
 use std::cmp::Ordering;
 
-use crate::v0::{
-    config::Config,
-    raw::error,
-    traits::{private::Sealed, ReadFrom},
+use crate::{
+    common::traits::private::Sealed,
+    v0::{config::Config, raw::error, traits::ReadFrom},
 };
 
 /// Represents a variable length enum in the FEF specification.
@@ -46,7 +45,10 @@ enum VariableLengthEnumStorage {
     /// This variant is selected when the value fits into a u64
     U64(u64),
     /// If it doesn't fit into a u64, it is stored as a Vec<u8> according to the FEF specification without leading `0x80` bytes.
-    Overflow(Vec<u8>),
+    /// Double indirection of the Vec<u8> may seem unnecessary, but in the case, when the value is too large to fit into a u64, performance is of zero concern,
+    /// since the use case is probably very degenerate. It however equalizes the size of the enum variants, which results in smaller allocation in case of the
+    /// much more common variant of the enum.
+    Overflow(Box<Vec<u8>>),
 }
 
 impl PartialOrd for VariableLengthEnumStorage {
@@ -250,7 +252,7 @@ where
         } else {
             // If we don't have an accumulator, we use the byte_vec as the value
             Ok(VariableLengthEnum {
-                value: VariableLengthEnumStorage::Overflow(byte_vec),
+                value: VariableLengthEnumStorage::Overflow(Box::new(byte_vec)),
             })
         }
     }
@@ -333,7 +335,7 @@ impl std::fmt::Display for VariableLengthEnum {
                 write!(f, "0x")?;
                 let mut accumulator: u16 = 0;
                 let mut bit_length: u8 = 0;
-                for byte in byte_vec {
+                for byte in byte_vec.iter() {
                     accumulator = accumulator << 7 | (byte & 0x7F) as u16;
                     bit_length += 7;
 

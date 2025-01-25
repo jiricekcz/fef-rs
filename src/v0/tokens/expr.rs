@@ -25,6 +25,24 @@ pub enum ExprToken {
     Reciprocal = 0x24,
 }
 
+impl std::fmt::Display for ExprToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::fmt::LowerHex for ExprToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:x}", self.to_owned() as usize)
+    }
+}
+
+impl std::fmt::UpperHex for ExprToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:X}", self.to_owned() as usize)
+    }
+}
+
 /// A fallible conversion from an arbitrary integer to an expression token
 ///
 /// Fails, if the identifier doesn't represent a known token

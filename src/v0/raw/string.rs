@@ -1,6 +1,7 @@
+use crate::common::traits::private::Sealed;
 use crate::v0::config::Config;
 use crate::v0::raw;
-use crate::v0::traits::{private::Sealed, ReadFrom};
+use crate::v0::traits::ReadFrom;
 use std::io::Read;
 use std::string::String;
 

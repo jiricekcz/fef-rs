@@ -1,7 +1,8 @@
 use std::io::Read;
 
+use crate::common::traits::private::Sealed;
 use crate::v0::config;
-use crate::v0::traits::{private::Sealed, ReadFrom};
+use crate::v0::traits::ReadFrom;
 
 use super::error::FloatReadError;
 
