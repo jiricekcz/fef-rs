@@ -119,17 +119,19 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
 /// let expr: Expr<ExprTree> = expr_tree.into();
 /// ```
 pub struct ExprTree {
-    inner: Expr<ExprTree>,
+    inner: Box<Expr<ExprTree>>,
 }
 
 impl From<Expr<ExprTree>> for ExprTree {
     fn from(expr: Expr<ExprTree>) -> Self {
-        Self { inner: expr }
+        Self {
+            inner: Box::new(expr),
+        }
     }
 }
 
 impl Into<Expr<ExprTree>> for ExprTree {
     fn into(self) -> Expr<ExprTree> {
-        self.inner
+        *self.inner
     }
 }
