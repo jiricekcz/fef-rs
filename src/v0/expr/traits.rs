@@ -93,7 +93,18 @@ pub trait BinaryOperationExprObj<S: Sized>:
     fn into_parts(self) -> (S, S) {
         self.into()
     }
-    fn from_parts(lhs: S, rhs: S) -> Self {
-        (lhs, rhs).into()
-    }
+}
+
+/// A trait for all unary operation expression objects.
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+/// It is used for all common behavior between expression objects that represent
+///
+/// # Type Parameters
+/// * `S`: The type of the storage of child expressions of this expression.
+pub trait UnaryOperationExprObj<S: Sized>: Sealed + ExprObj<S> + From<S> {
+    fn inner(&self) -> &S;
+    fn inner_mut(&mut self) -> &mut S;
+
+    fn into_inner(self) -> S;
 }
