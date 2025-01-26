@@ -1,5 +1,6 @@
 mod addition;
 mod cube;
+mod cube_root;
 mod division;
 mod int_division;
 mod int_root;
@@ -14,6 +15,7 @@ mod subtraction;
 
 pub use addition::ExprAddition;
 pub use cube::ExprCube;
+pub use cube_root::ExprCubeRoot;
 pub use division::ExprDivision;
 pub use int_division::ExprIntDivision;
 pub use int_root::ExprIntRoot;
