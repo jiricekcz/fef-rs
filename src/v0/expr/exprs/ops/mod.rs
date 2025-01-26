@@ -7,6 +7,7 @@ mod multiplication;
 mod negation;
 mod power;
 mod root;
+mod square;
 mod subtraction;
 
 pub use addition::ExprAddition;
@@ -18,4 +19,5 @@ pub use multiplication::ExprMultiplication;
 pub use negation::ExprNegation;
 pub use power::ExprPower;
 pub use root::ExprRoot;
+pub use square::ExprSquare;
 pub use subtraction::ExprSubtraction;
