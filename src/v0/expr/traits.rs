@@ -46,7 +46,7 @@ pub trait EnumExprObj<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait IntExprObj<S: Sized>: Sealed + Sized + Into<Integer> + TryFrom<Integer> {
+pub trait IntExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Integer> + TryFrom<Integer> {
     /// Converts this object into an [Integer](crate::v0::raw::Integer).
     fn into_integer(self) -> Integer {
         self.into()
@@ -60,7 +60,7 @@ pub trait IntExprObj<S: Sized>: Sealed + Sized + Into<Integer> + TryFrom<Integer
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait FloatExprObj<S: Sized>: Sealed + Sized + Into<Float> + TryFrom<Float> {
+pub trait FloatExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Float> + TryFrom<Float> {
     fn into_float(self) -> Float {
         self.into()
     }
@@ -73,4 +73,27 @@ pub trait FloatExprObj<S: Sized>: Sealed + Sized + Into<Float> + TryFrom<Float> 
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait PureExprObj<S: Sized>: Sealed + Sized + From<()> {}
+pub trait PureExprObj<S: Sized>: Sealed + ExprObj<S> + From<()> {}
+
+/// A trait for all binary operation expression objects.
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+/// It is used for all common behavior between expression objects that represent
+/// an operation between two expressions.
+/// Note, that all expressions can be connected using binary operations.
+pub trait BinaryOperationExprObj<S: Sized>:
+    Sealed + ExprObj<S> + Into<(S, S)> + From<(S, S)>
+{
+    fn lhs(&self) -> &S;
+    fn rhs(&self) -> &S;
+
+    fn lhs_mut(&mut self) -> &mut S;
+    fn rhs_mut(&mut self) -> &mut S;
+
+    fn into_parts(self) -> (S, S) {
+        self.into()
+    }
+    fn from_parts(lhs: S, rhs: S) -> Self {
+        (lhs, rhs).into()
+    }
+}
