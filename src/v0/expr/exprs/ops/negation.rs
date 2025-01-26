@@ -12,12 +12,12 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprNegation<S: Sized> {
-    inner: S,
+    operand: S,
 }
 
 impl<S: Sized> From<S> for ExprNegation<S> {
     fn from(inner: S) -> Self {
-        Self { inner }
+        Self { operand: inner }
     }
 }
 
@@ -51,13 +51,13 @@ impl<S: Sized> ExprObj<S> for ExprNegation<S> {
 
 impl<S: Sized> UnaryOperationExprObj<S> for ExprNegation<S> {
     fn inner(&self) -> &S {
-        &self.inner
+        &self.operand
     }
     fn inner_mut(&mut self) -> &mut S {
-        &mut self.inner
+        &mut self.operand
     }
 
     fn into_inner(self) -> S {
-        self.inner
+        self.operand
     }
 }
