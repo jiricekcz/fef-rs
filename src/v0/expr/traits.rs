@@ -65,3 +65,12 @@ pub trait FloatExprObj<S: Sized>: Sealed + Sized + Into<Float> + TryFrom<Float> 
         self.into()
     }
 }
+
+/// A trait for all expression objects that hold no value.
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+/// It is used for all common behavior between expression objects that hold no value.
+///
+/// # Type Parameters
+/// * `S`: The type of the storage of child expressions of this expression.
+pub trait PureExprObj<S: Sized>: Sealed + Sized + From<()> {}
