@@ -19,7 +19,7 @@ pub trait ExprObj<S: Sized>: Sealed + Sized + Into<Expr<S>> + TryFrom<Expr<S>> {
     /// Returns the [token](ExprToken) of the expression.
     fn token(&self) -> ExprToken;
 
-    /// Generalizes this object into the [Expr](crate::v0::expr::Expr) enum type.
+    /// Generalizes this object into the [Expr] enum type.
     fn into_expr(self) -> Expr<S> {
         self.into()
     }
@@ -33,7 +33,7 @@ pub trait ExprObj<S: Sized>: Sealed + Sized + Into<Expr<S>> + TryFrom<Expr<S>> {
 pub trait EnumExprObj<S: Sized>:
     Sealed + ExprObj<S> + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
 {
-    /// Converts this object into a [VariableLengthEnum](crate::v0::raw::VariableLengthEnum).
+    /// Converts this object into a [VariableLengthEnum].
     fn into_variable_length_enum(self) -> VariableLengthEnum {
         self.into()
     }
@@ -47,7 +47,7 @@ pub trait EnumExprObj<S: Sized>:
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
 pub trait IntExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Integer> + TryFrom<Integer> {
-    /// Converts this object into an [Integer](crate::v0::raw::Integer).
+    /// Converts this object into an [Integer].
     fn into_integer(self) -> Integer {
         self.into()
     }

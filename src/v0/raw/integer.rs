@@ -441,7 +441,7 @@ impl TryInto<u64> for Integer {
 
 impl Integer {
     /// Creates a new [Integer] with using the smallest possible integer type. If possible, will choose a signed integer.
-    fn compact(&self) -> Integer {
+    pub fn compact(&self) -> Integer {
         let value = US64::from(*self);
 
         match value.as_unsigned_if_possible() {
@@ -496,7 +496,7 @@ impl Integer {
         }
     }
     /// Creates a new [Integer] with using the smallest possible integer type. If the value is non-negative, will choose an unsigned integer.
-    fn compact_unsigned(&self) -> Integer {
+    pub fn compact_unsigned(&self) -> Integer {
         let value = US64::from(*self);
 
         match value.as_unsigned_if_possible() {

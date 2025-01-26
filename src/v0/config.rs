@@ -3,7 +3,6 @@
 use crate::common::traits::private::Sealed;
 
 /// Configuration requirements for a FEF parser.
-/// ```
 pub trait Config: Sealed {
     /// See [IntFormat].
     fn integer_format(&self) -> IntFormat {
@@ -87,23 +86,23 @@ impl Config for OverridableConfig {
 }
 
 impl OverridableConfig {
-    fn override_integer_format(&mut self, format: IntFormat) {
+    pub fn override_integer_format(&mut self, format: IntFormat) {
         self.integer_format = Some(format);
     }
 
-    fn is_integer_format_overridden(&self) -> bool {
+    pub fn is_integer_format_overridden(&self) -> bool {
         self.integer_format.is_some()
     }
 
-    fn override_float_format(&mut self, format: FloatFormat) {
+    pub fn override_float_format(&mut self, format: FloatFormat) {
         self.float_format = Some(format);
     }
 
-    fn is_float_format_overridden(&self) -> bool {
+    pub fn is_float_format_overridden(&self) -> bool {
         self.float_format.is_some()
     }
 
-    fn override_with(&mut self, other: OverridableConfig) {
+    pub fn override_with(&mut self, other: OverridableConfig) {
         if let Some(format) = other.integer_format {
             self.override_integer_format(format);
         }
