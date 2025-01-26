@@ -2,14 +2,14 @@ use crate::{common::traits::private::Sealed, v0::tokens::ExprToken};
 
 use super::{traits::ExprObj, *};
 
+/// Represents any expression in the FEF specification.
+///
+/// # Non-exhaustive
+/// To allow for adding of new expression types without breaking existing code, this enum is marked as [non-exhaustive](https://doc.rust-lang.org/reference/attributes/type_system.html#the-non_exhaustive-attribute).  
+///
+/// # Examples
 #[non_exhaustive]
 pub enum Expr<S: Sized> {
-    /// Represents any expression in the FEF specification.
-    ///
-    /// # Non-exhaustive
-    /// To allow for adding of new expression types without breaking existing code, this enum is marked as [non-exhaustive](https://doc.rust-lang.org/reference/attributes/type_system.html#the-non_exhaustive-attribute).  
-    ///
-    /// # Examples
     /// Variable expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprVariable).
     Variable(ExprVariable<S>),
 
