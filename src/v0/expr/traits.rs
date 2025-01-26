@@ -1,7 +1,7 @@
 use crate::{
     common::traits::private::Sealed,
     v0::{
-        raw::{Integer, VariableLengthEnum},
+        raw::{Float, Integer, VariableLengthEnum},
         tokens::ExprToken,
     },
 };
@@ -49,6 +49,19 @@ pub trait EnumExprObj<S: Sized>:
 pub trait IntExprObj<S: Sized>: Sealed + Sized + Into<Integer> + TryFrom<Integer> {
     /// Converts this object into an [Integer](crate::v0::raw::Integer).
     fn into_integer(self) -> Integer {
+        self.into()
+    }
+}
+
+/// A trait for all float expression objects.
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+/// It is used for all common behavior between float expression objects.
+///
+/// # Type Parameters
+/// * `S`: The type of the storage of child expressions of this expression.
+pub trait FloatExprObj<S: Sized>: Sealed + Sized + Into<Float> + TryFrom<Float> {
+    fn into_float(self) -> Float {
         self.into()
     }
 }

@@ -36,9 +36,61 @@ pub enum Integer {
 }
 
 /// Unknown signed 64-bit integer.
-enum US64 {
+#[derive(Debug, Clone, Copy, Eq, Hash)]
+pub(crate) enum US64 {
     I64(i64),
     U64(u64),
+}
+
+impl US64 {
+    fn as_unsigned_if_possible(self) -> US64 {
+        match &self {
+            US64::I64(value) => {
+                if *value >= 0 {
+                    US64::U64(*value as u64)
+                } else {
+                    self
+                }
+            }
+            US64::U64(_) => self,
+        }
+    }
+}
+
+impl std::cmp::PartialEq for US64 {
+    fn eq(&self, other: &Self) -> bool {
+        let (signed, unsigned) = match (*self, *other) {
+            (US64::I64(a), US64::I64(b)) => return a == b,
+            (US64::U64(a), US64::U64(b)) => return a == b,
+            (US64::I64(a), US64::U64(b)) => (a, b),
+            (US64::U64(a), US64::I64(b)) => (b, a),
+        };
+
+        if signed < 0 {
+            return false;
+        }
+
+        let signed = signed as u64;
+        signed == unsigned
+    }
+}
+
+impl std::cmp::PartialOrd for US64 {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        let (signed, unsigned) = match (*self, *other) {
+            (US64::I64(a), US64::I64(b)) => return a.partial_cmp(&b),
+            (US64::U64(a), US64::U64(b)) => return a.partial_cmp(&b),
+            (US64::I64(a), US64::U64(b)) => (a, b),
+            (US64::U64(a), US64::I64(b)) => (b, a),
+        };
+
+        if signed < 0 {
+            return Some(std::cmp::Ordering::Less);
+        }
+
+        let signed = signed as u64;
+        signed.partial_cmp(&unsigned)
+    }
 }
 
 impl std::fmt::Display for Integer {
@@ -214,19 +266,7 @@ impl std::cmp::PartialEq for Integer {
         let a = US64::from(*self);
         let b = US64::from(*other);
 
-        let (signed, unsigned) = match (a, b) {
-            (US64::I64(a), US64::I64(b)) => return a == b,
-            (US64::U64(a), US64::U64(b)) => return a == b,
-            (US64::I64(a), US64::U64(b)) => (a, b),
-            (US64::U64(a), US64::I64(b)) => (b, a),
-        };
-
-        if signed < 0 {
-            return false;
-        }
-
-        let signed = signed as u64;
-        signed == unsigned
+        a.eq(&b)
     }
 }
 
@@ -235,19 +275,7 @@ impl std::cmp::PartialOrd for Integer {
         let a = US64::from(*self);
         let b = US64::from(*other);
 
-        let (signed, unsigned) = match (a, b) {
-            (US64::I64(a), US64::I64(b)) => return a.partial_cmp(&b),
-            (US64::U64(a), US64::U64(b)) => return a.partial_cmp(&b),
-            (US64::I64(a), US64::U64(b)) => (a, b),
-            (US64::U64(a), US64::I64(b)) => (b, a),
-        };
-
-        if signed < 0 {
-            return Some(std::cmp::Ordering::Less);
-        }
-
-        let signed = signed as u64;
-        signed.partial_cmp(&unsigned)
+        a.partial_cmp(&b)
     }
 }
 
@@ -352,6 +380,157 @@ impl TryInto<i64> for Integer {
                         value: value.into(),
                         range: RangeInclusive::new(i64::MIN.into(), i64::MAX.into()),
                     })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<u64> for Integer {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<u64, Self::Error> {
+        match self {
+            Integer::Int8(value) => {
+                if value >= 0 {
+                    Ok(value as u64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u64::MAX.into()),
+                    })
+                }
+            }
+            Integer::Int16(value) => {
+                if value >= 0 {
+                    Ok(value as u64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u64::MAX.into()),
+                    })
+                }
+            }
+            Integer::Int32(value) => {
+                if value >= 0 {
+                    Ok(value as u64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u64::MAX.into()),
+                    })
+                }
+            }
+            Integer::Int64(value) => {
+                if value >= 0 {
+                    Ok(value as u64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u64::MAX.into()),
+                    })
+                }
+            }
+            Integer::UInt8(value) => Ok(value as u64),
+            Integer::UInt16(value) => Ok(value as u64),
+            Integer::UInt32(value) => Ok(value as u64),
+            Integer::UInt64(value) => Ok(value),
+        }
+    }
+}
+
+impl Integer {
+    /// Creates a new [Integer] with using the smallest possible integer type. If possible, will choose a signed integer.
+    fn compact(&self) -> Integer {
+        let value = US64::from(*self);
+
+        match value.as_unsigned_if_possible() {
+            US64::I64(value) => {
+                // Binary search for the smallest integer type that can hold the value.
+                if value >= i16::MIN as i64 && value <= i16::MAX as i64 {
+                    if value >= i8::MIN as i64 && value <= i8::MAX as i64 {
+                        Integer::Int8(value as i8)
+                    } else {
+                        Integer::Int16(value as i16)
+                    }
+                } else {
+                    if value >= i32::MIN as i64 && value <= i32::MAX as i64 {
+                        Integer::Int32(value as i32)
+                    } else {
+                        Integer::Int64(value)
+                    }
+                }
+            }
+            US64::U64(value) => {
+                // Binary search for the smallest integer type that can hold the value.
+                if value <= u16::MAX as u64 {
+                    if value <= u8::MAX as u64 {
+                        if value <= i8::MAX as u64 {
+                            Integer::Int8(value as i8)
+                        } else {
+                            Integer::UInt8(value as u8)
+                        }
+                    } else {
+                        if value <= i16::MAX as u64 {
+                            Integer::Int16(value as i16)
+                        } else {
+                            Integer::UInt16(value as u16)
+                        }
+                    }
+                } else {
+                    if value <= u32::MAX as u64 {
+                        if value <= i32::MAX as u64 {
+                            Integer::Int32(value as i32)
+                        } else {
+                            Integer::UInt32(value as u32)
+                        }
+                    } else {
+                        if value <= i64::MAX as u64 {
+                            Integer::Int64(value as i64)
+                        } else {
+                            Integer::UInt64(value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /// Creates a new [Integer] with using the smallest possible integer type. If the value is non-negative, will choose an unsigned integer.
+    fn compact_unsigned(&self) -> Integer {
+        let value = US64::from(*self);
+
+        match value.as_unsigned_if_possible() {
+            US64::I64(value) => {
+                // Binary search for the smallest integer type that can hold the value.
+                if value >= i16::MIN as i64 && value <= i16::MAX as i64 {
+                    if value >= i8::MIN as i64 && value <= i8::MAX as i64 {
+                        Integer::Int8(value as i8)
+                    } else {
+                        Integer::Int16(value as i16)
+                    }
+                } else {
+                    if value >= i32::MIN as i64 && value <= i32::MAX as i64 {
+                        Integer::Int32(value as i32)
+                    } else {
+                        Integer::Int64(value)
+                    }
+                }
+            }
+
+            US64::U64(value) => {
+                // Binary search for the smallest integer type that can hold the value.
+                if value <= u16::MAX as u64 {
+                    if value <= u8::MAX as u64 {
+                        Integer::UInt8(value as u8)
+                    } else {
+                        Integer::UInt16(value as u16)
+                    }
+                } else {
+                    if value <= u32::MAX as u64 {
+                        Integer::UInt32(value as u32)
+                    } else {
+                        Integer::UInt64(value)
+                    }
                 }
             }
         }

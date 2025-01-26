@@ -1,6 +1,6 @@
 use crate::{common::traits::private::Sealed, v0::tokens::ExprToken};
 
-use super::{traits::ExprObj, ExprVariable};
+use super::{traits::ExprObj, *};
 
 #[non_exhaustive]
 pub enum Expr<S: Sized> {

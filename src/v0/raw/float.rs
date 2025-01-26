@@ -70,3 +70,33 @@ where
         }
     }
 }
+
+impl From<f64> for Float {
+    fn from(value: f64) -> Self {
+        Float::Float64(value)
+    }
+}
+
+impl From<f32> for Float {
+    fn from(value: f32) -> Self {
+        Float::Float32(value)
+    }
+}
+
+impl Into<f64> for Float {
+    fn into(self) -> f64 {
+        match self {
+            Float::Float32(value) => value as f64,
+            Float::Float64(value) => value,
+        }
+    }
+}
+
+impl Into<f32> for Float {
+    fn into(self) -> f32 {
+        match self {
+            Float::Float32(value) => value,
+            Float::Float64(value) => value as f32,
+        }
+    }
+}

@@ -1,35 +1,10 @@
 //! Configuration of the FEF parser.
 
-/// Configuration requirements for a FEF parser with defaults.
-///
-/// # Breaking Changes
-/// It is not expected, that downstream crates will implement this trait together with other traits that may cause name conflicts.
-/// It is thus not considered a breaking change to add new methods to this trait.
-/// If you must implement this trait together with other traits, use [disambiguation syntax].
-/// ```rust
-/// # use fef::v0::config::IntFormat;
-/// struct MyConfig;
-///
-/// impl fef::v0::config::Config for MyConfig {}
-///
-/// trait MyTrait {
-///     fn integer_format(&self) -> IntFormat;
-/// }
-///
-/// impl MyTrait for MyConfig {
-///     fn integer_format(&self) -> IntFormat {
-///        IntFormat::I32
-///     }
-/// }
-///
-/// // If you want to call your method, use disambiguation syntax
-///
-/// let config = MyConfig;
-///
-/// let int_format = <MyConfig as MyTrait>::integer_format(&config);
-/// assert_eq!(int_format, IntFormat::I32);
+use crate::common::traits::private::Sealed;
+
+/// Configuration requirements for a FEF parser.
 /// ```
-pub trait Config {
+pub trait Config: Sealed {
     /// See [IntFormat].
     fn integer_format(&self) -> IntFormat {
         IntFormat::default()
@@ -93,10 +68,13 @@ impl Default for FloatFormat {
     }
 }
 
+/// A configuration starting with values from the default configuration.
 pub struct OverridableConfig {
     integer_format: Option<IntFormat>,
     float_format: Option<FloatFormat>,
 }
+
+impl Sealed for OverridableConfig {}
 
 impl Config for OverridableConfig {
     fn integer_format(&self) -> IntFormat {
@@ -108,7 +86,32 @@ impl Config for OverridableConfig {
     }
 }
 
-impl OverridableConfig {}
+impl OverridableConfig {
+    fn override_integer_format(&mut self, format: IntFormat) {
+        self.integer_format = Some(format);
+    }
+
+    fn is_integer_format_overridden(&self) -> bool {
+        self.integer_format.is_some()
+    }
+
+    fn override_float_format(&mut self, format: FloatFormat) {
+        self.float_format = Some(format);
+    }
+
+    fn is_float_format_overridden(&self) -> bool {
+        self.float_format.is_some()
+    }
+
+    fn override_with(&mut self, other: OverridableConfig) {
+        if let Some(format) = other.integer_format {
+            self.override_integer_format(format);
+        }
+        if let Some(format) = other.float_format {
+            self.override_float_format(format);
+        }
+    }
+}
 
 impl Default for OverridableConfig {
     fn default() -> Self {
