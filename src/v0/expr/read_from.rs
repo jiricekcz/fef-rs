@@ -21,8 +21,11 @@ use crate::v0::{
         ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprTrueLiteral,
         ExprVariable,
     },
+    raw::{Float, Integer},
     traits::ReadFrom,
 };
+
+use super::{ExprFloatLiteral, ExprIntLiteral};
 
 mod read_expr {
     use std::io::Read;
@@ -177,3 +180,33 @@ impl_read_from_binary_operation_expr!(
     ExprRoot<S>,
     ExprIntRoot<S>
 );
+
+impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for ExprIntLiteral<S>
+where
+    ExprReadError: From<S::ReadError>,
+{
+    type ReadError = ExprReadError;
+
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut R,
+        configuration: &C,
+    ) -> Result<Self, ExprReadError> {
+        let value = Integer::read_from(reader, configuration)?;
+        Ok(Self::from(value))
+    }
+}
+
+impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for ExprFloatLiteral<S>
+where
+    ExprReadError: From<S::ReadError>,
+{
+    type ReadError = ExprReadError;
+
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut R,
+        configuration: &C,
+    ) -> Result<Self, ExprReadError> {
+        let value = Float::read_from(reader, configuration)?;
+        Ok(Self::from(value))
+    }
+}

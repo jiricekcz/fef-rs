@@ -1,6 +1,5 @@
 //! Interpretations of raw FEF values
-
-mod error;
+pub mod error;
 mod expr;
 
 pub use expr::ExprToken;

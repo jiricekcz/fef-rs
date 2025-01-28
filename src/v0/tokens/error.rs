@@ -17,3 +17,15 @@ pub enum ExprTokenError {
         identifier: fef::raw::VariableLengthEnum,
     },
 }
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum ExprTokenReadError {
+    #[error("failed to read identifier from input")]
+    IOError(#[from] std::io::Error),
+    #[error("failed to identify token from given identifier")]
+    ExprTokenError {
+        #[from]
+        source: ExprTokenError,
+    },
+}

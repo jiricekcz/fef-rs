@@ -16,6 +16,9 @@ pub struct NonMatchingExprError {
 #[non_exhaustive]
 pub enum ExprReadError {
     IOError(#[from] std::io::Error),
+    ExprTokenReadError(#[from] crate::v0::tokens::error::ExprTokenReadError),
+    IntegersReadError(#[from] crate::v0::raw::error::IntegerReadError),
+    FloatsReadError(#[from] crate::v0::raw::error::FloatReadError),
 }
 
 impl From<Infallible> for ExprReadError {

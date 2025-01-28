@@ -1,4 +1,9 @@
-use crate::v0 as fef;
+use std::io::Read;
+
+use crate::{
+    common::traits::private::Sealed,
+    v0::{self as fef, traits::ReadFrom},
+};
 /// Interpretation of a [VariableLengthEnum](crate::v0::raw::VariableLengthEnum) as an expression identifier.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 #[non_exhaustive]
@@ -124,5 +129,20 @@ impl TryFrom<fef::raw::VariableLengthEnum> for ExprToken {
         };
 
         identifier.try_into()
+    }
+}
+
+impl Sealed for ExprToken {}
+
+impl<R: ?Sized + Read> ReadFrom<R> for ExprToken {
+    type ReadError = fef::tokens::error::ExprTokenReadError;
+
+    fn read_from<C: ?Sized + fef::config::Config>(
+        reader: &mut R,
+        _configuration: &C,
+    ) -> Result<Self, Self::ReadError> {
+        let identifier = fef::raw::VariableLengthEnum::read_from(reader, _configuration)?;
+        let token = identifier.try_into()?;
+        Ok(token)
     }
 }
