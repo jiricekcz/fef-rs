@@ -192,3 +192,17 @@ impl Into<Expr<ExprTree>> for ExprTree {
         *self.inner
     }
 }
+
+impl Sealed for ExprTree {}
+
+impl<R: ?Sized + Read> ReadFrom<R> for ExprTree {
+    type ReadError = ExprReadError;
+
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut R,
+        configuration: &C,
+    ) -> Result<Self, ExprReadError> {
+        let expr: Expr<ExprTree> = Expr::read_from(reader, configuration)?;
+        Ok(expr.into())
+    }
+}
