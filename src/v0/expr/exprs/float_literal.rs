@@ -1,6 +1,6 @@
 use crate::common::traits::private::Sealed;
 use crate::v0::expr::error::NonMatchingExprError;
-use crate::v0::expr::traits::{ExprObj, FloatExprObj};
+use crate::v0::expr::traits::{ExprObj, FloatExpr};
 use crate::v0::expr::Expr;
 use crate::v0::raw::Float;
 use crate::v0::tokens::ExprToken;
@@ -67,7 +67,7 @@ impl<S: Sized> ExprObj<S> for ExprFloatLiteral<S> {
     }
 }
 
-impl<S: Sized> FloatExprObj<S> for ExprFloatLiteral<S> {
+impl<S: Sized> FloatExpr<S> for ExprFloatLiteral<S> {
     fn into_float(self) -> Float {
         self.value
     }

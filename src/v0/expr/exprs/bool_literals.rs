@@ -3,7 +3,7 @@ use crate::{
     v0::{
         expr::{
             error::NonMatchingExprError,
-            traits::{ExprObj, PureExprObj},
+            traits::{ExprObj, PureExpr},
             Expr,
         },
         tokens::ExprToken,
@@ -97,5 +97,5 @@ impl<S: Sized> From<()> for ExprFalseLiteral<S> {
     }
 }
 
-impl<S: Sized> PureExprObj<S> for ExprTrueLiteral<S> {}
-impl<S: Sized> PureExprObj<S> for ExprFalseLiteral<S> {}
+impl<S: Sized> PureExpr<S> for ExprTrueLiteral<S> {}
+impl<S: Sized> PureExpr<S> for ExprFalseLiteral<S> {}

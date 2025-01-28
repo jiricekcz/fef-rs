@@ -1,7 +1,11 @@
 use crate::{
     common::traits::private::Sealed,
     v0::{
-        expr::{error::NonMatchingExprError, traits::ExprObj, Expr},
+        expr::{
+            error::NonMatchingExprError,
+            traits::{ExprObj, IntExpr},
+            Expr,
+        },
         raw::Integer,
         tokens::ExprToken,
     },
@@ -56,3 +60,5 @@ impl<S: Sized> Into<Integer> for ExprIntLiteral<S> {
         self.value
     }
 }
+
+impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {}

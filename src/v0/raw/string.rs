@@ -35,7 +35,10 @@ where
     /// # Ok(())
     /// # }
     ///```
-    fn read_from<C: Config>(reader: &mut R, configuration: &C) -> Result<Self, Self::ReadError> {
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut R,
+        configuration: &C,
+    ) -> Result<Self, Self::ReadError> {
         let length: usize = raw::VariableLengthEnum::read_from(&mut *reader, &*configuration)?
             .try_into()
             .map_err(|_| StringReadError::LengthTooLarge)?;

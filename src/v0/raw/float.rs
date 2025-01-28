@@ -50,7 +50,7 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    fn read_from<C: config::Config>(
+    fn read_from<C: ?Sized + config::Config>(
         bytes: &mut R,
         configuration: &C,
     ) -> Result<Self, Self::ReadError> {

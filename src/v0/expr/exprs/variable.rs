@@ -3,7 +3,7 @@ use crate::{
     v0::{
         expr::{
             error::NonMatchingExprError,
-            traits::{EnumExprObj, ExprObj},
+            traits::{EnumExpr, ExprObj},
             Expr,
         },
         raw::VariableLengthEnum,
@@ -61,4 +61,4 @@ impl<S: Sized> Into<VariableLengthEnum> for ExprVariable<S> {
     }
 }
 
-impl<S: Sized> EnumExprObj<S> for ExprVariable<S> {}
+impl<S: Sized> EnumExpr<S> for ExprVariable<S> {}

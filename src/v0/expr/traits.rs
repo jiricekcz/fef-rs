@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use crate::{
     common::traits::private::Sealed,
     v0::{
@@ -30,8 +32,8 @@ pub trait ExprObj<S: Sized>: Sealed + Sized + Into<Expr<S>> + TryFrom<Expr<S>> {
 /// This trait is sealed and cannot be implemented outside of this crate.
 /// Not all values of a given variable length enum must be valid for the expression,
 /// but all expressions must be representable by a single value of the variable length enum.
-pub trait EnumExprObj<S: Sized>:
-    Sealed + ExprObj<S> + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
+pub trait EnumExpr<S: Sized>:
+    Sealed + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
 {
     /// Converts this object into a [VariableLengthEnum].
     fn into_variable_length_enum(self) -> VariableLengthEnum {
@@ -46,7 +48,7 @@ pub trait EnumExprObj<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait IntExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Integer> + TryFrom<Integer> {
+pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
     /// Converts this object into an [Integer].
     fn into_integer(self) -> Integer {
         self.into()
@@ -60,7 +62,7 @@ pub trait IntExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Integer> + TryFrom<In
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait FloatExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Float> + TryFrom<Float> {
+pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
     fn into_float(self) -> Float {
         self.into()
     }
@@ -73,7 +75,7 @@ pub trait FloatExprObj<S: Sized>: Sealed + ExprObj<S> + Into<Float> + TryFrom<Fl
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait PureExprObj<S: Sized>: Sealed + ExprObj<S> + From<()> {}
+pub trait PureExpr<S: Sized>: Sealed + From<()> {}
 
 /// A trait for all binary operation expression objects.
 ///
@@ -81,9 +83,7 @@ pub trait PureExprObj<S: Sized>: Sealed + ExprObj<S> + From<()> {}
 /// It is used for all common behavior between expression objects that represent
 /// an operation between two expressions.
 /// Note, that all expressions can be connected using binary operations.
-pub trait BinaryOperationExprObj<S: Sized>:
-    Sealed + ExprObj<S> + Into<(S, S)> + From<(S, S)>
-{
+pub trait BinaryOperationExpr<S: Sized>: Sealed + Into<(S, S)> + From<(S, S)> {
     fn lhs(&self) -> &S;
     fn rhs(&self) -> &S;
 
@@ -102,7 +102,7 @@ pub trait BinaryOperationExprObj<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait UnaryOperationExprObj<S: Sized>: Sealed + ExprObj<S> + From<S> {
+pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
     fn inner(&self) -> &S;
     fn inner_mut(&mut self) -> &mut S;
 

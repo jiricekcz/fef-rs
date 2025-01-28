@@ -206,7 +206,7 @@ where
 {
     type ReadError = std::io::Error;
 
-    fn read_from<C: Config>(reader: &mut R, _: &C) -> Result<Self, Self::ReadError> {
+    fn read_from<C: ?Sized + Config>(reader: &mut R, _: &C) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
         let mut accumulator: Option<u64> = Some(0);
 

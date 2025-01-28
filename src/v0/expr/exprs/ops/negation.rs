@@ -3,7 +3,7 @@ use crate::{
     v0::{
         expr::{
             error::NonMatchingExprError,
-            traits::{ExprObj, UnaryOperationExprObj},
+            traits::{ExprObj, UnaryOperationExpr},
             Expr,
         },
         tokens::ExprToken,
@@ -49,7 +49,7 @@ impl<S: Sized> ExprObj<S> for ExprNegation<S> {
     }
 }
 
-impl<S: Sized> UnaryOperationExprObj<S> for ExprNegation<S> {
+impl<S: Sized> UnaryOperationExpr<S> for ExprNegation<S> {
     fn inner(&self) -> &S {
         &self.operand
     }

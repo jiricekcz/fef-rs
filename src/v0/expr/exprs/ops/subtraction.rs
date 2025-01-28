@@ -3,7 +3,7 @@ use crate::{
     v0::{
         expr::{
             error::NonMatchingExprError,
-            traits::{BinaryOperationExprObj, ExprObj},
+            traits::{BinaryOperationExpr, ExprObj},
             Expr,
         },
         tokens::ExprToken,
@@ -56,7 +56,7 @@ impl<S: Sized> ExprObj<S> for ExprSubtraction<S> {
     }
 }
 
-impl<S: Sized> BinaryOperationExprObj<S> for ExprSubtraction<S> {
+impl<S: Sized> BinaryOperationExpr<S> for ExprSubtraction<S> {
     fn lhs(&self) -> &S {
         &self.lhs
     }

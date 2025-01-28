@@ -11,5 +11,8 @@ where
     type ReadError: std::error::Error;
 
     /// Reads a value from the given reader.
-    fn read_from<C: Config>(reader: &mut T, configuration: &C) -> Result<Self, Self::ReadError>;
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut T,
+        configuration: &C,
+    ) -> Result<Self, Self::ReadError>;
 }
