@@ -4,12 +4,20 @@ use crate::{
     common::traits::private::Sealed,
     v0::{
         config::Config,
+        expr::{
+            error::{ComposeError, DefaultComposeError, ExprReadWithComposerError},
+            Expr, ExprTrueLiteral,
+        },
         raw::{Float, Integer, VariableLengthEnum},
         tokens::ExprToken,
     },
 };
 
-use super::{error::ExprReadWithComposerError, Expr};
+use super::{
+    ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
+    ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
+    ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
+};
 
 /// A trait for all expression objects.
 ///
@@ -110,18 +118,57 @@ pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
     fn into_inner(self) -> S;
 }
 
-pub(crate) trait TryReadFromAndComposeWithContext<S: Sized, CTX: ?Sized>:
-    Sealed + ComposeIntoWithContext<S, CTX>
-{
-    fn try_read_from_and_compose_with_context<R: ?Sized + Read, C: ?Sized + Config>(
-        byte_stream: &mut R,
-        configuration: &C,
-        context: &CTX,
-    ) -> Result<S, ExprReadWithComposerError<<Self as ComposeIntoWithContext<S, CTX>>::Error>>;
+macro_rules! compose_expr {
+    ($name:ident, $type:ty) => {
+        fn $name(&mut self, expr: $type) -> Result<S, ComposeError<Self::Error>> {
+            self.compose_default(expr)
+        }
+    };
 }
 
-pub trait ComposeIntoWithContext<S: Sized, CTX: ?Sized> {
+pub trait Composer<S: Sized> {
     type Error: std::error::Error;
 
-    fn compose_into(self, context: &CTX) -> Result<S, Self::Error>;
+    #[inline]
+    #[allow(unused_variables)]
+    fn compose_default<E: ExprObj<S>>(&mut self, expr: E) -> Result<S, ComposeError<Self::Error>> {
+        Err(ComposeError::DefaultError(
+            DefaultComposeError::ComposeNotImplemented,
+        ))
+    }
+
+    compose_expr!(compose_variable, ExprVariable<S>);
+    compose_expr!(compose_true_literal, ExprTrueLiteral<S>);
+    compose_expr!(compose_false_literal, ExprFalseLiteral<S>);
+    compose_expr!(compose_float_literal, ExprFloatLiteral<S>);
+    compose_expr!(compose_int_literal, ExprIntLiteral<S>);
+    compose_expr!(compose_addition, ExprAddition<S>);
+    compose_expr!(compose_subtraction, ExprSubtraction<S>);
+    compose_expr!(compose_multiplication, ExprMultiplication<S>);
+    compose_expr!(compose_division, ExprDivision<S>);
+    compose_expr!(compose_int_division, ExprIntDivision<S>);
+    compose_expr!(compose_modulo, ExprModulo<S>);
+    compose_expr!(compose_power, ExprPower<S>);
+    compose_expr!(compose_negation, ExprNegation<S>);
+    compose_expr!(compose_root, ExprRoot<S>);
+    compose_expr!(compose_int_root, ExprIntRoot<S>);
+    compose_expr!(compose_square, ExprSquare<S>);
+    compose_expr!(compose_cube, ExprCube<S>);
+    compose_expr!(compose_square_root, ExprSquareRoot<S>);
+    compose_expr!(compose_cube_root, ExprCubeRoot<S>);
+    compose_expr!(compose_reciprocal, ExprReciprocal<S>);
+}
+
+pub trait TryReadFromWithComposer<
+    R: ?Sized + Read,
+    S: Sized,
+    C: ?Sized + Config,
+    CP: ?Sized + Composer<S>,
+>
+{
+    fn try_read_with_composer(
+        byte_stream: &mut R,
+        config: &C,
+        composer: &mut CP,
+    ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
 }

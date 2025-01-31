@@ -1,11 +1,4 @@
-use std::io::Read;
-
-use error::ExprReadError;
-
-use crate::{
-    common::traits::private::Sealed,
-    v0::{config::Config, tokens::ExprToken, traits::ReadFrom},
-};
+use crate::{common::traits::private::Sealed, v0::tokens::ExprToken};
 
 use super::{traits::ExprObj, *};
 

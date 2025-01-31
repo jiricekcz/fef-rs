@@ -2,7 +2,10 @@ use std::convert::Infallible;
 
 use thiserror::Error;
 
-use crate::v0::tokens::ExprToken;
+use crate::v0::{
+    raw::error::{FloatReadError, IntegerReadError, VariableLengthEnumError},
+    tokens::{error::ExprTokenReadError, ExprToken},
+};
 
 #[derive(Debug, Error)]
 #[error("Expected {expected}, but found {found}.")]
@@ -16,9 +19,9 @@ pub struct NonMatchingExprError {
 #[non_exhaustive]
 pub enum ExprReadError {
     IOError(#[from] std::io::Error),
-    ExprTokenReadError(#[from] crate::v0::tokens::error::ExprTokenReadError),
-    IntegersReadError(#[from] crate::v0::raw::error::IntegerReadError),
-    FloatsReadError(#[from] crate::v0::raw::error::FloatReadError),
+    ExprTokenReadError(#[from] ExprTokenReadError),
+    IntegersReadError(#[from] IntegerReadError),
+    FloatsReadError(#[from] FloatReadError),
 }
 
 impl From<Infallible> for ExprReadError {
@@ -33,12 +36,30 @@ pub enum ExprReadWithComposerError<E>
 where
     E: std::error::Error,
 {
-    FEFError(#[from] ExprReadError),
-    ComposerError(E),
+    ReadError(#[from] ExprReadError),
+    ComposeError(#[from] ComposeError<E>),
+}
+
+#[derive(Debug, Error)]
+#[error("Failed to compose expression.")]
+#[non_exhaustive]
+pub enum DefaultComposeError {
+    #[error("Compose for this expression is missing implementation.")]
+    ComposeNotImplemented,
+}
+
+#[derive(Debug, Error)]
+#[error("Failed to compose expression.")]
+pub enum ComposeError<E>
+where
+    E: std::error::Error,
+{
+    DefaultError(#[from] DefaultComposeError),
+    CustomError(E),
 }
 
 impl<E: std::error::Error> ExprReadWithComposerError<E> {
-    pub(crate) fn from_composer_error(composer_error: E) -> Self {
-        Self::ComposerError(composer_error)
+    pub(crate) fn from_custom_error(custom_error: E) -> Self {
+        Self::ComposeError(ComposeError::CustomError(custom_error))
     }
 }
