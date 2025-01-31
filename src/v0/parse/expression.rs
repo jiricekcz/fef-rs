@@ -3,7 +3,7 @@ use std::io::Read;
 use crate::v0::{
     config::Config,
     expr::{
-        error::ExprReadWithComposerError,
+        error::{ComposeError, ExprReadWithComposerError},
         traits::{Composer, ExprObj, TryReadFromWithComposer},
         Expr, ExprTree,
     },
@@ -29,7 +29,7 @@ pub fn parse_expression<
 pub fn parse_expression_into_tree<R: ?Sized + Read, C: ?Sized + Config>(
     byte_stream: &mut R,
     config: &C,
-) -> Result<ExprTree, crate::v0::expr::error::ExprReadWithComposerError<std::convert::Infallible>> {
+) -> Result<ExprTree, ExprReadWithComposerError<std::convert::Infallible>> {
     let mut composer = ExprTreeComposer {};
     parse_expression(byte_stream, config, &mut composer)
 }
@@ -40,7 +40,7 @@ impl Composer<ExprTree> for ExprTreeComposer {
     fn compose_default<E: ExprObj<ExprTree>>(
         &mut self,
         expr: E,
-    ) -> Result<ExprTree, crate::v0::expr::error::ComposeError<Self::Error>> {
+    ) -> Result<ExprTree, ComposeError<Self::Error>> {
         Ok(ExprTree::from(expr.into()))
     }
 }
