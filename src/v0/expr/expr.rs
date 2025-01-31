@@ -107,56 +107,6 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
     }
 }
 
-impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for Expr<S>
-where
-    ExprReadError: From<S::ReadError>,
-{
-    type ReadError = ExprReadError;
-
-    fn read_from<C: ?Sized + Config>(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<Self, ExprReadError> {
-        let expr_token = ExprToken::read_from(reader, configuration)?;
-        let expr: Expr<S> = match expr_token {
-            ExprToken::Addition => ExprAddition::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Subtraction => {
-                ExprSubtraction::<S>::read_from(reader, configuration)?.into()
-            }
-            ExprToken::Multiplication => {
-                ExprMultiplication::<S>::read_from(reader, configuration)?.into()
-            }
-            ExprToken::Division => ExprDivision::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::IntDivision => {
-                ExprIntDivision::<S>::read_from(reader, configuration)?.into()
-            }
-            ExprToken::Modulo => ExprModulo::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Power => ExprPower::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Negation => ExprNegation::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Root => ExprRoot::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::IntRoot => ExprIntRoot::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Square => ExprSquare::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Cube => ExprCube::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::SquareRoot => ExprSquareRoot::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::CubeRoot => ExprCubeRoot::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Reciprocal => ExprReciprocal::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::Variable => ExprVariable::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::IntLiteral => ExprIntLiteral::<S>::read_from(reader, configuration)?.into(),
-            ExprToken::FloatLiteral => {
-                ExprFloatLiteral::<S>::read_from(reader, configuration)?.into()
-            }
-            ExprToken::TrueLiteral => {
-                ExprTrueLiteral::<S>::read_from(reader, configuration)?.into()
-            }
-            ExprToken::FalseLiteral => {
-                ExprFalseLiteral::<S>::read_from(reader, configuration)?.into()
-            }
-        };
-
-        Ok(expr)
-    }
-}
-
 /// A helper new-type-like struct to allow expression trees to be treated as expressions.
 ///
 /// This struct is equivalent to the infinitely recursive type `Expr<Expr<Expr<Expr<...>>>>`, which is due to current limitations
@@ -190,19 +140,5 @@ impl From<Expr<ExprTree>> for ExprTree {
 impl Into<Expr<ExprTree>> for ExprTree {
     fn into(self) -> Expr<ExprTree> {
         *self.inner
-    }
-}
-
-impl Sealed for ExprTree {}
-
-impl<R: ?Sized + Read> ReadFrom<R> for ExprTree {
-    type ReadError = ExprReadError;
-
-    fn read_from<C: ?Sized + Config>(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<Self, ExprReadError> {
-        let expr: Expr<ExprTree> = Expr::read_from(reader, configuration)?;
-        Ok(expr.into())
     }
 }

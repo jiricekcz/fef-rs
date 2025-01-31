@@ -1,12 +1,15 @@
+use std::io::Read;
+
 use crate::{
     common::traits::private::Sealed,
     v0::{
+        config::Config,
         raw::{Float, Integer, VariableLengthEnum},
         tokens::ExprToken,
     },
 };
 
-use super::Expr;
+use super::{error::ExprReadWithComposerError, Expr};
 
 /// A trait for all expression objects.
 ///
@@ -105,4 +108,20 @@ pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
     fn inner_mut(&mut self) -> &mut S;
 
     fn into_inner(self) -> S;
+}
+
+pub(crate) trait TryReadFromAndComposeWithContext<S: Sized, CTX: ?Sized>:
+    Sealed + ComposeIntoWithContext<S, CTX>
+{
+    fn try_read_from_and_compose_with_context<R: ?Sized + Read, C: ?Sized + Config>(
+        byte_stream: &mut R,
+        configuration: &C,
+        context: &CTX,
+    ) -> Result<S, ExprReadWithComposerError<<Self as ComposeIntoWithContext<S, CTX>>::Error>>;
+}
+
+pub trait ComposeIntoWithContext<S: Sized, CTX: ?Sized> {
+    type Error: std::error::Error;
+
+    fn compose_into(self, context: &CTX) -> Result<S, Self::Error>;
 }

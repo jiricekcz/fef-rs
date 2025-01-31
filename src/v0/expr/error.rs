@@ -26,3 +26,19 @@ impl From<Infallible> for ExprReadError {
         unreachable!()
     }
 }
+
+#[derive(Debug, Error)]
+#[error("Failed to read expression.")]
+pub enum ExprReadWithComposerError<E>
+where
+    E: std::error::Error,
+{
+    FEFError(#[from] ExprReadError),
+    ComposerError(E),
+}
+
+impl<E: std::error::Error> ExprReadWithComposerError<E> {
+    pub(crate) fn from_composer_error(composer_error: E) -> Self {
+        Self::ComposerError(composer_error)
+    }
+}

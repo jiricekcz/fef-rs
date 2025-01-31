@@ -1,155 +1,42 @@
-// It is very probable, that this can be written better, however between questionably working
-// orphan rule and possible conflicting implementations from downstream crates, this is the
-// only way I got this to work.
-//
-// I'm however very sure this doesn't leak any implementation details to the API.
-//
-// The whole point of this file is for all expression objects to implement the `ReadFrom<R: ?Sized + Read>`
-// trait. Currently this is achieved Multiple macros (reducing them to one is a future task) and several
-// helper functions.
-//
-// Note, that the read_from method of an expr object should read from the byte stream with the assumption,
-// that the expression identifier has already been read and identified.
-
+//! Implementations of the [TryReadFromAndComposeWithContext] for all expressions.
+//!
+//! This module contains implementations of the [TryReadFromAndComposeWithContext] trait for all expressions.
+//! When this trait is called on an expression object, it should assume, that the corresponding expression
+//! token has already been read from the input stream and the reader is positioned at the beginning of the
+//! expression body.
+//!
+//! This module should never leak any implementation details. It will probably be very macro heavy and
+//! subject to a lot of refactoring.
 use std::io::Read;
 
 use crate::v0::{
     config::Config,
     expr::{
-        error::ExprReadError, ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral,
-        ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation, ExprPower,
-        ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprTrueLiteral,
-        ExprVariable,
+        error::ExprReadWithComposerError,
+        traits::{ComposeIntoWithContext, TryReadFromAndComposeWithContext},
     },
-    raw::{Float, Integer},
-    traits::ReadFrom,
 };
 
-use super::{ExprFloatLiteral, ExprIntLiteral};
-
-mod read_expr {
-    use std::io::Read;
-
-    use crate::v0::{
-        config::Config,
-        expr::{
-            error::ExprReadError,
-            traits::{BinaryOperationExpr, EnumExpr, PureExpr, UnaryOperationExpr},
-        },
-        raw::VariableLengthEnum,
-        traits::ReadFrom,
-    };
-
-    pub fn read_pure_expr<R: ?Sized + Read, S: ReadFrom<R>, O: PureExpr<S>, C: ?Sized + Config>(
-        _reader: &mut R,
-        _configuration: &C,
-    ) -> Result<O, ExprReadError> {
-        Ok(O::from(()))
-    }
-
-    pub fn read_enum_expr<R: ?Sized + Read, S: ReadFrom<R>, O: EnumExpr<S>, C: ?Sized + Config>(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<O, ExprReadError>
-    where
-        ExprReadError: From<<O as TryFrom<VariableLengthEnum>>::Error>,
-    {
-        let variable_length_enum = VariableLengthEnum::read_from(reader, configuration)?;
-        Ok(O::try_from(variable_length_enum)?)
-    }
-
-    pub fn read_unary_operation_expr<
-        R: ?Sized + Read,
-        S: ReadFrom<R>,
-        O: UnaryOperationExpr<S>,
-        C: ?Sized + Config,
-    >(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<O, ExprReadError>
-    where
-        ExprReadError: From<S::ReadError>,
-    {
-        let inner_expr: S = S::read_from(reader, configuration)?;
-        Ok(O::from(inner_expr))
-    }
-
-    pub fn read_binary_operation_expr<
-        R: ?Sized + Read,
-        S: ReadFrom<R>,
-        O: BinaryOperationExpr<S>,
-        C: ?Sized + Config,
-    >(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<O, ExprReadError>
-    where
-        ExprReadError: From<S::ReadError>,
-    {
-        let left_expr: S = S::read_from(reader, configuration)?;
-        let right_expr: S = S::read_from(reader, configuration)?;
-        Ok(O::from((left_expr, right_expr)))
-    }
-}
+use super::{ExprFalseLiteral, ExprTrueLiteral};
 
 macro_rules! impl_read_from_pure_expr {
     ($($t:ty), +) => {
         $(
-            impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for $t
-            where ExprReadError: From<S::ReadError>
-             {
-                type ReadError = ExprReadError;
-
-                fn read_from<C: ?Sized + Config>(reader: &mut R, configuration: &C) -> Result<Self, ExprReadError> {
-                    read_expr::read_pure_expr::<R, S, Self, C>(reader, configuration)
-                }
-            }
-        )+
-    };
-}
-
-macro_rules! impl_read_from_enum_expr {
-    ($($t:ty), +) => {
-        $(
-            impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for $t
-            where ExprReadError: From<S::ReadError>
+            impl<S: Sized, CTX: ?Sized> TryReadFromAndComposeWithContext<S, CTX> for $t
+            where
+                $t: ComposeIntoWithContext<S, CTX>,
             {
-                type ReadError = ExprReadError;
-
-                fn read_from<C: ?Sized + Config>(reader: &mut R, configuration: &C) -> Result<Self, ExprReadError> {
-                    read_expr::read_enum_expr::<R, S, Self, C>(reader, configuration)
-                }
-            }
-        )+
-    };
-}
-
-macro_rules! impl_read_from_unary_operation_expr {
-    ($($t:ty), +) => {
-        $(
-            impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for $t
-            where ExprReadError: From<S::ReadError>
-            {
-                type ReadError = ExprReadError;
-
-                fn read_from<C: ?Sized + Config>(reader: &mut R, configuration: &C) -> Result<Self, ExprReadError> {
-                    read_expr::read_unary_operation_expr::<R, S, Self, C>(reader, configuration)
-                }
-            }
-        )+
-    };
-}
-
-macro_rules! impl_read_from_binary_operation_expr {
-    ($($t:ty), +) => {
-        $(
-            impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for $t
-            where ExprReadError: From<S::ReadError>
-            {
-                type ReadError = ExprReadError;
-
-                fn read_from<C: ?Sized + Config>(reader: &mut R, configuration: &C) -> Result<Self, ExprReadError> {
-                    read_expr::read_binary_operation_expr::<R, S, Self, C>(reader, configuration)
+                fn try_read_from_and_compose_with_context<R: ?Sized + Read, C: ?Sized + Config>(
+                    _byte_stream: &mut R,
+                    _configuration: &C,
+                    context: &CTX,
+                ) -> Result<S, ExprReadWithComposerError<<Self as ComposeIntoWithContext<S, CTX>>::Error>> {
+                    let expr = <$t>::from(());
+                    let composed = expr.compose_into(context);
+                    match composed {
+                        Ok(composed) => Ok(composed),
+                        Err(error) => Err(ExprReadWithComposerError::from_composer_error(error)),
+                    }
                 }
             }
         )+
@@ -157,56 +44,3 @@ macro_rules! impl_read_from_binary_operation_expr {
 }
 
 impl_read_from_pure_expr!(ExprTrueLiteral<S>, ExprFalseLiteral<S>);
-
-impl_read_from_enum_expr!(ExprVariable<S>);
-
-impl_read_from_unary_operation_expr!(
-    ExprNegation<S>,
-    ExprReciprocal<S>,
-    ExprSquare<S>,
-    ExprCube<S>,
-    ExprSquareRoot<S>,
-    ExprCubeRoot<S>
-);
-
-impl_read_from_binary_operation_expr!(
-    ExprAddition<S>,
-    ExprSubtraction<S>,
-    ExprMultiplication<S>,
-    ExprDivision<S>,
-    ExprModulo<S>,
-    ExprPower<S>,
-    ExprIntDivision<S>,
-    ExprRoot<S>,
-    ExprIntRoot<S>
-);
-
-impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for ExprIntLiteral<S>
-where
-    ExprReadError: From<S::ReadError>,
-{
-    type ReadError = ExprReadError;
-
-    fn read_from<C: ?Sized + Config>(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<Self, ExprReadError> {
-        let value = Integer::read_from(reader, configuration)?;
-        Ok(Self::from(value))
-    }
-}
-
-impl<R: ?Sized + Read, S: Sized + ReadFrom<R>> ReadFrom<R> for ExprFloatLiteral<S>
-where
-    ExprReadError: From<S::ReadError>,
-{
-    type ReadError = ExprReadError;
-
-    fn read_from<C: ?Sized + Config>(
-        reader: &mut R,
-        configuration: &C,
-    ) -> Result<Self, ExprReadError> {
-        let value = Float::read_from(reader, configuration)?;
-        Ok(Self::from(value))
-    }
-}
