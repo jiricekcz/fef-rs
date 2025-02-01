@@ -62,6 +62,31 @@ pub enum VariableLengthEnumError {
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
+pub enum FloatWriteError {
+    #[error("encountered error while writing byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum IntegerWriteError {
+    #[error("encountered error while writing byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+    #[error("configuration provided doesn't allow for writing of this integer. When using the best option {source}")]
+    IncompatibleConfiguration {
+        #[from]
+        source: IntegerConversionError,
+    },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum IntegerConversionError {
     #[error("value {value} is out of range [{}..={}]", range.start(), range.end())]
     OutOfRange {

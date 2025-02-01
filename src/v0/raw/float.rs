@@ -1,10 +1,10 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 use crate::common::traits::private::Sealed;
 use crate::v0::config;
-use crate::v0::traits::ReadFrom;
+use crate::v0::traits::{ReadFrom, WriteTo};
 
-use super::error::FloatReadError;
+use super::error::{FloatReadError, FloatWriteError};
 
 /// Any float type defined in the FEF specification.
 #[non_exhaustive]
@@ -68,6 +68,38 @@ where
                 Ok(Float::Float64(float))
             }
         }
+    }
+}
+
+impl<W> WriteTo<W> for Float
+where
+    W: Write + ?Sized,
+{
+    type WriteError = FloatWriteError;
+
+    /// Writes a float to the given byte stream according to the given configuration.
+    fn write_to<C: ?Sized + config::Config>(
+        &self,
+        writer: &mut W,
+        configuration: &C,
+    ) -> Result<(), Self::WriteError> {
+        match configuration.float_format() {
+            config::FloatFormat::F32 => {
+                let value = match self {
+                    Float::Float32(value) => *value,
+                    Float::Float64(value) => *value as f32,
+                };
+                writer.write_all(&value.to_be_bytes())?;
+            }
+            config::FloatFormat::F64 => {
+                let value = match self {
+                    Float::Float32(value) => *value as f64,
+                    Float::Float64(value) => *value,
+                };
+                writer.write_all(&value.to_be_bytes())?;
+            }
+        };
+        Ok(())
     }
 }
 
