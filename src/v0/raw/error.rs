@@ -2,6 +2,8 @@
 
 use thiserror::Error;
 
+use super::Integer;
+
 /// Errors that can occur while reading an integer from a byte stream.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -47,4 +49,23 @@ pub enum StringReadError {
     /// The length of the string is larger than `usize::MAX`.
     #[error("string length is too large")]
     LengthTooLarge,
+}
+
+/// Errors that occur while using variable length enums.
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum VariableLengthEnumError {
+    /// A fallible conversion to a numeric type failed, because the value was too large to fit this type.
+    #[error("value is too large to fit in the target type")]
+    TooBig,
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum IntegerConversionError {
+    #[error("value {value} is out of range [{}..={}]", range.start(), range.end())]
+    OutOfRange {
+        value: Integer,
+        range: std::ops::RangeInclusive<Integer>,
+    },
 }

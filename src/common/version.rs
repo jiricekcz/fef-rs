@@ -1,29 +1,15 @@
 //! Module for runtime handling of version information.
 
-/// Currently implemented version of the FEF specification.
-pub const IMPLEMENTED_SPECIFICATION_VERSION: SpecVersion = SpecVersion::new(0, 0, 0);
-
 /// Description of a version of the FEF specification.
 ///
 /// Holds information about the major, minor, and micro version of the FEF specification.
 ///
 /// # Examples
 ///
-/// Retrieve the major version number currently implemented:
-/// ```rust
-/// let major = fef::version::IMPLEMENTED_SPECIFICATION_VERSION.major();
-/// assert_eq!(major, 0);
-/// ```
-///
-/// Get this version at compile time:
-/// ```rust
-/// const MAJOR: u32 = fef::version::IMPLEMENTED_SPECIFICATION_VERSION.major();
-/// ```
-///
 /// Getting a version string:
 /// ```rust
-/// let version = fef::version::IMPLEMENTED_SPECIFICATION_VERSION;
-/// assert_eq!(format!("{}", version), "v0.0.0");
+/// let version = fef::common::version::SpecVersion::new(1, 2, 3);
+/// assert_eq!(format!("{}", version), "v1.2.3");
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SpecVersion {
@@ -37,7 +23,7 @@ impl SpecVersion {
     ///
     /// # Examples
     /// ```rust
-    /// # use fef::version::SpecVersion;
+    /// # use fef::common::version::SpecVersion;
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.major(), 1);
     /// assert_eq!(version.minor(), 2);
@@ -55,7 +41,7 @@ impl SpecVersion {
     ///
     /// # Examples
     /// ```rust
-    /// # use fef::version::SpecVersion;
+    /// # use fef::common::version::SpecVersion;
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.major(), 1);
     /// ```
@@ -67,7 +53,7 @@ impl SpecVersion {
     ///
     /// # Examples
     /// ```rust
-    /// # use fef::version::SpecVersion;
+    /// # use fef::common::version::SpecVersion;
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.minor(), 2);
     /// ```
@@ -79,7 +65,7 @@ impl SpecVersion {
     ///
     /// # Examples
     /// ```rust
-    /// # use fef::version::SpecVersion;
+    /// # use fef::common::version::SpecVersion;
     /// let version = SpecVersion::new(1, 2, 3);
     /// assert_eq!(version.micro(), 3);
     /// ```
@@ -92,7 +78,7 @@ impl SpecVersion {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::version::SpecVersion;
+/// # use fef::common::version::SpecVersion;
 /// let version = SpecVersion::new(1, 2, 3);
 /// assert_eq!(format!("{}", version), "v1.2.3");
 /// ```
@@ -106,7 +92,7 @@ impl std::fmt::Display for SpecVersion {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::version::SpecVersion;
+/// # use fef::common::version::SpecVersion;
 /// let version = SpecVersion::new(1, 2, 3);
 /// assert_eq!(format!("{:?}", version), "SpecVersion(1.2.3)");
 /// ```
@@ -124,7 +110,7 @@ impl std::fmt::Debug for SpecVersion {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::version::SpecVersion;
+/// # use fef::common::version::SpecVersion;
 /// let version = SpecVersion::default();
 /// assert_eq!(version, SpecVersion::new(0, 0, 0));
 /// ```
@@ -138,7 +124,7 @@ impl Default for SpecVersion {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::version::SpecVersion;
+/// # use fef::common::version::SpecVersion;
 /// let version1 = SpecVersion::new(1, 2, 3);
 /// let version2 = SpecVersion::new(1, 2, 4);
 /// let version3 = SpecVersion::new(1, 3, 0);

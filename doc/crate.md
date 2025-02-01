@@ -2,9 +2,7 @@ This crate provides a parser implementation for the [FEF format](https://github.
 
 # Versioning
 
-This crate follows [Semantic Versioning 2.0.0](https://semver.org/). It also mimics the version of the FEF specification it implements.
-The major and minor version of this crate will always match the major and minor version of the FEF specification it implements.
-The patch version of this crate will be increased for bug fixes and other minor changes (also including implementation of micro versions of the FEF specification).
+This crate follows [Semantic Versioning 2.0.0](https://semver.org/). To separate versioning from the standard and avoid situations where multiple versions of this crate would have to be installed in a single project to work with different versions of the standard, this crate provides different modules for different major versions of the standard. These can be enabled by feature flags.
 
 # Adding inherent items - breaking change
 
@@ -15,8 +13,8 @@ It is generally considered a good practice to use disambiguation syntax if you n
 
 Example of bad usage, that we don't guarantee backwards compatibility for:
 ```rust
-use fef::config::Config;
-
+# trait Config {
+# }
 struct MyConfig;
 
 impl Config for MyConfig {
@@ -35,7 +33,7 @@ let config = MyConfig;
 let language = config.language(); // This will break if we add a language method to the Config trait
 
 let language = MyConfig::language(&config); // This will not break and execute your language method
-// let language = <MyConfig as Config>::language(&config); // This would execute the language method from the Config trait
+// let language = Config::language(&config); // This would execute the language method from the Config trait
 
 # assert_eq!(language, "");
 ```

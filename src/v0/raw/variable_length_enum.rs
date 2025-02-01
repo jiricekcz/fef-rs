@@ -1,8 +1,8 @@
-use std::{cmp::Ordering, io::Bytes};
+use std::cmp::Ordering;
 
 use crate::{
-    config::Config,
-    traits::{private::Sealed, ReadFrom},
+    common::traits::private::Sealed,
+    v0::{config::Config, raw::error, traits::ReadFrom},
 };
 
 /// Represents a variable length enum in the FEF specification.
@@ -11,7 +11,7 @@ use crate::{
 ///
 /// # Examples
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// fn get_variable_length_enum() -> VariableLengthEnum {
 ///     /* Some code providing a variable length enum */
 /// #   VariableLengthEnum::from(42)
@@ -45,7 +45,10 @@ enum VariableLengthEnumStorage {
     /// This variant is selected when the value fits into a u64
     U64(u64),
     /// If it doesn't fit into a u64, it is stored as a Vec<u8> according to the FEF specification without leading `0x80` bytes.
-    Overflow(Vec<u8>),
+    /// Double indirection of the Vec<u8> may seem unnecessary, but in the case, when the value is too large to fit into a u64, performance is of zero concern,
+    /// since the use case is probably very degenerate. It however equalizes the size of the enum variants, which results in smaller allocation in case of the
+    /// much more common variant of the enum.
+    Overflow(Box<Vec<u8>>),
 }
 
 impl PartialOrd for VariableLengthEnumStorage {
@@ -81,7 +84,7 @@ impl Ord for VariableLengthEnumStorage {
 ///
 /// # Examples
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// let selector = 42;
 ///
 /// let variable_length_enum = VariableLengthEnum::from(selector);
@@ -107,100 +110,112 @@ impl Sealed for VariableLengthEnum {}
 ///
 /// Simple reading of a small variable length enum:
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
-/// # use fef::traits::ReadFrom;
+/// # use fef::v0::raw::VariableLengthEnum;
+/// # use fef::v0::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), std::io::Error> {
-/// let configuration = fef::config::OverridableConfig::default();
+/// let configuration = fef::v0::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x81, 0x80, 0x00, 0x12];
-/// let mut bytes = file.bytes();
+/// let mut file_reader = &mut file.as_slice();
 ///
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes, &configuration)?;
+/// let variable_length_enum = VariableLengthEnum::read_from(&mut file_reader, &configuration)?;
 ///
 /// assert_eq!(variable_length_enum, VariableLengthEnum::from(0b1_0000000_0000000));
-/// assert_eq!(bytes.next().unwrap()?, 0x12);
-/// assert!(bytes.next().is_none());
+///
+/// let mut next_byte = [0; 1];
+///
+/// file_reader.read_exact(&mut next_byte)?;
+/// assert_eq!(next_byte[0], 0x12);
+///
+/// file_reader.read_exact(&mut next_byte).expect_err("Expected EOF");
+///
 /// # Ok(())
 /// # }
 /// ```
 ///
 /// Reading a large variable length enum with leading `0x80` bytes:
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
-/// # use fef::traits::ReadFrom;
+/// # use fef::v0::raw::VariableLengthEnum;
+/// # use fef::v0::traits::ReadFrom;
 /// # use std::io::Read;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let configuration = fef::config::OverridableConfig::default();
+/// let configuration = fef::v0::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x80, 0xFF, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x00, 0x12];
-/// let mut bytes1 = file.bytes();
-/// let mut bytes2 = file.bytes();
+/// let mut file_reader1 = &mut file.as_slice();
+/// let mut file_reader2 = &mut file.as_slice();
 ///
-/// bytes1.next().ok_or("First exists")?; // Skip the first leading `0x80` byte. It has no effect
+/// let mut void_bytes: [u8; 1] = [0; 1];
+/// file_reader1.read_exact(&mut void_bytes)?; // Skip the leading 0x80, it should have no effect
 ///
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes1, &configuration)?;
-/// let variable_length_enum2 = VariableLengthEnum::read_from_bytes(&mut bytes2, &configuration)?;
+/// let variable_length_enum = VariableLengthEnum::read_from(&mut file_reader1, &configuration)?;
+/// let variable_length_enum2 = VariableLengthEnum::read_from(&mut file_reader2, &configuration)?;
 ///
 /// assert_eq!(variable_length_enum, variable_length_enum2);
 ///
-/// assert_eq!(bytes1.next().unwrap()?, 0x12);
-/// assert!(bytes1.next().is_none());
+/// let mut next_byte = [0; 1];
 ///
-/// assert_eq!(bytes2.next().unwrap()?, 0x12);
-/// assert!(bytes2.next().is_none());
+/// file_reader1.read_exact(&mut next_byte)?;
+/// assert_eq!(next_byte[0], 0x12);
+///
+/// file_reader1.read_exact(&mut next_byte).expect_err("Expected EOF");
+///
+/// file_reader2.read_exact(&mut next_byte)?;
+/// assert_eq!(next_byte[0], 0x12);
+///
+/// file_reader2.read_exact(&mut next_byte).expect_err("Expected EOF");
+///
 /// # Ok(())
 /// # }
 /// ```
 ///
 /// Reading from a passed `&mut Bytes<R>`:
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// # use std::io::Read;
 /// # use std::io::Bytes;
-/// # use fef::traits::ReadFrom;
-/// # use fef::config::Config;
+/// # use fef::v0::traits::ReadFrom;
+/// # use fef::v0::config::Config;
 ///
-/// fn read_two_variable_length_enums<R: std::io::Read, C: Config>(bytes: &mut Bytes<R>, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
-///     let enum1 = VariableLengthEnum::read_from_bytes(&mut *bytes, & *configuration)?; // Notice the reborrowing here
-///     let enum2 = VariableLengthEnum::read_from_bytes(&mut *bytes, & *configuration)?;
+/// fn read_two_variable_length_enums<R: std::io::Read + ?Sized, C: Config>(reader: &mut R, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
+///     let enum1 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?; // Notice the reborrowing here
+///     let enum2 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?;
 ///
 ///     Ok((enum1, enum2))
 /// }
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let configuration = fef::config::OverridableConfig::default();
+/// let configuration = fef::v0::config::OverridableConfig::default();
 /// let file = vec![0x80, 0x80, 0x00, 0x82, 0x80, 0x04, 0x12];
-/// let mut bytes = file.bytes();
-///
-/// let (enum1, enum2) = read_two_variable_length_enums(&mut bytes, &configuration)?;
+/// let mut file_reader = &mut file.as_slice();
+/// let (enum1, enum2) = read_two_variable_length_enums(&mut file_reader, &configuration)?;
 ///
 /// assert_eq!(enum1, VariableLengthEnum::from(0));
 /// assert_eq!(enum2, VariableLengthEnum::from(0b10_0000000_0000100));
 ///
-/// assert_eq!(bytes.next().unwrap()?, 0x12);
-/// assert!(bytes.next().is_none());
+/// let mut next_byte = [0; 1];
+/// file_reader.read_exact(&mut next_byte)?;
+/// assert_eq!(next_byte[0], 0x12);
+///
+/// file_reader.read_exact(&mut next_byte).expect_err("Expected EOF");
+///
 /// # Ok(())
 /// # }
 impl<R> ReadFrom<R> for VariableLengthEnum
 where
-    R: std::io::Read,
+    R: std::io::Read + ?Sized,
 {
     type ReadError = std::io::Error;
 
-    fn read_from_bytes<C: Config>(bytes: &mut Bytes<R>, _: &C) -> Result<Self, Self::ReadError> {
+    fn read_from<C: ?Sized + Config>(reader: &mut R, _: &C) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
         let mut accumulator: Option<u64> = Some(0);
 
         loop {
             // We read the next byte from the stream
-            let byte = if let Some(byte) = bytes.next() {
-                byte?
-            } else {
-                // If we reached the end of the stream, we return an error
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::UnexpectedEof,
-                    "unexpected end of stream",
-                ));
-            };
+            let mut bytes: [u8; 1] = [0; 1];
+            reader.read_exact(&mut bytes)?;
+            let byte = bytes[0];
+
             if byte == 0x80 && byte_vec.is_empty() {
                 // Leading 0x80 is ignored
                 // This is only padding as defined in the FEF specification, so we ignore it
@@ -227,6 +242,8 @@ where
                 break;
             }
         }
+
+        // If the value fits into a `u64`, we have the accumulator set and can use it, else we use the byte_vec
         if let Some(accumulator) = accumulator {
             // If we have an accumulator, we use it as the value
             Ok(VariableLengthEnum {
@@ -235,7 +252,7 @@ where
         } else {
             // If we don't have an accumulator, we use the byte_vec as the value
             Ok(VariableLengthEnum {
-                value: VariableLengthEnumStorage::Overflow(byte_vec),
+                value: VariableLengthEnumStorage::Overflow(Box::new(byte_vec)),
             })
         }
     }
@@ -248,7 +265,7 @@ where
 ///
 /// # Examples
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let variable_length_enum = VariableLengthEnum::from(42);
 ///
@@ -265,13 +282,15 @@ where
 ///
 /// Example of a value that is too large to fit into a usize:
 /// ```rust
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// # use std::io::Read;
-/// # use fef::traits::ReadFrom;
+/// # use fef::v0::traits::ReadFrom;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let configuration = fef::config::OverridableConfig::default();
-/// let mut bytes = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00].bytes();
-/// let variable_length_enum = VariableLengthEnum::read_from_bytes(&mut bytes, &configuration)?;
+/// let configuration = fef::v0::config::OverridableConfig::default();
+/// let mut file = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
+/// let mut file_reader = &mut file.as_ref();
+///
+/// let variable_length_enum = VariableLengthEnum::read_from(&mut file_reader, &configuration)?;
 /// let value: Result<usize, _> = variable_length_enum.try_into(); // This will error
 ///
 /// assert!(value.is_err());
@@ -279,14 +298,55 @@ where
 /// # }
 /// ```
 impl TryInto<usize> for VariableLengthEnum {
-    type Error = &'static str; // This is a placeholder, we can change it to a more specific error type later
+    type Error = error::VariableLengthEnumError; // This is a placeholder, we can change it to a more specific error type later
 
     fn try_into(self) -> Result<usize, Self::Error> {
         match self.value {
             VariableLengthEnumStorage::U64(u64_value) => u64_value
                 .try_into()
-                .map_err(|_| "Value is too large to fit into usize"),
-            VariableLengthEnumStorage::Overflow(_) => Err("Value is too large to fit into usize"),
+                .map_err(|_| error::VariableLengthEnumError::TooBig),
+            VariableLengthEnumStorage::Overflow(_) => Err(error::VariableLengthEnumError::TooBig),
+        }
+    }
+}
+
+/// Conversion to string of a variable length enum
+///
+/// For values lower than or equal to `u64::MAX`, this implementation guarantees that it will format the value as a decimal string representation.
+/// For values over `u64::MAX`, the exact output of this formatting is unspecified.
+///
+/// # Examples
+/// ```rust
+/// # use fef::v0::raw::VariableLengthEnum;
+/// let value = 51;
+/// let vre = VariableLengthEnum::from(value);
+///
+/// println!("{}", value); // Prints "51"
+/// # assert_eq!("51", format!("{}", value));
+/// println!("{}", vre); // Also prints "51"
+/// # assert_eq!("51", format!("{}", vre));
+/// # assert_eq!(format!("{}", usize::MAX), format!("{}", VariableLengthEnum::from(usize::MAX)));
+/// ```
+impl std::fmt::Display for VariableLengthEnum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.value {
+            VariableLengthEnumStorage::U64(u64_value) => write!(f, "{}", u64_value),
+            VariableLengthEnumStorage::Overflow(byte_vec) => {
+                write!(f, "0x")?;
+                let mut accumulator: u16 = 0;
+                let mut bit_length: u8 = 0;
+                for byte in byte_vec.iter() {
+                    accumulator = accumulator << 7 | (byte & 0x7F) as u16;
+                    bit_length += 7;
+
+                    if bit_length >= 8 {
+                        let byte = ((accumulator >> (bit_length - 8)) & 0xFF) as u8;
+                        bit_length -= 8;
+                        write!(f, "{:02x}", byte)?
+                    }
+                }
+                Ok(())
+            }
         }
     }
 }
