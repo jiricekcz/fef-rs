@@ -63,7 +63,10 @@ where
         configuration: &C,
     ) -> Result<(), Self::WriteError> {
         let bytes = self.as_bytes();
-
+        let length = bytes.len();
+        let variable_length_enum = raw::VariableLengthEnum::from(length);
+        variable_length_enum.write_to(writer, configuration)?;
+        writer.write_all(bytes)?;
         Ok(())
     }
 }

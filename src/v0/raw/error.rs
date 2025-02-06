@@ -115,4 +115,10 @@ pub enum StringWriteError {
         #[from]
         source: std::io::Error,
     },
+
+    #[error("encountered error while manipulating string length {source}")]
+    StringLengthError {
+        #[from]
+        source: VariableLengthEnumError,
+    },
 }
