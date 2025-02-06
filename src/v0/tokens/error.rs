@@ -23,6 +23,8 @@ pub enum ExprTokenError {
 pub enum ExprTokenReadError {
     #[error("failed to read identifier from input")]
     IOError(#[from] std::io::Error),
+    #[error("failed to read identifier from input")]
+    VariableLengthEnumError(#[from] fef::raw::error::VariableLengthEnumError),
     #[error("failed to identify token from given identifier")]
     ExprTokenError {
         #[from]
