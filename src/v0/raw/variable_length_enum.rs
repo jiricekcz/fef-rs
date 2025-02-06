@@ -1,9 +1,15 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, io::Write};
 
 use crate::{
     common::traits::private::Sealed,
-    v0::{config::Config, raw::error, traits::ReadFrom},
+    v0::{
+        config::Config,
+        raw::error,
+        traits::{ReadFrom, WriteTo},
+    },
 };
+
+use super::error::VariableLengthEnumError;
 
 /// Represents a variable length enum in the FEF specification.
 ///
@@ -113,7 +119,7 @@ impl Sealed for VariableLengthEnum {}
 /// # use fef::v0::raw::VariableLengthEnum;
 /// # use fef::v0::traits::ReadFrom;
 /// # use std::io::Read;
-/// # fn main() -> Result<(), std::io::Error> {
+/// # fn main() -> Result<(), std::error::Error> {
 /// let configuration = fef::v0::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x81, 0x80, 0x00, 0x12];
 /// let mut file_reader = &mut file.as_slice();
@@ -176,7 +182,7 @@ impl Sealed for VariableLengthEnum {}
 /// # use fef::v0::traits::ReadFrom;
 /// # use fef::v0::config::Config;
 ///
-/// fn read_two_variable_length_enums<R: std::io::Read + ?Sized, C: Config>(reader: &mut R, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::io::Error> {
+/// fn read_two_variable_length_enums<R: std::io::Read + ?Sized, C: Config>(reader: &mut R, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::error::Error> {
 ///     let enum1 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?; // Notice the reborrowing here
 ///     let enum2 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?;
 ///
@@ -204,7 +210,7 @@ impl<R> ReadFrom<R> for VariableLengthEnum
 where
     R: std::io::Read + ?Sized,
 {
-    type ReadError = std::io::Error;
+    type ReadError = VariableLengthEnumError;
 
     fn read_from<C: ?Sized + Config>(reader: &mut R, _: &C) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
@@ -348,5 +354,76 @@ impl std::fmt::Display for VariableLengthEnum {
                 Ok(())
             }
         }
+    }
+}
+
+impl<W> WriteTo<W> for VariableLengthEnum
+where
+    W: Write + ?Sized,
+{
+    type WriteError = VariableLengthEnumError;
+    /// Writes a variable length enum to the given writer according to the [FEF specification](https://github.com/jiricekcz/fef-specification/blob/main/binary_types/Variable%20Length%20Enum.md).
+    ///
+    /// # Examples
+    ///
+    /// With a single byte value:
+    /// ```rust
+    /// # use fef::v0::raw::VariableLengthEnum;
+    /// # use fef::v0::traits::WriteTo;
+    /// # use std::io::Write;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let variable_length_enum = VariableLengthEnum::from(63);
+    /// let mut file = Vec::new();
+    /// variable_length_enum.write_to(&mut file, &fef::v0::config::OverridableConfig::default())?;
+    /// assert_eq!(file, vec![0x3F]);
+    /// # Ok(())
+    /// # }
+    /// ```
+    /// With a multi-byte value:
+    /// ```rust
+    /// # use fef::v0::raw::VariableLengthEnum;
+    /// # use fef::v0::traits::WriteTo;
+    /// # use std::io::Write;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let variable_length_enum = VariableLengthEnum::from(16385);
+    /// let mut file = Vec::new();
+    /// variable_length_enum.write_to(&mut file, &fef::v0::config::OverridableConfig::default())?;
+    /// assert_eq!(file, vec![0x81, 0x80, 0x01]);
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn write_to<C: ?Sized + Config>(
+        &self,
+        writer: &mut W,
+        _configuration: &C,
+    ) -> Result<(), Self::WriteError> {
+        match &self.value {
+            VariableLengthEnumStorage::U64(u64_value) => {
+                let value = *u64_value;
+
+                let digits = value.ilog2() + 1; // Number of digits in the value
+                let byte_count = digits.div_ceil(7); // 7 bits per byte
+
+                let mut bytes = Vec::with_capacity(byte_count as usize);
+
+                // If best-case performance would be an issue, it is possible to write directly to the writer without allocating a Vec<u8>.
+                // However this implementation significantly improves performance in cases, when non-buffering writers are used and penalty
+                // for allocating an at most 8 byte Vec<u8> should be negligible.
+
+                for byte_index in (1..byte_count).rev() {
+                    // Write all non-least significant bytes with the leading bit set
+                    let byte_value = (value >> (byte_index * 7)) & 0x7F | 0x80;
+                    bytes.push(byte_value as u8);
+                }
+
+                bytes.push((value & 0x7F) as u8); // Write the least significant byte without the leading bit
+
+                writer.write_all(&bytes)?;
+            }
+            VariableLengthEnumStorage::Overflow(byte_vec) => {
+                writer.write_all(&byte_vec)?;
+            }
+        }
+        Ok(())
     }
 }
