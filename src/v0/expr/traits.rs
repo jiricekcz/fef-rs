@@ -14,6 +14,7 @@ use crate::{
 };
 
 use super::{
+    error::{DecomposeError, DefaultDecomposeError},
     ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
     ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
     ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
@@ -171,4 +172,48 @@ pub trait TryReadFromWithComposer<
         config: &C,
         composer: &mut CP,
     ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
+}
+
+macro_rules! decompose_expr {
+    ($name:ident, $type:ty) => {
+        fn $name(&mut self, expr: S) -> Result<$type, DecomposeError<Self::Error>> {
+            self.decompose_default(expr)
+        }
+    };
+}
+
+pub trait Decomposer<S: Sized> {
+    type Error: std::error::Error;
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn decompose_default<E: ExprObj<S>>(
+        &mut self,
+        composed: S,
+    ) -> Result<E, DecomposeError<Self::Error>> {
+        Err(DecomposeError::DefaultError(
+            DefaultDecomposeError::DecomposeNotImplemented,
+        ))
+    }
+
+    decompose_expr!(compose_variable, ExprVariable<S>);
+    decompose_expr!(compose_true_literal, ExprTrueLiteral<S>);
+    decompose_expr!(compose_false_literal, ExprFalseLiteral<S>);
+    decompose_expr!(compose_float_literal, ExprFloatLiteral<S>);
+    decompose_expr!(compose_int_literal, ExprIntLiteral<S>);
+    decompose_expr!(compose_addition, ExprAddition<S>);
+    decompose_expr!(compose_subtraction, ExprSubtraction<S>);
+    decompose_expr!(compose_multiplication, ExprMultiplication<S>);
+    decompose_expr!(compose_division, ExprDivision<S>);
+    decompose_expr!(compose_int_division, ExprIntDivision<S>);
+    decompose_expr!(compose_modulo, ExprModulo<S>);
+    decompose_expr!(compose_power, ExprPower<S>);
+    decompose_expr!(compose_negation, ExprNegation<S>);
+    decompose_expr!(compose_root, ExprRoot<S>);
+    decompose_expr!(compose_int_root, ExprIntRoot<S>);
+    decompose_expr!(compose_square, ExprSquare<S>);
+    decompose_expr!(compose_cube, ExprCube<S>);
+    decompose_expr!(compose_square_root, ExprSquareRoot<S>);
+    decompose_expr!(compose_cube_root, ExprCubeRoot<S>);
+    decompose_expr!(compose_reciprocal, ExprReciprocal<S>);
 }

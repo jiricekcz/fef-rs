@@ -8,14 +8,14 @@ use crate::v0::{
 };
 
 #[derive(Debug, Error)]
-#[error("Expected {expected}, but found {found}.")]
+#[error("expected {expected}, but found {found}.")]
 pub struct NonMatchingExprError {
     pub expected: ExprToken,
     pub found: ExprToken,
 }
 
 #[derive(Debug, Error)]
-#[error("Failed to read expression.")]
+#[error("failed to read expression.")]
 #[non_exhaustive]
 pub enum ExprReadError {
     IOError(#[from] std::io::Error),
@@ -32,7 +32,7 @@ impl From<Infallible> for ExprReadError {
 }
 
 #[derive(Debug, Error)]
-#[error("Failed to read expression.")]
+#[error("failed to read expression.")]
 pub enum ExprReadWithComposerError<E>
 where
     E: std::error::Error,
@@ -42,19 +42,49 @@ where
 }
 
 #[derive(Debug, Error)]
-#[error("Failed to compose expression.")]
+#[error("failed to compose expression.")]
 #[non_exhaustive]
 pub enum DefaultComposeError {
-    #[error("Compose for this expression is missing implementation.")]
+    #[error("compose for this expression is missing implementation.")]
     ComposeNotImplemented,
 }
 
 #[derive(Debug, Error)]
-#[error("Failed to compose expression.")]
+#[error("failed to compose expression.")]
 pub enum ComposeError<E>
 where
     E: std::error::Error,
 {
     DefaultError(#[from] DefaultComposeError),
     CustomError(E),
+}
+
+#[derive(Debug, Error)]
+#[error("failed to write expression.")]
+pub enum ExprWriteError {}
+
+#[derive(Debug, Error)]
+#[error("failed to decompose expression.")]
+pub enum DefaultDecomposeError {
+    DecomposeNotImplemented,
+}
+
+#[derive(Debug, Error)]
+#[error("failed to decompose expression.")]
+pub enum DecomposeError<E>
+where
+    E: std::error::Error,
+{
+    DefaultError(#[from] DefaultDecomposeError),
+    CustomError(E),
+}
+
+#[derive(Debug, Error)]
+#[error("failed to read expression.")]
+pub enum ExprWriteWithDecomposerError<E>
+where
+    E: std::error::Error,
+{
+    WriteError(#[from] ExprWriteError),
+    DecomposeError(#[from] DecomposeError<E>),
 }
