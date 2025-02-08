@@ -18,7 +18,10 @@ impl ConfigToken {
     }
 }
 
-impl TryFrom<VariableLengthEnum> for ConfigToken {
+impl TryFrom<VariableLengthEnum> for ConfigToken
+where
+    <ConfigToken as TryFrom<usize>>::Error: From<ConfigTokenError>,
+{
     type Error = ConfigTokenError;
     fn try_from(value: VariableLengthEnum) -> Result<Self, Self::Error> {
         let value2 = value.clone();
@@ -26,10 +29,19 @@ impl TryFrom<VariableLengthEnum> for ConfigToken {
             .clone()
             .try_into()
             .map_err(move |_| ConfigTokenError::IdentifierTooLarge { identifier: value2 })?;
-        match int_value {
+        Ok(int_value.try_into()?)
+    }
+}
+
+impl TryFrom<usize> for ConfigToken {
+    type Error = ConfigTokenError;
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        match value {
             0x00 => Ok(ConfigToken::FloatFormat),
             0x01 => Ok(ConfigToken::IntFormat),
-            _ => Err(ConfigTokenError::IdentifierNotRecognized { identifier: value }),
+            _ => Err(ConfigTokenError::IdentifierNotRecognized {
+                identifier: value.into(),
+            }),
         }
     }
 }

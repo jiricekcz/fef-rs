@@ -4,7 +4,6 @@ use crate::{
 };
 
 use super::{error::EnumConfigurationError, traits::EnumConfiguration};
-
 /// The `Integer Format` configuration option of FEF.
 ///
 /// This configuration option determines how integers are read and written.

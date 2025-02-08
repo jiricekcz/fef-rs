@@ -17,6 +17,15 @@ where
     ) -> Result<Self, Self::ReadError>;
 }
 
+pub trait ReadFromWithDefaultConfig<T>: Sealed + Sized
+where
+    T: std::io::Read + ?Sized,
+{
+    type ReadError: std::error::Error;
+
+    fn read_from(reader: &mut T) -> Result<Self, Self::ReadError>;
+}
+
 pub trait WriteTo<W>: Sealed
 where
     W: std::io::Write + ?Sized,
