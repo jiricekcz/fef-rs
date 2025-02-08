@@ -14,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    error::{DecomposeError, DefaultDecomposeError, ExprWriteWithDecomposerError},
+    error::{DecomposeError, ExprWriteWithDecomposerError},
     ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
     ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
     ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
