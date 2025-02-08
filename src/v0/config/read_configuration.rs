@@ -9,7 +9,9 @@ use crate::{
     },
 };
 
-use super::{default::DEFAULT_CONFIG, error::ReadConfigurationError, FloatFormat, IntFormat};
+use super::{
+    default::DEFAULT_CONFIG, error::ReadConfigurationError, Config, FloatFormat, IntFormat,
+};
 
 pub struct ReadConfigurationOutput {
     pub(crate) integer_format: Option<IntFormat>,
@@ -115,6 +117,15 @@ impl<R: ?Sized + Read> ReadFromWithDefaultConfig<R> for ReadConfigurationOutput 
         }
 
         Ok(output)
+    }
+}
+
+impl Config for ReadConfigurationOutput {
+    fn float_format(&self) -> FloatFormat {
+        self.float_format().into_value()
+    }
+    fn integer_format(&self) -> IntFormat {
+        self.integer_format().into_value()
     }
 }
 
