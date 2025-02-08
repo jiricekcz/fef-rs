@@ -68,7 +68,11 @@ impl<S: Sized> ExprObj<S> for ExprFloatLiteral<S> {
 }
 
 impl<S: Sized> FloatExpr<S> for ExprFloatLiteral<S> {
-    fn into_float(self) -> Float {
-        self.value
+    fn float(&self) -> &Float {
+        &self.value
+    }
+
+    fn float_mut(&mut self) -> &mut Float {
+        &mut self.value
     }
 }

@@ -1,10 +1,10 @@
-use std::io::Read;
+use std::io::{Read, Write};
 use std::ops::RangeInclusive;
 
-use super::error::{IntegerConversionError, IntegerReadError};
+use super::error::{IntegerConversionError, IntegerReadError, IntegerWriteError};
 use crate::common::traits::private::Sealed;
 use crate::v0::config;
-use crate::v0::traits::ReadFrom;
+use crate::v0::traits::{ReadFrom, WriteTo};
 
 /// Any integer type defined in the FEF specification.
 #[non_exhaustive]
@@ -360,6 +360,49 @@ where
     }
 }
 
+impl<W> WriteTo<W> for Integer
+where
+    W: Write + ?Sized,
+{
+    type WriteError = IntegerWriteError;
+
+    fn write_to<C: ?Sized + config::Config>(
+        &self,
+        writer: &mut W,
+        configuration: &C,
+    ) -> Result<(), Self::WriteError> {
+        let value = US64::from(*self);
+        match configuration.integer_format() {
+            config::IntFormat::I8 => {
+                writer.write_all(&TryInto::<i8>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::I16 => {
+                writer.write_all(&TryInto::<i16>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::I32 => {
+                writer.write_all(&TryInto::<i32>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::I64 => {
+                writer.write_all(&TryInto::<i64>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::U8 => {
+                writer.write_all(&TryInto::<u8>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::U16 => {
+                writer.write_all(&TryInto::<u16>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::U32 => {
+                writer.write_all(&TryInto::<u32>::try_into(value)?.to_be_bytes())
+            }
+            config::IntFormat::U64 => {
+                writer.write_all(&TryInto::<u64>::try_into(value)?.to_be_bytes())
+            }
+        }?;
+
+        Ok(())
+    }
+}
+
 impl TryInto<i64> for Integer {
     type Error = IntegerConversionError;
 
@@ -435,6 +478,220 @@ impl TryInto<u64> for Integer {
             Integer::UInt16(value) => Ok(value as u64),
             Integer::UInt32(value) => Ok(value as u64),
             Integer::UInt64(value) => Ok(value),
+        }
+    }
+}
+
+impl TryInto<i8> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<i8, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= i8::MIN as i64 && value <= i8::MAX as i64 {
+                    Ok(value as i8)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i8::MIN.into(), i8::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= i8::MAX as u64 {
+                    Ok(value as i8)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i8::MIN.into(), i8::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<i16> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<i16, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= i16::MIN as i64 && value <= i16::MAX as i64 {
+                    Ok(value as i16)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i16::MIN.into(), i16::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= i16::MAX as u64 {
+                    Ok(value as i16)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i16::MIN.into(), i16::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<i32> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<i32, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= i32::MIN as i64 && value <= i32::MAX as i64 {
+                    Ok(value as i32)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i32::MIN.into(), i32::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= i32::MAX as u64 {
+                    Ok(value as i32)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i32::MIN.into(), i32::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<i64> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<i64, Self::Error> {
+        match self {
+            US64::I64(value) => Ok(value),
+            US64::U64(value) => {
+                if value <= i64::MAX as u64 {
+                    Ok(value as i64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(i64::MIN.into(), i64::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<u8> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<u8, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= 0 && value <= u8::MAX as i64 {
+                    Ok(value as u8)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u8::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= u8::MAX as u64 {
+                    Ok(value as u8)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u8::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<u16> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<u16, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= 0 && value <= u16::MAX as i64 {
+                    Ok(value as u16)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u16::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= u16::MAX as u64 {
+                    Ok(value as u16)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u16::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<u32> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<u32, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= 0 && value <= u32::MAX as i64 {
+                    Ok(value as u32)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u32::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => {
+                if value <= u32::MAX as u64 {
+                    Ok(value as u32)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u32::MAX.into()),
+                    })
+                }
+            }
+        }
+    }
+}
+
+impl TryInto<u64> for US64 {
+    type Error = IntegerConversionError;
+
+    fn try_into(self) -> Result<u64, Self::Error> {
+        match self {
+            US64::I64(value) => {
+                if value >= 0 {
+                    Ok(value as u64)
+                } else {
+                    Err(IntegerConversionError::OutOfRange {
+                        value: value.into(),
+                        range: RangeInclusive::new(0.into(), u64::MAX.into()),
+                    })
+                }
+            }
+            US64::U64(value) => Ok(value),
         }
     }
 }

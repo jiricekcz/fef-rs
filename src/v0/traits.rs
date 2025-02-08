@@ -16,3 +16,16 @@ where
         configuration: &C,
     ) -> Result<Self, Self::ReadError>;
 }
+
+pub trait WriteTo<W>: Sealed
+where
+    W: std::io::Write + ?Sized,
+{
+    type WriteError: std::error::Error;
+
+    fn write_to<C: ?Sized + Config>(
+        &self,
+        writer: &mut W,
+        configuration: &C,
+    ) -> Result<(), Self::WriteError>;
+}

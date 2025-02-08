@@ -122,6 +122,18 @@ pub struct ExprTree {
     inner: Box<Expr<ExprTree>>,
 }
 
+impl ExprTree {
+    pub fn into_inner(self) -> Expr<ExprTree> {
+        *self.inner
+    }
+    pub fn inner(&self) -> &Expr<ExprTree> {
+        &self.inner
+    }
+    pub fn inner_mut(&mut self) -> &mut Expr<ExprTree> {
+        &mut self.inner
+    }
+}
+
 impl From<Expr<ExprTree>> for ExprTree {
     fn from(expr: Expr<ExprTree>) -> Self {
         Self {

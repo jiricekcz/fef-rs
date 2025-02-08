@@ -39,6 +39,12 @@ pub enum StringReadError {
         source: std::io::Error,
     },
 
+    #[error("encountered error while processing string length {source}")]
+    LengthParsingError {
+        #[from]
+        source: VariableLengthEnumError,
+    },
+
     /// An io error occurred while reading the string.
     #[error("bytes are not valid utf-8 {source}")]
     InvalidUtf8 {
@@ -58,6 +64,37 @@ pub enum VariableLengthEnumError {
     /// A fallible conversion to a numeric type failed, because the value was too large to fit this type.
     #[error("value is too large to fit in the target type")]
     TooBig,
+
+    #[error("encountered error while reading byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum FloatWriteError {
+    #[error("encountered error while writing byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum IntegerWriteError {
+    #[error("encountered error while writing byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+    #[error("configuration provided doesn't allow for writing of this integer. When using the best option {source}")]
+    IncompatibleConfiguration {
+        #[from]
+        source: IntegerConversionError,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -67,5 +104,21 @@ pub enum IntegerConversionError {
     OutOfRange {
         value: Integer,
         range: std::ops::RangeInclusive<Integer>,
+    },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum StringWriteError {
+    #[error("encountered error while writing byte stream {source}")]
+    StreamError {
+        #[from]
+        source: std::io::Error,
+    },
+
+    #[error("encountered error while manipulating string length {source}")]
+    StringLengthError {
+        #[from]
+        source: VariableLengthEnumError,
     },
 }

@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 use crate::{
     common::traits::private::Sealed,
@@ -14,6 +14,7 @@ use crate::{
 };
 
 use super::{
+    error::{DecomposeError, ExprWriteWithDecomposerError},
     ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
     ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
     ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
@@ -48,6 +49,10 @@ pub trait EnumExpr<S: Sized>:
     fn into_variable_length_enum(self) -> VariableLengthEnum {
         self.into()
     }
+
+    fn variable_length_enum(&self) -> &VariableLengthEnum;
+
+    fn variable_length_enum_mut(&mut self) -> &mut VariableLengthEnum;
 }
 
 /// A trait for all integer expression objects.
@@ -62,6 +67,10 @@ pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
     fn into_integer(self) -> Integer {
         self.into()
     }
+
+    fn integer(&self) -> &Integer;
+
+    fn integer_mut(&mut self) -> &mut Integer;
 }
 
 /// A trait for all float expression objects.
@@ -75,6 +84,10 @@ pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
     fn into_float(self) -> Float {
         self.into()
     }
+
+    fn float(&self) -> &Float;
+
+    fn float_mut(&mut self) -> &mut Float;
 }
 
 /// A trait for all expression objects that hold no value.
@@ -171,4 +184,31 @@ pub trait TryReadFromWithComposer<
         config: &C,
         composer: &mut CP,
     ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
+}
+
+pub trait DecompositionRefContainer<'a, S: Sized> {
+    fn inner_as_ref(&self) -> &'a Expr<S>;
+}
+
+pub trait Decomposer<S: Sized> {
+    type Error: std::error::Error;
+    fn decompose_as_ref<'a>(
+        &mut self,
+        storage_ref: &'a S,
+    ) -> Result<impl DecompositionRefContainer<'a, S>, DecomposeError<Self::Error>>;
+}
+
+pub trait TryWriteToWithDecomposer<
+    W: ?Sized + Write,
+    S: Sized,
+    C: ?Sized + Config,
+    DP: ?Sized + Decomposer<S>,
+>
+{
+    fn try_write_with_decomposer(
+        &self,
+        writer: &mut W,
+        config: &C,
+        decomposer: &mut DP,
+    ) -> Result<(), ExprWriteWithDecomposerError<DP::Error>>;
 }

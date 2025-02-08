@@ -1,11 +1,11 @@
 use crate::common::traits::private::Sealed;
 use crate::v0::config::Config;
 use crate::v0::raw;
-use crate::v0::traits::ReadFrom;
-use std::io::Read;
+use crate::v0::traits::{ReadFrom, WriteTo};
+use std::io::{Read, Write};
 use std::string::String;
 
-use super::error::StringReadError;
+use super::error::{StringReadError, StringWriteError};
 
 impl Sealed for String {}
 
@@ -49,5 +49,24 @@ where
         let parsed_utf8: String = String::from_utf8(buffer)?;
 
         Ok(parsed_utf8)
+    }
+}
+
+impl<W> WriteTo<W> for String
+where
+    W: Write + ?Sized,
+{
+    type WriteError = StringWriteError;
+    fn write_to<C: ?Sized + Config>(
+        &self,
+        writer: &mut W,
+        configuration: &C,
+    ) -> Result<(), Self::WriteError> {
+        let bytes = self.as_bytes();
+        let length = bytes.len();
+        let variable_length_enum = raw::VariableLengthEnum::from(length);
+        variable_length_enum.write_to(writer, configuration)?;
+        writer.write_all(bytes)?;
+        Ok(())
     }
 }
