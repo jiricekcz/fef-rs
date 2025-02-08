@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::{
-    default::DEFAULT_CONFIG, error::ReadConfigurationError, Config, FloatFormat, IntFormat,
+    default::DEFAULT_CONFIG, error::ConfigurationReadError, Config, FloatFormat, IntFormat,
 };
 
 pub struct ReadConfigurationOutput {
@@ -102,7 +102,7 @@ impl Default for ReadConfigurationOutput {
 impl Sealed for ReadConfigurationOutput {}
 
 impl<R: ?Sized + Read> ReadFromWithDefaultConfig<R> for ReadConfigurationOutput {
-    type ReadError = ReadConfigurationError;
+    type ReadError = ConfigurationReadError;
     fn read_from(reader: &mut R) -> Result<Self, Self::ReadError> {
         let config_count: usize =
             VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?.try_into()?;
@@ -140,7 +140,7 @@ macro_rules! read_enum_configuration {
 
 fn skip_non_enum_configuration<R: Read + ?Sized>(
     reader: &mut R,
-) -> Result<(), ReadConfigurationError> {
+) -> Result<(), ConfigurationReadError> {
     let byte_length: usize = VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?.try_into()?; // Read the byte length of the configuration as a second VariableLengthEnum as per the spec
     skip_bytes(reader, byte_length)?; // Just skip those bytes, we can't do anything with them
     Ok(())
@@ -149,7 +149,7 @@ fn skip_non_enum_configuration<R: Read + ?Sized>(
 fn read_one_config<R: Read + ?Sized>(
     reader: &mut R,
     output: &mut ReadConfigurationOutput,
-) -> Result<(), ReadConfigurationError> {
+) -> Result<(), ConfigurationReadError> {
     let config_token_identifier = VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?;
 
     let config_token_identifier_usize =
@@ -170,7 +170,7 @@ fn read_one_config<R: Read + ?Sized>(
 fn config_token_identifier_to_usize<R: Read + ?Sized>(
     config_token_identifier: VariableLengthEnum,
     reader: &mut R,
-) -> Result<Option<usize>, ReadConfigurationError> {
+) -> Result<Option<usize>, ConfigurationReadError> {
     let config_token_identifier_usize: usize = match config_token_identifier.try_into() {
         Ok(value) => value,
         Err(_) => {
@@ -185,7 +185,7 @@ fn config_token_identifier_to_usize<R: Read + ?Sized>(
 fn match_config_token_identifier<R: ?Sized + Read>(
     config_token_identifier: usize,
     reader: &mut R,
-) -> Result<Option<ConfigToken>, ReadConfigurationError> {
+) -> Result<Option<ConfigToken>, ConfigurationReadError> {
     let config_token: ConfigToken = match config_token_identifier.try_into() {
         Ok(token) => token,
         Err(_) => {
@@ -207,7 +207,7 @@ fn read_enum_configuration<R: ?Sized + Read>(
     reader: &mut R,
     config_token: ConfigToken,
     output: &mut ReadConfigurationOutput,
-) -> Result<(), ReadConfigurationError> {
+) -> Result<(), ConfigurationReadError> {
     match config_token {
         ConfigToken::IntFormat => {
             let int_format = read_enum_configuration!(IntFormat, reader);

@@ -25,7 +25,7 @@ pub enum EnumConfigurationError {
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-pub enum ReadConfigurationError {
+pub enum ConfigurationReadError {
     #[error("failed to read configuration from input")]
     IOError(#[from] std::io::Error),
     #[error("failed to read configuration from input")]
@@ -34,4 +34,13 @@ pub enum ReadConfigurationError {
     ConfigTokenError(#[from] ConfigTokenError),
     #[error("failed to identify configuration from given identifier")]
     EnumConfigurationError(#[from] EnumConfigurationError),
+}
+
+#[non_exhaustive]
+#[derive(Debug, Error)]
+pub enum ConfigurationWriteError {
+    #[error("failed to write configuration to output")]
+    IOError(#[from] std::io::Error),
+    #[error("failed to write configuration to output")]
+    VariableLengthEnumError(#[from] VariableLengthEnumError),
 }

@@ -16,6 +16,13 @@ pub trait Config {
     fn float_format(&self) -> FloatFormat {
         FloatFormat::default()
     }
+
+    fn value_for_token(&self, token: ConfigToken) -> usize {
+        match token {
+            ConfigToken::IntFormat => self.integer_format().value(),
+            ConfigToken::FloatFormat => self.float_format().value(),
+        }
+    }
 }
 
 pub trait EnumConfiguration: Sealed + Copy + Default + Eq + TryFrom<VariableLengthEnum> {
