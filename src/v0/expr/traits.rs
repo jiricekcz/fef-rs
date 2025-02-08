@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 use crate::{
     common::traits::private::Sealed,
@@ -14,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    error::{DecomposeError, DefaultDecomposeError},
+    error::{DecomposeError, DefaultDecomposeError, ExprWriteWithDecomposerError},
     ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
     ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
     ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
@@ -49,6 +49,10 @@ pub trait EnumExpr<S: Sized>:
     fn into_variable_length_enum(self) -> VariableLengthEnum {
         self.into()
     }
+
+    fn variable_length_enum(&self) -> &VariableLengthEnum;
+
+    fn variable_length_enum_mut(&mut self) -> &mut VariableLengthEnum;
 }
 
 /// A trait for all integer expression objects.
@@ -63,6 +67,10 @@ pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
     fn into_integer(self) -> Integer {
         self.into()
     }
+
+    fn integer(&self) -> &Integer;
+
+    fn integer_mut(&mut self) -> &mut Integer;
 }
 
 /// A trait for all float expression objects.
@@ -76,6 +84,10 @@ pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
     fn into_float(self) -> Float {
         self.into()
     }
+
+    fn float(&self) -> &Float;
+
+    fn float_mut(&mut self) -> &mut Float;
 }
 
 /// A trait for all expression objects that hold no value.
@@ -174,46 +186,29 @@ pub trait TryReadFromWithComposer<
     ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
 }
 
-macro_rules! decompose_expr {
-    ($name:ident, $type:ty) => {
-        fn $name(&mut self, expr: S) -> Result<$type, DecomposeError<Self::Error>> {
-            self.decompose_default(expr)
-        }
-    };
+pub trait DecompositionRefContainer<'a, S: Sized> {
+    fn inner_as_ref(&self) -> &'a Expr<S>;
 }
 
 pub trait Decomposer<S: Sized> {
     type Error: std::error::Error;
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn decompose_default<E: ExprObj<S>>(
+    fn decompose_as_ref<'a>(
         &mut self,
-        composed: S,
-    ) -> Result<E, DecomposeError<Self::Error>> {
-        Err(DecomposeError::DefaultError(
-            DefaultDecomposeError::DecomposeNotImplemented,
-        ))
-    }
+        storage_ref: &'a S,
+    ) -> Result<impl DecompositionRefContainer<'a, S>, DecomposeError<Self::Error>>;
+}
 
-    decompose_expr!(compose_variable, ExprVariable<S>);
-    decompose_expr!(compose_true_literal, ExprTrueLiteral<S>);
-    decompose_expr!(compose_false_literal, ExprFalseLiteral<S>);
-    decompose_expr!(compose_float_literal, ExprFloatLiteral<S>);
-    decompose_expr!(compose_int_literal, ExprIntLiteral<S>);
-    decompose_expr!(compose_addition, ExprAddition<S>);
-    decompose_expr!(compose_subtraction, ExprSubtraction<S>);
-    decompose_expr!(compose_multiplication, ExprMultiplication<S>);
-    decompose_expr!(compose_division, ExprDivision<S>);
-    decompose_expr!(compose_int_division, ExprIntDivision<S>);
-    decompose_expr!(compose_modulo, ExprModulo<S>);
-    decompose_expr!(compose_power, ExprPower<S>);
-    decompose_expr!(compose_negation, ExprNegation<S>);
-    decompose_expr!(compose_root, ExprRoot<S>);
-    decompose_expr!(compose_int_root, ExprIntRoot<S>);
-    decompose_expr!(compose_square, ExprSquare<S>);
-    decompose_expr!(compose_cube, ExprCube<S>);
-    decompose_expr!(compose_square_root, ExprSquareRoot<S>);
-    decompose_expr!(compose_cube_root, ExprCubeRoot<S>);
-    decompose_expr!(compose_reciprocal, ExprReciprocal<S>);
+pub trait TryWriteToWithDecomposer<
+    W: ?Sized + Write,
+    S: Sized,
+    C: ?Sized + Config,
+    DP: Decomposer<S>,
+>
+{
+    fn try_write_with_decomposer(
+        &self,
+        writer: &mut W,
+        config: &C,
+        decomposer: &mut DP,
+    ) -> Result<(), ExprWriteWithDecomposerError<DP::Error>>;
 }

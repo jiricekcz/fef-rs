@@ -1,6 +1,6 @@
 //! Errors associated with the token module.
 
-use crate::v0 as fef;
+use crate::v0::{self as fef, raw::error::VariableLengthEnumError};
 
 use thiserror::Error;
 
@@ -30,4 +30,13 @@ pub enum ExprTokenReadError {
         #[from]
         source: ExprTokenError,
     },
+}
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum ExprTokenWriteError {
+    #[error("failed to write identifier to output")]
+    IOError(#[from] std::io::Error),
+    #[error("failed to write identifier to output")]
+    VariableLengthEnumError(#[from] VariableLengthEnumError),
 }

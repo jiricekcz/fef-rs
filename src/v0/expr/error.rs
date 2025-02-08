@@ -3,8 +3,14 @@ use std::convert::Infallible;
 use thiserror::Error;
 
 use crate::v0::{
-    raw::error::{FloatReadError, IntegerReadError},
-    tokens::{error::ExprTokenReadError, ExprToken},
+    raw::error::{
+        FloatReadError, FloatWriteError, IntegerReadError, IntegerWriteError,
+        VariableLengthEnumError,
+    },
+    tokens::{
+        error::{ExprTokenReadError, ExprTokenWriteError},
+        ExprToken,
+    },
 };
 
 #[derive(Debug, Error)]
@@ -61,7 +67,12 @@ where
 
 #[derive(Debug, Error)]
 #[error("failed to write expression.")]
-pub enum ExprWriteError {}
+pub enum ExprWriteError {
+    VariableLengthEnumError(#[from] VariableLengthEnumError),
+    IntegersWriteError(#[from] IntegerWriteError),
+    FloatsWriteError(#[from] FloatWriteError),
+    ExprTokenWriteError(#[from] ExprTokenWriteError),
+}
 
 #[derive(Debug, Error)]
 #[error("failed to decompose expression.")]

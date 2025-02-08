@@ -1,11 +1,17 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 use crate::{
     common::traits::private::Sealed,
-    v0::{self as fef, traits::ReadFrom},
+    v0::{
+        self as fef,
+        raw::VariableLengthEnum,
+        traits::{ReadFrom, WriteTo},
+    },
 };
+
+use super::error::ExprTokenError;
 /// Interpretation of a [VariableLengthEnum](crate::v0::raw::VariableLengthEnum) as an expression identifier.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
 pub enum ExprToken {
     Variable = 0x04,
@@ -116,16 +122,14 @@ impl TryFrom<usize> for ExprToken {
 /// ```
 ///
 /// A possible distinct fail condition is when the enum is to large. This is a special condition, that terminates interpretation early, if the value is far out of range.
-impl TryFrom<fef::raw::VariableLengthEnum> for ExprToken {
-    type Error = fef::tokens::error::ExprTokenError;
+impl TryFrom<VariableLengthEnum> for ExprToken {
+    type Error = ExprTokenError;
 
-    fn try_from(value: fef::raw::VariableLengthEnum) -> Result<Self, Self::Error> {
+    fn try_from(value: VariableLengthEnum) -> Result<Self, Self::Error> {
         let identifier: usize = if let Ok(identifier) = value.clone().try_into() {
             identifier
         } else {
-            return Err(fef::tokens::error::ExprTokenError::IdentifierTooLarge {
-                identifier: value,
-            });
+            return Err(ExprTokenError::IdentifierTooLarge { identifier: value });
         };
 
         identifier.try_into()
@@ -144,5 +148,19 @@ impl<R: ?Sized + Read> ReadFrom<R> for ExprToken {
         let identifier = fef::raw::VariableLengthEnum::read_from(reader, _configuration)?;
         let token = identifier.try_into()?;
         Ok(token)
+    }
+}
+
+impl<W: ?Sized + Write> WriteTo<W> for ExprToken {
+    type WriteError = fef::tokens::error::ExprTokenWriteError;
+
+    fn write_to<C: ?Sized + fef::config::Config>(
+        &self,
+        writer: &mut W,
+        _configuration: &C,
+    ) -> Result<(), Self::WriteError> {
+        let identifier: VariableLengthEnum = (*self as usize).into();
+        identifier.write_to(writer, _configuration)?;
+        Ok(())
     }
 }
