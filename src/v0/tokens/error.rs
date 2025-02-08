@@ -40,3 +40,16 @@ pub enum ExprTokenWriteError {
     #[error("failed to write identifier to output")]
     VariableLengthEnumError(#[from] VariableLengthEnumError),
 }
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum ConfigTokenError {
+    #[error("failed to read identifier from input")]
+    IdentifierTooLarge {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+    #[error("failed to identify token from given identifier")]
+    IdentifierNotRecognized {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+}
