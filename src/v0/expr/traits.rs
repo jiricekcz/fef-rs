@@ -202,7 +202,7 @@ pub trait TryWriteToWithDecomposer<
     W: ?Sized + Write,
     S: Sized,
     C: ?Sized + Config,
-    DP: Decomposer<S>,
+    DP: ?Sized + Decomposer<S>,
 >
 {
     fn try_write_with_decomposer(

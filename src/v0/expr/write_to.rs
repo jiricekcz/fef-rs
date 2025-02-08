@@ -16,7 +16,7 @@ use super::{
 
 macro_rules! impl_try_write_to_with_decomposer_for_unary_expr {
     ($expr_type:ty) => {
-        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
             TryWriteToWithDecomposer<W, S, C, DP> for $expr_type
         {
             fn try_write_with_decomposer(
@@ -43,7 +43,7 @@ impl_try_write_to_with_decomposer_for_unary_expr!(ExprCubeRoot<S>);
 
 macro_rules! impl_try_write_to_with_decomposer_for_literal_expr {
     ($expr_type:ty) => {
-        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
             TryWriteToWithDecomposer<W, S, C, DP> for $expr_type
         {
             fn try_write_with_decomposer(
@@ -63,7 +63,7 @@ impl_try_write_to_with_decomposer_for_literal_expr!(ExprFalseLiteral<S>);
 
 macro_rules! impl_try_write_to_with_decomposer_for_variable_expr {
     ($expr_type:ty) => {
-        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
             TryWriteToWithDecomposer<W, S, C, DP> for $expr_type
         {
             fn try_write_with_decomposer(
@@ -86,7 +86,7 @@ impl_try_write_to_with_decomposer_for_variable_expr!(ExprVariable<S>);
 
 macro_rules! impl_try_write_to_with_decomposer_for_binary_expr {
     ($expr_type:ty) => {
-        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+        impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
             TryWriteToWithDecomposer<W, S, C, DP> for $expr_type
         {
             fn try_write_with_decomposer(
@@ -117,7 +117,7 @@ impl_try_write_to_with_decomposer_for_binary_expr!(ExprRoot<S>);
 impl_try_write_to_with_decomposer_for_binary_expr!(ExprIntRoot<S>);
 impl_try_write_to_with_decomposer_for_binary_expr!(ExprModulo<S>);
 
-impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
     TryWriteToWithDecomposer<W, S, C, DP> for ExprIntLiteral<S>
 {
     fn try_write_with_decomposer(
@@ -134,7 +134,7 @@ impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
     }
 }
 
-impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
     TryWriteToWithDecomposer<W, S, C, DP> for ExprFloatLiteral<S>
 {
     fn try_write_with_decomposer(
@@ -151,7 +151,7 @@ impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
     }
 }
 
-impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: Decomposer<S>>
+impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
     TryWriteToWithDecomposer<W, S, C, DP> for Expr<S>
 {
     fn try_write_with_decomposer(
