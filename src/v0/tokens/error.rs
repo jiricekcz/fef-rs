@@ -53,3 +53,16 @@ pub enum ConfigTokenError {
         identifier: fef::raw::VariableLengthEnum,
     },
 }
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum MetadataTokenError {
+    #[error("failed to read identifier from input")]
+    IdentifierTooLarge {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+    #[error("failed to identify token from given identifier")]
+    IdentifierNotRecognized {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+}

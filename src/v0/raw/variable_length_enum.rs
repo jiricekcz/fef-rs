@@ -427,3 +427,11 @@ where
         Ok(())
     }
 }
+
+impl VariableLengthEnum {
+    pub(crate) fn min_byte_length_of(value: usize) -> usize {
+        let digits = value.ilog2() + 1; // Number of digits in the value
+        let byte_count = digits.div_ceil(7); // 7 bits per byte
+        byte_count as usize
+    }
+}
