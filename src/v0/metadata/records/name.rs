@@ -41,7 +41,7 @@ impl MetadataRecordObj for NameMetadataRecordObj {
     }
     fn byte_length(&self) -> usize {
         let string_length = self.name.len();
-        string_length + VariableLengthEnum::min_byte_length_of(string_length)
+        string_length + VariableLengthEnum::min_byte_length_of_usize(string_length)
     }
 }
 
@@ -50,9 +50,15 @@ impl<R: ?Sized + Read> ReadFrom<R> for NameMetadataRecordObj {
 
     fn read_from<C: ?Sized + Config>(
         reader: &mut R,
-        _configuration: &C,
+        configuration: &C,
     ) -> Result<Self, Self::ReadError> {
-        let name = String::read_from(reader, _configuration)?;
+        let full_length: usize =
+            VariableLengthEnum::read_from(reader, configuration)?.try_into()?;
+        let mut reserved_part = reader.take(full_length as u64);
+        let name = String::read_from(&mut reserved_part, configuration)?;
+        let mut buf = Vec::new();
+        reserved_part.read_to_end(&mut buf)?;
+        drop(buf);
         Ok(Self::new(name))
     }
 }
@@ -64,6 +70,8 @@ impl<W: ?Sized + Write> WriteTo<W> for NameMetadataRecordObj {
         writer: &mut W,
         configuration: &C,
     ) -> Result<(), Self::WriteError> {
+        let byte_length_enum = VariableLengthEnum::from(self.byte_length());
+        byte_length_enum.write_to(writer, configuration)?;
         self.name.write_to(writer, configuration)?;
         Ok(())
     }

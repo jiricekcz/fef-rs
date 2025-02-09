@@ -429,9 +429,21 @@ where
 }
 
 impl VariableLengthEnum {
-    pub(crate) fn min_byte_length_of(value: usize) -> usize {
+    pub(crate) fn min_byte_length_of_usize(value: usize) -> usize {
         let digits = value.ilog2() + 1; // Number of digits in the value
         let byte_count = digits.div_ceil(7); // 7 bits per byte
         byte_count as usize
+    }
+    pub(crate) fn min_byte_length(&self) -> usize {
+        match &self.value {
+            VariableLengthEnumStorage::U64(u64_value) => {
+                let value = *u64_value;
+
+                let digits = value.ilog2() + 1; // Number of digits in the value
+                let byte_count = digits.div_ceil(7); // 7 bits per byte
+                byte_count as usize
+            }
+            VariableLengthEnumStorage::Overflow(byte_vec) => byte_vec.len(),
+        }
     }
 }
