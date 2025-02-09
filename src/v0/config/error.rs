@@ -25,6 +25,7 @@ pub enum EnumConfigurationError {
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
+
 pub enum ConfigurationReadError {
     #[error("failed to read configuration from input")]
     IOError(#[from] std::io::Error),
