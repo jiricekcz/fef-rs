@@ -66,3 +66,20 @@ pub enum MetadataTokenError {
         identifier: fef::raw::VariableLengthEnum,
     },
 }
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum FileContentTypeTokenError {
+    #[error("failed to read identifier from input")]
+    IdentifierTooLarge {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+    #[error("failed to identify token from given identifier")]
+    IdentifierNotRecognized {
+        identifier: fef::raw::VariableLengthEnum,
+    },
+    #[error("failed to write identifier to output")]
+    WriteError(fef::raw::error::VariableLengthEnumError),
+    #[error("failed to read identifier from input")]
+    ReadError(fef::raw::error::VariableLengthEnumError),
+}
