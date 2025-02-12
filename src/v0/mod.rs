@@ -18,3 +18,5 @@ pub mod parse;
 pub mod expr;
 
 pub mod write;
+
+pub mod metadata;

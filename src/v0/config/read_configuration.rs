@@ -11,8 +11,7 @@ use crate::{
 
 use super::{
     default::DEFAULT_CONFIG, error::ConfigurationReadError, Config, FloatFormat, IntFormat,
-    default::DEFAULT_CONFIG, error::ReadConfigurationError, Config, FloatFormat, IntFormat,
-}
+};
 pub struct ReadConfigurationOutput {
     pub(crate) integer_format: Option<IntFormat>,
     pub(crate) float_format: Option<FloatFormat>,
