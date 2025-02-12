@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{config, error::FileContentTypeTokenError};
+use super::error::FileContentTypeTokenError;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
