@@ -28,3 +28,12 @@ pub enum MetadataWriteError {
     #[error("failed to write unspecified data")]
     PureDataWriteError(#[from] std::io::Error),
 }
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum MetadataHeaderReadError {
+    #[error("failed to read the number of records in metadata")]
+    RecordCountError(VariableLengthEnumError),
+    #[error("failed to read byte length of metadata records")]
+    ByteLengthError(VariableLengthEnumError),
+}
