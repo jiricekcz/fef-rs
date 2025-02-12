@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::{
-    error::{MetadataReadError, MetadataWriteError},
+    error::{MetadataRecordReadError, MetadataRecordWriteError},
     traits::MetadataRecordObj,
     NameMetadataRecordObj, ReservedMetadataRecord, UnknownMetadataRecordObj,
     VariableNameMetadataRecordObj,
@@ -28,7 +28,7 @@ pub enum MetadataRecord {
 impl Sealed for MetadataRecord {}
 
 impl<R: Read + ?Sized> ReadFrom<R> for MetadataRecord {
-    type ReadError = MetadataReadError;
+    type ReadError = MetadataRecordReadError;
     fn read_from<C: ?Sized + Config>(
         reader: &mut R,
         configuration: &C,
@@ -86,7 +86,7 @@ macro_rules! write_metadata_record {
 }
 
 impl<W: ?Sized + Write> WriteTo<W> for MetadataRecord {
-    type WriteError = MetadataWriteError;
+    type WriteError = MetadataRecordWriteError;
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,
@@ -105,5 +105,16 @@ impl<W: ?Sized + Write> WriteTo<W> for MetadataRecord {
             }
         };
         Ok(())
+    }
+}
+
+impl MetadataRecord {
+    pub(crate) fn byte_length(&self) -> usize {
+        match self {
+            MetadataRecord::Name(record) => record.byte_length(),
+            MetadataRecord::VariableName(record) => record.byte_length(),
+            MetadataRecord::Reserved(record) => record.byte_length(),
+            MetadataRecord::Unknown(record) => record.byte_length(),
+        }
     }
 }

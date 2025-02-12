@@ -5,7 +5,7 @@ use crate::{
     v0::{
         config::Config,
         metadata::{
-            error::{MetadataReadError, MetadataWriteError},
+            error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
         },
         raw::VariableLengthEnum,
@@ -49,7 +49,7 @@ impl MetadataRecordObj for VariableNameMetadataRecordObj {
 }
 
 impl<R: ?Sized + Read> ReadFrom<R> for VariableNameMetadataRecordObj {
-    type ReadError = MetadataReadError;
+    type ReadError = MetadataRecordReadError;
 
     fn read_from<C: ?Sized + Config>(
         reader: &mut R,
@@ -68,7 +68,7 @@ impl<R: ?Sized + Read> ReadFrom<R> for VariableNameMetadataRecordObj {
 }
 
 impl<W: ?Sized + Write> WriteTo<W> for VariableNameMetadataRecordObj {
-    type WriteError = MetadataWriteError;
+    type WriteError = MetadataRecordWriteError;
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,

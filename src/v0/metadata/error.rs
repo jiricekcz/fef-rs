@@ -7,7 +7,7 @@ use crate::v0::{
 
 #[derive(Error, Debug)]
 #[non_exhaustive]
-pub enum MetadataReadError {
+pub enum MetadataRecordReadError {
     #[error("failed to read a string")]
     StringReadError(#[from] StringReadError),
     #[error("failed to read a variable length enum")]
@@ -20,7 +20,7 @@ pub enum MetadataReadError {
 
 #[derive(Error, Debug)]
 #[non_exhaustive]
-pub enum MetadataWriteError {
+pub enum MetadataRecordWriteError {
     #[error("failed to write a string")]
     StringWriteError(#[from] StringWriteError),
     #[error("failed to write a variable length enum")]
@@ -36,4 +36,22 @@ pub enum MetadataHeaderReadError {
     RecordCountError(VariableLengthEnumError),
     #[error("failed to read byte length of metadata records")]
     ByteLengthError(VariableLengthEnumError),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum MetadataHeaderWriteError {
+    #[error("failed to write the number of records in metadata")]
+    RecordCountError(VariableLengthEnumError),
+    #[error("failed to write byte length of metadata records")]
+    ByteLengthError(VariableLengthEnumError),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum MetadataWriteError {
+    #[error("failed to write metadata header")]
+    HeaderError(#[from] MetadataHeaderWriteError),
+    #[error("failed to write metadata record")]
+    RecordError(#[from] MetadataRecordWriteError),
 }

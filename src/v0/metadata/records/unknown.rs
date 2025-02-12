@@ -5,7 +5,7 @@ use crate::{
     v0::{
         config::Config,
         metadata::{
-            error::{MetadataReadError, MetadataWriteError},
+            error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
         },
         raw::VariableLengthEnum,
@@ -37,7 +37,7 @@ impl UnknownMetadataRecordObj {
         reader: &mut R,
         configuration: &C,
         identifier: VariableLengthEnum,
-    ) -> Result<Self, MetadataReadError> {
+    ) -> Result<Self, MetadataRecordReadError> {
         let length: usize = VariableLengthEnum::read_from(reader, configuration)?.try_into()?;
         let mut data = Vec::with_capacity(length);
         reader.take(length as u64).read_to_end(&mut data)?;
@@ -46,7 +46,7 @@ impl UnknownMetadataRecordObj {
 }
 
 impl<W: ?Sized + Write> WriteTo<W> for UnknownMetadataRecordObj {
-    type WriteError = MetadataWriteError;
+    type WriteError = MetadataRecordWriteError;
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,

@@ -13,7 +13,7 @@ use crate::{
     v0::{
         config::Config,
         metadata::{
-            error::{MetadataReadError, MetadataWriteError},
+            error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
         },
         tokens::{error::MetadataTokenError, MetadataToken},
@@ -50,7 +50,7 @@ impl ReservedMetadataRecord {
         reader: &mut R,
         configuration: &C,
         identifier: MetadataToken,
-    ) -> Result<Self, MetadataReadError> {
+    ) -> Result<Self, MetadataRecordReadError> {
         match identifier {
             MetadataToken::ReservedOfficial(identifier) => {
                 let record = OfficialReservedMetadataRecordObj::read_from(
@@ -79,7 +79,7 @@ impl ReservedMetadataRecord {
 }
 
 impl<W: ?Sized + Write> WriteTo<W> for ReservedMetadataRecord {
-    type WriteError = MetadataWriteError;
+    type WriteError = MetadataRecordWriteError;
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,
