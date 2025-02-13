@@ -73,7 +73,7 @@ pub(crate) trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
+pub(crate) trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
     fn into_float(self) -> Float {
         self.into()
     }
