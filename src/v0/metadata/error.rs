@@ -62,9 +62,9 @@ pub enum MetadataWriteError {
 #[non_exhaustive]
 pub enum MetadataReadError {
     #[error("failed to read metadata header")]
-    HeaderError(MetadataHeaderReadError),
+    HeaderError(#[from] MetadataHeaderReadError),
     #[error("failed to read metadata record")]
-    RecordError(MetadataRecordReadError),
+    RecordError(#[from] MetadataRecordReadError),
 }
 
 #[derive(Error, Debug)]

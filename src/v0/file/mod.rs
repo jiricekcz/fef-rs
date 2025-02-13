@@ -13,6 +13,8 @@ use crate::common::traits::private::Sealed;
 
 use super::{tokens::FileContentTypeToken, traits::ReadFrom};
 
+#[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum File {
     RawFormula(RawFormulaFile),
     SingleFormula(SingleFormulaFile),

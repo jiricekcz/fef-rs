@@ -3,7 +3,7 @@ use std::io::Read;
 use crate::v0::{
     config::Config,
     metadata::{
-        error::{MetadataHeaderReadError, MetadataRecordReadError},
+        error::{MetadataHeaderReadError, MetadataReadError, MetadataRecordReadError},
         MetadataHeader, MetadataRecord,
     },
     traits::ReadFrom,
@@ -59,4 +59,15 @@ impl<'a, 'b, R: ?Sized + Read, C: ?Sized + Config> Drop for MetadataIterator<'a,
         let mut buf: Vec<u8> = Vec::new();
         let _ = self.limited_reader.read_to_end(&mut buf);
     }
+}
+
+pub fn parse_metadata_as_vec<R: ?Sized + Read, C: ?Sized + Config>(
+    reader: &mut R,
+    configuration: &C,
+) -> Result<Vec<MetadataRecord>, MetadataReadError> {
+    let mut records = Vec::new();
+    for record in parse_metadata(reader, configuration)? {
+        records.push(record?);
+    }
+    Ok(records)
 }

@@ -14,6 +14,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VariableNameMetadataRecordObj {
     name: String,
     variable_identifier: VariableLengthEnum,

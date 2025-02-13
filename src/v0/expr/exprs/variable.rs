@@ -65,7 +65,4 @@ impl<S: Sized> EnumExpr<S> for ExprVariable<S> {
     fn variable_length_enum(&self) -> &VariableLengthEnum {
         &self.id
     }
-    fn variable_length_enum_mut(&mut self) -> &mut VariableLengthEnum {
-        &mut self.id
-    }
 }

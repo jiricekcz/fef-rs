@@ -6,9 +6,10 @@ mod read_configuration;
 mod traits;
 
 pub use configurations::*;
+pub use default::DefaultConfig;
 pub use default::DEFAULT_CONFIG;
 pub use overridable_config::OverridableConfig;
 pub use read_configuration::ConfigurationValue;
 pub use read_configuration::ReadConfigurationOutput;
 pub use traits::Config;
-pub use traits::EnumConfiguration;
+pub(crate) use traits::EnumConfiguration;

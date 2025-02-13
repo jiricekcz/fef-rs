@@ -10,12 +10,13 @@ use super::{
     OverridableConfig,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ReadConfigurationOutput {
     pub(crate) integer_format: Option<IntFormat>,
     pub(crate) float_format: Option<FloatFormat>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ConfigurationValue<T: Default + Copy> {
     Unset,
     Set(T),
@@ -44,10 +45,10 @@ impl<T: Default + Copy> Default for ConfigurationValue<T> {
 }
 
 impl<T: Default + Copy> ConfigurationValue<T> {
-    pub fn is_set(&self) -> bool {
+    pub const fn is_set(&self) -> bool {
         matches!(self, ConfigurationValue::Set(_))
     }
-    pub fn is_unset(&self) -> bool {
+    pub const fn is_unset(&self) -> bool {
         !self.is_set()
     }
     pub fn into_value(self) -> T {
@@ -56,35 +57,35 @@ impl<T: Default + Copy> ConfigurationValue<T> {
             ConfigurationValue::Unset => T::default(),
         }
     }
-    pub fn as_ref(&self) -> Option<&T> {
+    pub const fn as_ref(&self) -> Option<&T> {
         match self {
             ConfigurationValue::Set(value) => Some(value),
             ConfigurationValue::Unset => None,
         }
     }
-    pub fn as_mut(&mut self) -> Option<&mut T> {
+    pub const fn as_mut(&mut self) -> Option<&mut T> {
         match self {
             ConfigurationValue::Set(value) => Some(value),
             ConfigurationValue::Unset => None,
         }
     }
-    pub fn set(&mut self, value: T) {
+    pub const fn set(&mut self, value: T) {
         *self = ConfigurationValue::Set(value);
     }
     pub fn set_default(&mut self) {
         *self = ConfigurationValue::Set(T::default());
     }
-    pub fn unset(&mut self) {
+    pub const fn unset(&mut self) {
         *self = ConfigurationValue::Unset;
     }
 }
 
 impl ReadConfigurationOutput {
-    pub fn integer_format(&self) -> ConfigurationValue<IntFormat> {
+    pub fn integer_format_state(&self) -> ConfigurationValue<IntFormat> {
         self.integer_format.into()
     }
 
-    pub fn float_format(&self) -> ConfigurationValue<FloatFormat> {
+    pub fn float_format_state(&self) -> ConfigurationValue<FloatFormat> {
         self.float_format.into()
     }
 }
@@ -123,10 +124,10 @@ impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
 
 impl Config for ReadConfigurationOutput {
     fn float_format(&self) -> FloatFormat {
-        self.float_format().into_value()
+        self.float_format_state().into_value()
     }
     fn integer_format(&self) -> IntFormat {
-        self.integer_format().into_value()
+        self.integer_format_state().into_value()
     }
 }
 

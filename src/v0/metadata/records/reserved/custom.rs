@@ -13,7 +13,7 @@ use crate::{
         traits::{ReadFrom, WriteTo},
     },
 };
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CustomReservedMetadataRecordObj {
     identifier: u32,
     data: Vec<u8>,
@@ -53,5 +53,17 @@ impl<W: ?Sized + Write> WriteTo<W> for CustomReservedMetadataRecordObj {
         VariableLengthEnum::from(self.data.len()).write_to(writer, configuration)?;
         writer.write_all(&self.data)?;
         Ok(())
+    }
+}
+
+impl CustomReservedMetadataRecordObj {
+    pub fn new(identifier: u32, data: Vec<u8>) -> Self {
+        Self { identifier, data }
+    }
+    pub fn identifier(&self) -> u32 {
+        self.identifier
+    }
+    pub fn data(&self) -> &[u8] {
+        &self.data
     }
 }

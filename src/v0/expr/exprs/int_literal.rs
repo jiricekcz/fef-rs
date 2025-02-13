@@ -65,8 +65,4 @@ impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {
     fn integer(&self) -> &Integer {
         &self.value
     }
-
-    fn integer_mut(&mut self) -> &mut Integer {
-        &mut self.value
-    }
 }

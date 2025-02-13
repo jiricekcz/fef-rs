@@ -42,17 +42,10 @@ pub trait ExprObj<S: Sized>: Sealed + Sized + Into<Expr<S>> + TryFrom<Expr<S>> {
 /// This trait is sealed and cannot be implemented outside of this crate.
 /// Not all values of a given variable length enum must be valid for the expression,
 /// but all expressions must be representable by a single value of the variable length enum.
-pub trait EnumExpr<S: Sized>:
+pub(crate) trait EnumExpr<S: Sized>:
     Sealed + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
 {
-    /// Converts this object into a [VariableLengthEnum].
-    fn into_variable_length_enum(self) -> VariableLengthEnum {
-        self.into()
-    }
-
     fn variable_length_enum(&self) -> &VariableLengthEnum;
-
-    fn variable_length_enum_mut(&mut self) -> &mut VariableLengthEnum;
 }
 
 /// A trait for all integer expression objects.
@@ -62,15 +55,8 @@ pub trait EnumExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
-    /// Converts this object into an [Integer].
-    fn into_integer(self) -> Integer {
-        self.into()
-    }
-
+pub(crate) trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
     fn integer(&self) -> &Integer;
-
-    fn integer_mut(&mut self) -> &mut Integer;
 }
 
 /// A trait for all float expression objects.
@@ -80,14 +66,8 @@ pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
-    fn into_float(self) -> Float {
-        self.into()
-    }
-
+pub(crate) trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
     fn float(&self) -> &Float;
-
-    fn float_mut(&mut self) -> &mut Float;
 }
 
 /// A trait for all expression objects that hold no value.
@@ -97,7 +77,7 @@ pub trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait PureExpr<S: Sized>: Sealed + From<()> {}
+pub(crate) trait PureExpr<S: Sized>: Sealed + From<()> {}
 
 /// A trait for all binary operation expression objects.
 ///
@@ -105,16 +85,11 @@ pub trait PureExpr<S: Sized>: Sealed + From<()> {}
 /// It is used for all common behavior between expression objects that represent
 /// an operation between two expressions.
 /// Note, that all expressions can be connected using binary operations.
-pub trait BinaryOperationExpr<S: Sized>: Sealed + Into<(S, S)> + From<(S, S)> {
+pub(crate) trait BinaryOperationExpr<S: Sized>:
+    Sealed + Into<(S, S)> + From<(S, S)>
+{
     fn lhs(&self) -> &S;
     fn rhs(&self) -> &S;
-
-    fn lhs_mut(&mut self) -> &mut S;
-    fn rhs_mut(&mut self) -> &mut S;
-
-    fn into_parts(self) -> (S, S) {
-        self.into()
-    }
 }
 
 /// A trait for all unary operation expression objects.
@@ -124,11 +99,8 @@ pub trait BinaryOperationExpr<S: Sized>: Sealed + Into<(S, S)> + From<(S, S)> {
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
+pub(crate) trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
     fn inner(&self) -> &S;
-    fn inner_mut(&mut self) -> &mut S;
-
-    fn into_inner(self) -> S;
 }
 
 macro_rules! compose_expr {
@@ -172,7 +144,7 @@ pub trait Composer<S: Sized> {
     compose_expr!(compose_reciprocal, ExprReciprocal<S>);
 }
 
-pub trait TryReadFromWithComposer<
+pub(crate) trait TryReadFromWithComposer<
     R: ?Sized + Read,
     S: Sized,
     C: ?Sized + Config,
@@ -198,7 +170,7 @@ pub trait Decomposer<S: Sized> {
     ) -> Result<impl DecompositionRefContainer<'a, S>, DecomposeError<Self::Error>>;
 }
 
-pub trait TryWriteToWithDecomposer<
+pub(crate) trait TryWriteToWithDecomposer<
     W: ?Sized + Write,
     S: Sized,
     C: ?Sized + Config,

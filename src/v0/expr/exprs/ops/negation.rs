@@ -53,11 +53,4 @@ impl<S: Sized> UnaryOperationExpr<S> for ExprNegation<S> {
     fn inner(&self) -> &S {
         &self.operand
     }
-    fn inner_mut(&mut self) -> &mut S {
-        &mut self.operand
-    }
-
-    fn into_inner(self) -> S {
-        self.operand
-    }
 }
