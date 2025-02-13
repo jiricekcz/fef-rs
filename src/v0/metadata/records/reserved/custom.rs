@@ -55,3 +55,15 @@ impl<W: ?Sized + Write> WriteTo<W> for CustomReservedMetadataRecordObj {
         Ok(())
     }
 }
+
+impl CustomReservedMetadataRecordObj {
+    pub fn new(identifier: u32, data: Vec<u8>) -> Self {
+        Self { identifier, data }
+    }
+    pub fn identifier(&self) -> u32 {
+        self.identifier
+    }
+    pub fn data(&self) -> &[u8] {
+        &self.data
+    }
+}
