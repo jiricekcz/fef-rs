@@ -4,8 +4,8 @@ use super::{configurations::*, Config};
 
 /// A configuration starting with values from the default configuration.
 pub struct OverridableConfig {
-    integer_format: Option<IntFormat>,
-    float_format: Option<FloatFormat>,
+    pub(crate) integer_format: Option<IntFormat>,
+    pub(crate) float_format: Option<FloatFormat>,
 }
 
 impl Sealed for OverridableConfig {}
@@ -37,12 +37,19 @@ impl OverridableConfig {
         self.float_format.is_some()
     }
 
-    pub fn override_with(&mut self, other: OverridableConfig) {
+    pub fn override_with(&mut self, other: &OverridableConfig) {
         if let Some(format) = other.integer_format {
             self.override_integer_format(format);
         }
         if let Some(format) = other.float_format {
             self.override_float_format(format);
+        }
+    }
+
+    pub(crate) fn from_config_full_override<C: ?Sized + Config>(config: &C) -> Self {
+        OverridableConfig {
+            integer_format: Some(config.integer_format()),
+            float_format: Some(config.float_format()),
         }
     }
 }

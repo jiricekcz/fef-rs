@@ -2,16 +2,15 @@ use std::io::Read;
 
 use crate::{
     common::{stream_utils::skip_bytes, traits::private::Sealed},
-    v0::{
-        raw::VariableLengthEnum,
-        tokens::ConfigToken,
-        traits::{ReadFrom, ReadFromWithDefaultConfig},
-    },
+    v0::{raw::VariableLengthEnum, tokens::ConfigToken, traits::ReadFrom},
 };
 
 use super::{
     default::DEFAULT_CONFIG, error::ConfigurationReadError, Config, FloatFormat, IntFormat,
+    OverridableConfig,
 };
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct ReadConfigurationOutput {
     pub(crate) integer_format: Option<IntFormat>,
     pub(crate) float_format: Option<FloatFormat>,
@@ -100,18 +99,21 @@ impl Default for ReadConfigurationOutput {
 }
 impl Sealed for ReadConfigurationOutput {}
 
-impl<R: ?Sized + Read> ReadFromWithDefaultConfig<R> for ReadConfigurationOutput {
+impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
     type ReadError = ConfigurationReadError;
-    fn read_from(reader: &mut R) -> Result<Self, Self::ReadError> {
+    fn read_from<C: ?Sized + Config>(
+        reader: &mut R,
+        configuration: &C,
+    ) -> Result<Self, Self::ReadError> {
         let config_count: usize =
-            VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?.try_into()?;
+            VariableLengthEnum::read_from(reader, configuration)?.try_into()?;
 
         let mut remaining = config_count;
         let mut output = ReadConfigurationOutput::default();
 
         while remaining > 0 {
             // Looping through the number of configurations given by the first VariableLengthEnum (config_count)
-            read_one_config(reader, &mut output)?;
+            read_one_config(reader, configuration, &mut output)?;
             remaining -= 1;
         }
 
@@ -129,9 +131,9 @@ impl Config for ReadConfigurationOutput {
 }
 
 macro_rules! read_enum_configuration {
-    ($configuration_type:ty, $reader:ident) => {{
+    ($configuration_type:ty, $reader:ident, $config:ident) => {{
         let variable_length_enum: VariableLengthEnum =
-            VariableLengthEnum::read_from($reader, &DEFAULT_CONFIG)?;
+            VariableLengthEnum::read_from($reader, $config)?;
         let int_format = <$configuration_type>::try_from(variable_length_enum)?;
         int_format
     }};
@@ -145,11 +147,12 @@ fn skip_non_enum_configuration<R: Read + ?Sized>(
     Ok(())
 }
 
-fn read_one_config<R: Read + ?Sized>(
+fn read_one_config<R: Read + ?Sized, C: ?Sized + Config>(
     reader: &mut R,
+    configuration: &C,
     output: &mut ReadConfigurationOutput,
 ) -> Result<(), ConfigurationReadError> {
-    let config_token_identifier = VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?;
+    let config_token_identifier = VariableLengthEnum::read_from(reader, configuration)?;
 
     let config_token_identifier_usize =
         match config_token_identifier_to_usize(config_token_identifier, reader)? {
@@ -157,12 +160,16 @@ fn read_one_config<R: Read + ?Sized>(
             None => return Ok(()),
         };
 
-    let config_token = match match_config_token_identifier(config_token_identifier_usize, reader)? {
+    let config_token = match match_config_token_identifier(
+        config_token_identifier_usize,
+        reader,
+        configuration,
+    )? {
         Some(value) => value,
         None => return Ok(()),
     };
 
-    read_enum_configuration(reader, config_token, output)?;
+    read_enum_configuration(reader, configuration, config_token, output)?;
     Ok(())
 }
 
@@ -181,9 +188,10 @@ fn config_token_identifier_to_usize<R: Read + ?Sized>(
     Ok(Some(config_token_identifier_usize))
 }
 
-fn match_config_token_identifier<R: ?Sized + Read>(
+fn match_config_token_identifier<R: ?Sized + Read, C: ?Sized + Config>(
     config_token_identifier: usize,
     reader: &mut R,
+    configuration: &C,
 ) -> Result<Option<ConfigToken>, ConfigurationReadError> {
     let config_token: ConfigToken = match config_token_identifier.try_into() {
         Ok(token) => token,
@@ -191,7 +199,7 @@ fn match_config_token_identifier<R: ?Sized + Read>(
             // Identifier is not recognized we decide how to skip it
             if config_token_identifier <= 0x7F {
                 // Enum configuration
-                let _ = VariableLengthEnum::read_from(reader, &DEFAULT_CONFIG)?;
+                let _ = VariableLengthEnum::read_from(reader, configuration)?;
             // Skip one additional VariableLengthEnum
             } else {
                 skip_non_enum_configuration(reader)?;
@@ -202,20 +210,30 @@ fn match_config_token_identifier<R: ?Sized + Read>(
     Ok(Some(config_token))
 }
 
-fn read_enum_configuration<R: ?Sized + Read>(
+fn read_enum_configuration<R: ?Sized + Read, C: ?Sized + Config>(
     reader: &mut R,
+    configuration: &C,
     config_token: ConfigToken,
     output: &mut ReadConfigurationOutput,
 ) -> Result<(), ConfigurationReadError> {
     match config_token {
         ConfigToken::IntFormat => {
-            let int_format = read_enum_configuration!(IntFormat, reader);
+            let int_format = read_enum_configuration!(IntFormat, reader, configuration);
             output.integer_format = Some(int_format);
         }
         ConfigToken::FloatFormat => {
-            let float_format = read_enum_configuration!(FloatFormat, reader);
+            let float_format = read_enum_configuration!(FloatFormat, reader, configuration);
             output.float_format = Some(float_format);
         }
     }
     Ok(())
+}
+
+impl Into<OverridableConfig> for ReadConfigurationOutput {
+    fn into(self) -> OverridableConfig {
+        OverridableConfig {
+            integer_format: self.integer_format,
+            float_format: self.float_format,
+        }
+    }
 }
