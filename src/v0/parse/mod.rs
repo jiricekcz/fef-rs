@@ -8,6 +8,7 @@ pub use expression::parse_expression;
 pub use expression::parse_expression_into_tree;
 
 pub use configuration::parse_configuration;
+pub use configuration::parse_configuration_with_default_configuration;
 
 pub use metadata::parse_metadata;
 
