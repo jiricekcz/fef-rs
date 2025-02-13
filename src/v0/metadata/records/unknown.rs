@@ -14,6 +14,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnknownMetadataRecordObj {
     identifier: VariableLengthEnum,
     data: Vec<u8>,
