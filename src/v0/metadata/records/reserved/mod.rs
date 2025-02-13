@@ -21,10 +21,20 @@ use crate::{
     },
 };
 
+/// Metadata record with identifier unknown to the library, but reserved for future use. See [specification](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md#defined-metadata-keys)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ReservedMetadataRecord {
+    /// Official reserved metadata record.
+    ///
+    /// These keys are reserved for future use by the FEF specification.
     Official(OfficialReservedMetadataRecordObj),
+    /// Custom reserved metadata record.
+    ///
+    /// These keys are reserved for custom use by any implementor.
     Custom(CustomReservedMetadataRecordObj),
+    /// Third-party reserved metadata record.
+    ///
+    /// These keys are reserved for use by third-party extensions to the FEF specification.
     ThirdParty(ThirdPartyReservedMetadataRecordObj),
 }
 impl Sealed for ReservedMetadataRecord {}
