@@ -3,7 +3,7 @@ use crate::{
     v0::tokens::{error::MetadataTokenError, MetadataToken},
 };
 
-pub trait MetadataRecordObj: Sealed {
+pub(crate) trait MetadataRecordObj: Sealed {
     fn token(&self) -> Result<MetadataToken, MetadataTokenError>;
     fn byte_length(&self) -> usize;
 }
