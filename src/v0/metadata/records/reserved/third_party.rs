@@ -13,7 +13,9 @@ use crate::{
         traits::{ReadFrom, WriteTo},
     },
 };
-
+/// Metadata record with identifier reserved for third-party extensions to the FEF specification.
+///
+/// In general, handling of third-party metadata records is determined by the third-party extension.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ThirdPartyReservedMetadataRecordObj {
     identifier: u32,
@@ -46,6 +48,10 @@ impl ThirdPartyReservedMetadataRecordObj {
 
 impl<W: ?Sized + Write> WriteTo<W> for ThirdPartyReservedMetadataRecordObj {
     type WriteError = MetadataRecordWriteError;
+
+    /// Writes the metadata record to a writer.
+    ///
+    /// Should generally be only used by the third-party extension that defined the metadata record.
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,
