@@ -8,12 +8,14 @@ pub struct DefaultConfig {}
 impl Config for DefaultConfig {}
 
 impl Default for DefaultConfig {
+    /// Creates a new instance of the default configuration.
     fn default() -> Self {
         DefaultConfig {}
     }
 }
 
 impl DefaultConfig {
+    /// Creates a new instance of the default configuration. Equivalent to `Default::default()`.
     pub const fn new() -> Self {
         DefaultConfig {}
     }
