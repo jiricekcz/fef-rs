@@ -71,8 +71,4 @@ impl<S: Sized> FloatExpr<S> for ExprFloatLiteral<S> {
     fn float(&self) -> &Float {
         &self.value
     }
-
-    fn float_mut(&mut self) -> &mut Float {
-        &mut self.value
-    }
 }
