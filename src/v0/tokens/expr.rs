@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::error::ExprTokenError;
-/// Interpretation of a [VariableLengthEnum](crate::v0::raw::VariableLengthEnum) as an expression identifier.
+/// Expression identifier.
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
 pub enum ExprToken {

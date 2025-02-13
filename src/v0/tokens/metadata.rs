@@ -2,6 +2,7 @@ use crate::v0::raw::VariableLengthEnum;
 
 use super::error::MetadataTokenError;
 
+/// Metadata key identifiers.
 #[non_exhaustive]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 pub enum MetadataToken {

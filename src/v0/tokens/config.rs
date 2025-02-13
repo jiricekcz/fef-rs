@@ -2,6 +2,7 @@ use crate::v0::raw::VariableLengthEnum;
 
 use super::error::ConfigTokenError;
 
+/// Configuration key identifiers.
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
 pub enum ConfigToken {

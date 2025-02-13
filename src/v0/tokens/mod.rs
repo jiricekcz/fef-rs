@@ -1,4 +1,4 @@
-//! Interpretations of raw FEF values
+//! Interpretations of [`VariableLengthEnum`s](crate::v0::raw::VariableLengthEnum) as tokens.
 mod config;
 pub mod error;
 mod expr;
