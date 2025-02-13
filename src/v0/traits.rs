@@ -17,12 +17,15 @@ where
     ) -> Result<Self, Self::ReadError>;
 }
 
+/// Trait for writing a value to bytes with option to fail.
 pub trait WriteTo<W>: Sealed
 where
     W: std::io::Write + ?Sized,
 {
+    /// The error type that can be returned when writing fails.
     type WriteError: std::error::Error;
 
+    /// Writes the value to the given writer.
     fn write_to<C: ?Sized + Config>(
         &self,
         writer: &mut W,
