@@ -10,7 +10,7 @@ use super::{
     OverridableConfig,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ReadConfigurationOutput {
     pub(crate) integer_format: Option<IntFormat>,
     pub(crate) float_format: Option<FloatFormat>,
@@ -81,11 +81,11 @@ impl<T: Default + Copy> ConfigurationValue<T> {
 }
 
 impl ReadConfigurationOutput {
-    pub fn integer_format(&self) -> ConfigurationValue<IntFormat> {
+    pub fn integer_format_state(&self) -> ConfigurationValue<IntFormat> {
         self.integer_format.into()
     }
 
-    pub fn float_format(&self) -> ConfigurationValue<FloatFormat> {
+    pub fn float_format_state(&self) -> ConfigurationValue<FloatFormat> {
         self.float_format.into()
     }
 }
@@ -124,10 +124,10 @@ impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
 
 impl Config for ReadConfigurationOutput {
     fn float_format(&self) -> FloatFormat {
-        self.float_format().into_value()
+        self.float_format_state().into_value()
     }
     fn integer_format(&self) -> IntFormat {
-        self.integer_format().into_value()
+        self.integer_format_state().into_value()
     }
 }
 
