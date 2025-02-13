@@ -1,3 +1,5 @@
+//! Configuration of the FEF parser based on the [specification](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md)
+
 mod configurations;
 mod default;
 pub mod error;
