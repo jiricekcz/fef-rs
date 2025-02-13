@@ -21,6 +21,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ReservedMetadataRecord {
     Official(OfficialReservedMetadataRecordObj),
     Custom(CustomReservedMetadataRecordObj),
