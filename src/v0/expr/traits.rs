@@ -98,7 +98,9 @@ pub(crate) trait PureExpr<S: Sized>: Sealed + From<()> {}
 /// It is used for all common behavior between expression objects that represent
 /// an operation between two expressions.
 /// Note, that all expressions can be connected using binary operations.
-pub trait BinaryOperationExpr<S: Sized>: Sealed + Into<(S, S)> + From<(S, S)> {
+pub(crate) trait BinaryOperationExpr<S: Sized>:
+    Sealed + Into<(S, S)> + From<(S, S)>
+{
     fn lhs(&self) -> &S;
     fn rhs(&self) -> &S;
 
