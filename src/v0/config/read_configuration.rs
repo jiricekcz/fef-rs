@@ -16,6 +16,7 @@ pub struct ReadConfigurationOutput {
     pub(crate) float_format: Option<FloatFormat>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ConfigurationValue<T: Default + Copy> {
     Unset,
     Set(T),
@@ -44,10 +45,10 @@ impl<T: Default + Copy> Default for ConfigurationValue<T> {
 }
 
 impl<T: Default + Copy> ConfigurationValue<T> {
-    pub fn is_set(&self) -> bool {
+    pub const fn is_set(&self) -> bool {
         matches!(self, ConfigurationValue::Set(_))
     }
-    pub fn is_unset(&self) -> bool {
+    pub const fn is_unset(&self) -> bool {
         !self.is_set()
     }
     pub fn into_value(self) -> T {
@@ -56,25 +57,25 @@ impl<T: Default + Copy> ConfigurationValue<T> {
             ConfigurationValue::Unset => T::default(),
         }
     }
-    pub fn as_ref(&self) -> Option<&T> {
+    pub const fn as_ref(&self) -> Option<&T> {
         match self {
             ConfigurationValue::Set(value) => Some(value),
             ConfigurationValue::Unset => None,
         }
     }
-    pub fn as_mut(&mut self) -> Option<&mut T> {
+    pub const fn as_mut(&mut self) -> Option<&mut T> {
         match self {
             ConfigurationValue::Set(value) => Some(value),
             ConfigurationValue::Unset => None,
         }
     }
-    pub fn set(&mut self, value: T) {
+    pub const fn set(&mut self, value: T) {
         *self = ConfigurationValue::Set(value);
     }
     pub fn set_default(&mut self) {
         *self = ConfigurationValue::Set(T::default());
     }
-    pub fn unset(&mut self) {
+    pub const fn unset(&mut self) {
         *self = ConfigurationValue::Unset;
     }
 }
