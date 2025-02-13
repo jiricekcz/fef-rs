@@ -18,16 +18,10 @@ pub trait Config {
     }
 }
 
-pub trait EnumConfiguration: Sealed + Copy + Default + Eq + TryFrom<VariableLengthEnum> {
+pub(crate) trait EnumConfiguration:
+    Sealed + Copy + Default + Eq + TryFrom<VariableLengthEnum>
+{
     fn token() -> ConfigToken;
 
     fn value(&self) -> usize;
-
-    fn to_variable_length_enum(&self) -> VariableLengthEnum {
-        VariableLengthEnum::from(self.value())
-    }
-
-    fn is_default(&self) -> bool {
-        *self == Self::default()
-    }
 }
