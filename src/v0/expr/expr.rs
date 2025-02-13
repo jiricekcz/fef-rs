@@ -119,6 +119,7 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
 /// // Example of converting an ExprTree back to an Expr
 /// let expr: Expr<ExprTree> = expr_tree.into();
 /// ```
+#[derive(Debug, Clone, PartialEq)]
 pub struct ExprTree {
     inner: Box<Expr<ExprTree>>,
 }
