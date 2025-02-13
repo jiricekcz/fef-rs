@@ -55,7 +55,7 @@ pub(crate) trait EnumExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
+pub(crate) trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
     /// Converts this object into an [Integer].
     fn into_integer(self) -> Integer {
         self.into()
