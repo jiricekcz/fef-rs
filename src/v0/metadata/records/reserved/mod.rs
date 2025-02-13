@@ -23,6 +23,7 @@ use crate::{
 
 /// Metadata record with identifier unknown to the library, but reserved for future use. See [specification](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md#defined-metadata-keys)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum ReservedMetadataRecord {
     /// Official reserved metadata record.
     ///
