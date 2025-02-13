@@ -2,7 +2,7 @@ use crate::common::traits::private::Sealed;
 
 use super::{configurations::*, Config};
 
-/// A configuration starting with values from the default configuration.
+/// Configuration object with defaults and the ability to override values.
 ///
 /// This is the most common configuration structure. It can hold all configurations, but also keeps track, of which values are default.
 /// It is possible to differentiate between value being not set and being set to the same value as the default.
