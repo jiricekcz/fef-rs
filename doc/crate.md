@@ -33,7 +33,6 @@ let config = MyConfig;
 let language = config.language(); // This will break if we add a language method to the Config trait
 
 let language = MyConfig::language(&config); // This will not break and execute your language method
-// let language = Config::language(&config); // This would execute the language method from the Config trait
 
 # assert_eq!(language, "");
 ```
