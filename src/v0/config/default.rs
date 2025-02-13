@@ -15,7 +15,7 @@ impl Default for DefaultConfig {
 }
 
 impl DefaultConfig {
-    /// Creates a new instance of the default configuration. Equivalent to `Default::default()`.
+    /// Creates a new instance of the default configuration. Equivalent to using the [Default] trait.
     pub const fn new() -> Self {
         DefaultConfig {}
     }
