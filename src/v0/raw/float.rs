@@ -37,7 +37,6 @@ where
     /// # use fef::v0::raw::Float;
     /// # use std::io::Bytes;
     /// # fn main() -> Result<(), fef::v0::raw::error::FloatReadError> {
-    ///
     /// let file = vec![0x40, 0x09, 0x21, 0xfb, 0x54, 0x44, 0x2d, 0x18];
     /// let mut file_reader = file.as_slice();
     ///
