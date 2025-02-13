@@ -19,7 +19,9 @@ use crate::v0::{
 
 use super::{
     error::ExprReadWithComposerError,
-    traits::{Composer, TryReadFromWithComposer},
+    traits::{
+        BinaryOperationExpr, Composer, PureExpr, TryReadFromWithComposer, UnaryOperationExpr,
+    },
     Expr, ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
     ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
     ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction,
@@ -30,6 +32,8 @@ macro_rules! impl_read_from_pure_expr {
     ($compose_function_name:ident, $compose_type:ty) => {
         impl<R: ?Sized + Read, S: Sized, C: ?Sized + Config, CP: ?Sized + Composer<S>>
             TryReadFromWithComposer<R, S, C, CP> for $compose_type
+        where
+            $compose_type: PureExpr<S>,
         {
             fn try_read_with_composer(
                 _byte_stream: &mut R,
@@ -75,6 +79,8 @@ macro_rules! impl_read_from_unary_expr {
     ($compose_function_name:ident, $compose_type:ty) => {
         impl<R: ?Sized + Read, S: Sized, C: ?Sized + Config, CP: ?Sized + Composer<S>>
             TryReadFromWithComposer<R, S, C, CP> for $compose_type
+        where
+            $compose_type: UnaryOperationExpr<S>,
         {
             fn try_read_with_composer(
                 byte_stream: &mut R,
@@ -97,6 +103,8 @@ macro_rules! impl_read_from_binary_expr {
     ($compose_function_name:ident, $compose_type:ty) => {
         impl<R: ?Sized + Read, S: Sized, C: ?Sized + Config, CP: ?Sized + Composer<S>>
             TryReadFromWithComposer<R, S, C, CP> for $compose_type
+        where
+            $compose_type: BinaryOperationExpr<S>,
         {
             fn try_read_with_composer(
                 byte_stream: &mut R,

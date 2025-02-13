@@ -28,7 +28,7 @@ pub enum ExprReadError {
     ExprTokenReadError(#[from] ExprTokenReadError),
     IntegersReadError(#[from] IntegerReadError),
     FloatsReadError(#[from] FloatReadError),
-    VariableLengthEnumError(#[from] crate::v0::raw::error::VariableLengthEnumError),
+    VariableLengthEnumError(#[from] VariableLengthEnumError),
 }
 
 impl From<Infallible> for ExprReadError {
