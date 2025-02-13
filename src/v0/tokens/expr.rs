@@ -110,7 +110,7 @@ impl TryFrom<usize> for ExprToken {
 /// # Example
 /// ```rust
 /// # use fef::v0::tokens::ExprToken;
-/// # use fef::raw::VariableLengthEnum;
+/// # use fef::v0::raw::VariableLengthEnum;
 /// let raw_enum = VariableLengthEnum::from(4);
 /// match ExprToken::try_from(raw_enum) {
 ///     Ok(token) => match token { // identifier `0x04` is a variable identifier

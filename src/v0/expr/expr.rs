@@ -109,11 +109,11 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
 ///
 /// # Examples
 /// ```
-/// use crate::v0::expr::{Expr, ExprTree, ExprVariable};
-/// use crate::v0::raw::VariableLengthEnum;
+/// # use fef::v0::expr::{Expr, ExprTree, ExprVariable};
+/// # use fef::v0::raw::VariableLengthEnum;
 ///
 /// // Example of converting an Expr to an ExprTree
-/// let expr = Expr::Variable(ExprVariable::new(VariableLengthEnum::from(0)));
+/// let expr = Expr::Variable(ExprVariable::from(VariableLengthEnum::from(0)));
 /// let expr_tree: ExprTree = expr.into();
 ///
 /// // Example of converting an ExprTree back to an Expr
