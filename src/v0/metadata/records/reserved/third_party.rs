@@ -14,6 +14,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ThirdPartyReservedMetadataRecordObj {
     identifier: u32,
     data: Vec<u8>,
