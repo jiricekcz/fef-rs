@@ -1,5 +1,6 @@
 use crate::{common::traits::private::Sealed, v0::expr::ExprTree};
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct RawFormulaFile {
     pub(crate) expression: ExprTree,
 }
