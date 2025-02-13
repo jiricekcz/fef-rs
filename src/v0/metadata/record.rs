@@ -18,6 +18,7 @@ use super::{
 };
 
 #[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MetadataRecord {
     Name(NameMetadataRecordObj),
     VariableName(VariableNameMetadataRecordObj),
