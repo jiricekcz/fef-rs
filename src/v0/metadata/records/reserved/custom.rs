@@ -13,7 +13,7 @@ use crate::{
         traits::{ReadFrom, WriteTo},
     },
 };
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CustomReservedMetadataRecordObj {
     identifier: u32,
     data: Vec<u8>,
