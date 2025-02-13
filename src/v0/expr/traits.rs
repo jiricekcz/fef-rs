@@ -193,7 +193,7 @@ pub trait Decomposer<S: Sized> {
     ) -> Result<impl DecompositionRefContainer<'a, S>, DecomposeError<Self::Error>>;
 }
 
-pub trait TryWriteToWithDecomposer<
+pub(crate) trait TryWriteToWithDecomposer<
     W: ?Sized + Write,
     S: Sized,
     C: ?Sized + Config,
