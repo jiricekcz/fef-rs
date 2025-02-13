@@ -7,6 +7,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct SingleFormulaFile {
     pub(crate) expression: ExprTree,
     pub(crate) configuration: ReadConfigurationOutput,
