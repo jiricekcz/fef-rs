@@ -90,7 +90,7 @@ pub(crate) trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait PureExpr<S: Sized>: Sealed + From<()> {}
+pub(crate) trait PureExpr<S: Sized>: Sealed + From<()> {}
 
 /// A trait for all binary operation expression objects.
 ///
