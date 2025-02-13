@@ -167,7 +167,7 @@ pub trait Composer<S: Sized> {
     compose_expr!(compose_reciprocal, ExprReciprocal<S>);
 }
 
-pub trait TryReadFromWithComposer<
+pub(crate) trait TryReadFromWithComposer<
     R: ?Sized + Read,
     S: Sized,
     C: ?Sized + Config,
