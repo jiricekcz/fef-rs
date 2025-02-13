@@ -3,6 +3,8 @@ use crate::v0::raw::VariableLengthEnum;
 use super::error::MetadataTokenError;
 
 /// Metadata key identifiers.
+///
+/// Representation of this enum is not specified. This would enable the addition of a custom memory representation, when rust supports it.
 #[non_exhaustive]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 pub enum MetadataToken {
