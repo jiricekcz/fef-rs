@@ -1,14 +1,16 @@
-use std::{convert::Infallible, io::Read};
+use std::io::Read;
 
 use crate::v0::{
     config::{Config, OverridableConfig},
-    expr::error::ExprReadWithComposerError,
     metadata::{error::MetadataReadError, MetadataRecord},
     parse::{parse_configuration, parse_expression_into_tree, parse_metadata},
     traits::ReadFrom,
 };
 
-use super::{error::SingleFormulaReadError, RawFormulaFile, SingleFormulaFile};
+use super::{
+    error::{RawFormulaReadError, SingleFormulaReadError},
+    RawFormulaFile, SingleFormulaFile,
+};
 
 impl<R: ?Sized + Read> ReadFrom<R> for SingleFormulaFile {
     type ReadError = SingleFormulaReadError;
@@ -40,7 +42,7 @@ impl<R: ?Sized + Read> ReadFrom<R> for SingleFormulaFile {
 }
 
 impl<R: ?Sized + Read> ReadFrom<R> for RawFormulaFile {
-    type ReadError = ExprReadWithComposerError<Infallible>;
+    type ReadError = RawFormulaReadError;
     fn read_from<C: ?Sized + Config>(
         reader: &mut R,
         configuration: &C,
