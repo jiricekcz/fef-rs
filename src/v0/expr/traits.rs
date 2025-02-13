@@ -42,17 +42,10 @@ pub trait ExprObj<S: Sized>: Sealed + Sized + Into<Expr<S>> + TryFrom<Expr<S>> {
 /// This trait is sealed and cannot be implemented outside of this crate.
 /// Not all values of a given variable length enum must be valid for the expression,
 /// but all expressions must be representable by a single value of the variable length enum.
-pub trait EnumExpr<S: Sized>:
+pub(crate) trait EnumExpr<S: Sized>:
     Sealed + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
 {
-    /// Converts this object into a [VariableLengthEnum].
-    fn into_variable_length_enum(self) -> VariableLengthEnum {
-        self.into()
-    }
-
     fn variable_length_enum(&self) -> &VariableLengthEnum;
-
-    fn variable_length_enum_mut(&mut self) -> &mut VariableLengthEnum;
 }
 
 /// A trait for all integer expression objects.
