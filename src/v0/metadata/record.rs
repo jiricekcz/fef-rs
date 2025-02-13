@@ -65,11 +65,13 @@ impl<R: Read + ?Sized> ReadFrom<R> for MetadataRecord {
     ///     0x57, 0x6F // Record data
     /// ];
     /// let mut reader = &mut data.as_slice();
+    ///
     /// let record1 = MetadataRecord::read_from(&mut reader, &DEFAULT_CONFIG)?;
     /// assert_eq!(record1, MetadataRecord::Name(NameMetadataRecordObj::new("Formula".to_string())));
+    ///
     /// let record2 = MetadataRecord::read_from(&mut reader, &DEFAULT_CONFIG)?;
     /// assert!(matches!(record2, MetadataRecord::Reserved(ReservedMetadataRecord::Official(_))));
-    /// println!("{:?}", record2);
+    ///
     /// let record3 = MetadataRecord::read_from(&mut reader, &DEFAULT_CONFIG)?;
     /// assert!(matches!(record3, MetadataRecord::Unknown(_)));
     /// # Ok(())
