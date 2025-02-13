@@ -1,5 +1,6 @@
 use super::Config;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DefaultConfig {}
 impl Config for DefaultConfig {}
 
