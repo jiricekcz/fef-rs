@@ -2,8 +2,8 @@ use std::io::Read;
 
 use crate::v0::{
     config::{Config, OverridableConfig},
-    metadata::{error::MetadataReadError, MetadataRecord},
-    parse::{parse_configuration, parse_expression_into_tree, parse_metadata},
+    metadata::MetadataRecord,
+    parse::{parse_configuration, parse_expression_into_tree, parse_metadata_as_vec},
     traits::ReadFrom,
 };
 
@@ -23,13 +23,7 @@ impl<R: ?Sized + Read> ReadFrom<R> for SingleFormulaFile {
         let file_config = parse_configuration(reader, configuration)?;
         config.override_with(&file_config.clone().into());
 
-        let metadata_iterator =
-            parse_metadata(reader, &config).map_err(MetadataReadError::HeaderError)?;
-
-        let mut metadata: Vec<MetadataRecord> = Vec::new();
-        for record in metadata_iterator {
-            metadata.push(record.map_err(MetadataReadError::RecordError)?);
-        }
+        let metadata: Vec<MetadataRecord> = parse_metadata_as_vec(reader, configuration)?;
 
         let expression = parse_expression_into_tree(reader, &config)?;
 
