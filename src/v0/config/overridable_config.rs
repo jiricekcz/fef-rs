@@ -36,11 +36,37 @@ impl Sealed for OverridableConfig {}
 
 impl Config for OverridableConfig {
     /// If the integer format is overridden, returns the overridden value, otherwise the default value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::default());
+    ///
+    /// config.override_integer_format(IntFormat::U8);
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::U8);
+    /// ```
     fn integer_format(&self) -> IntFormat {
         self.integer_format.unwrap_or_default()
     }
 
     /// If the float format is overridden, returns the overridden value, otherwise the default value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::default());
+    ///
+    /// config.override_float_format(FloatFormat::F32);
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::F32);
+    /// ```
     fn float_format(&self) -> FloatFormat {
         self.float_format.unwrap_or_default()
     }
@@ -48,11 +74,64 @@ impl Config for OverridableConfig {
 
 impl OverridableConfig {
     /// Overrides the integer format with the given value.
+    ///
+    /// # Example
+    ///
+    /// Overriding with non-default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::default());
+    /// assert!(!config.is_integer_format_overridden());
+    ///
+    /// config.override_integer_format(IntFormat::U8);
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::U8);
+    /// assert!(config.is_integer_format_overridden());
+    /// ```
+    ///
+    /// Overriding with default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// config.override_integer_format(IntFormat::default());
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::default());
+    /// assert!(config.is_integer_format_overridden());
     pub fn override_integer_format(&mut self, format: IntFormat) {
         self.integer_format = Some(format);
     }
 
     /// Returns whether the integer format is overridden.
+    ///
+    /// Returns true if the integer format was overridden with any value, even if it is the same as the default.
+    ///
+    /// # Example
+    /// Overriding with non-default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert!(!config.is_integer_format_overridden());
+    ///
+    /// config.override_integer_format(IntFormat::U8);
+    ///
+    /// assert!(config.is_integer_format_overridden());
+    /// ```
+    ///
+    /// Overriding with default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert!(!config.is_integer_format_overridden());
+    ///
+    /// config.override_integer_format(IntFormat::default());
+    ///
+    /// assert!(config.is_integer_format_overridden());
+    /// ```
     pub fn is_integer_format_overridden(&self) -> bool {
         self.integer_format.is_some()
     }
@@ -80,11 +159,65 @@ impl OverridableConfig {
     }
 
     /// Overrides the float format with the given value.
+    ///
+    /// # Example
+    ///
+    /// Overriding with non-default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::default());
+    /// assert!(!config.is_float_format_overridden());
+    ///
+    /// config.override_float_format(FloatFormat::F32);
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::F32);
+    /// assert!(config.is_float_format_overridden());
+    /// ```
+    ///
+    /// Overriding with default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// config.override_float_format(FloatFormat::default());
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::default());
+    /// assert!(config.is_float_format_overridden());
+    /// ```
     pub fn override_float_format(&mut self, format: FloatFormat) {
         self.float_format = Some(format);
     }
 
     /// Returns whether the float format is overridden.
+    ///
+    /// Returns true if the float format was overridden with any value, even if it is the same as the default.
+    ///
+    /// # Example
+    /// Overriding with non-default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert!(!config.is_float_format_overridden());
+    ///
+    /// config.override_float_format(FloatFormat::F32);
+    ///
+    /// assert!(config.is_float_format_overridden());
+    /// ```
+    ///
+    /// Overriding with default value:
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// assert!(!config.is_float_format_overridden());
+    ///
+    /// config.override_float_format(FloatFormat::default());
+    ///
+    /// assert!(config.is_float_format_overridden());
+    /// ```
     pub fn is_float_format_overridden(&self) -> bool {
         self.float_format.is_some()
     }
