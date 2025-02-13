@@ -3,6 +3,7 @@ use crate::common::traits::private::Sealed;
 use super::{configurations::*, Config};
 
 /// A configuration starting with values from the default configuration.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct OverridableConfig {
     pub(crate) integer_format: Option<IntFormat>,
     pub(crate) float_format: Option<FloatFormat>,
