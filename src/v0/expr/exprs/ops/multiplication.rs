@@ -64,12 +64,4 @@ impl<S: Sized> BinaryOperationExpr<S> for ExprMultiplication<S> {
     fn rhs(&self) -> &S {
         &self.rhs
     }
-
-    fn lhs_mut(&mut self) -> &mut S {
-        &mut self.lhs
-    }
-
-    fn rhs_mut(&mut self) -> &mut S {
-        &mut self.rhs
-    }
 }

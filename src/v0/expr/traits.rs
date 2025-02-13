@@ -103,13 +103,6 @@ pub(crate) trait BinaryOperationExpr<S: Sized>:
 {
     fn lhs(&self) -> &S;
     fn rhs(&self) -> &S;
-
-    fn lhs_mut(&mut self) -> &mut S;
-    fn rhs_mut(&mut self) -> &mut S;
-
-    fn into_parts(self) -> (S, S) {
-        self.into()
-    }
 }
 
 /// A trait for all unary operation expression objects.
