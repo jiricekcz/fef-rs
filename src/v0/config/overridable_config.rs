@@ -10,14 +10,21 @@ use super::{configurations::*, Config};
 /// # Example
 /// ```rust
 /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+/// let mut config = OverridableConfig::default();
+///     // Create a new configuration with no values overridden
 ///
-/// let mut config = OverridableConfig::default(); // Create a new configuration with no values overridden
-/// assert_eq!(config.integer_format(), IntFormat::default()); // Value is correctly default
+/// assert_eq!(config.integer_format(), IntFormat::default());
+///     // Value is correctly default
+///
 /// assert!(!config.is_integer_format_overridden());
 ///
-/// config.override_integer_format(IntFormat::default()); // Override the integer format with its default value
-/// assert_eq!(config.integer_format(), IntFormat::default()); // Value didn't change, since we overrode it with the same value
-/// assert!(config.is_integer_format_overridden()); // Value was overridden, even though it is the same as the default
+/// config.override_integer_format(IntFormat::default());
+///     // Override the integer format with its default value
+///
+/// assert_eq!(config.integer_format(), IntFormat::default());
+///     // Value didn't change, since we overrode it with the same value
+/// assert!(config.is_integer_format_overridden());
+///     // Value was overridden, even though it is the same as the default
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct OverridableConfig {
@@ -84,7 +91,8 @@ impl OverridableConfig {
     /// assert_eq!(config.float_format(), FloatFormat::default());
     ///
     /// assert!(config.is_integer_format_overridden());
-    /// assert!(config.is_float_format_overridden()); // The float format was overridden, even though it has default value
+    /// assert!(config.is_float_format_overridden());
+    ///     // The float format was overridden, even though it has default value
     /// ```
     pub fn override_with(&mut self, other: &OverridableConfig) {
         if let Some(format) = other.integer_format {
