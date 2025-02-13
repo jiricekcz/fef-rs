@@ -5,7 +5,7 @@ use thiserror::Error;
 use crate::v0::{
     config::error::{ConfigurationReadError, ConfigurationWriteError},
     expr::error::{ExprReadWithComposerError, ExprWriteWithDecomposerError},
-    metadata::error::{FromIteratorMetadataWriteError, MetadataReadError, MetadataWriteError},
+    metadata::error::{FromIteratorMetadataWriteError, MetadataReadError},
     raw::error::VariableLengthEnumError,
     tokens::error::FileContentTypeTokenError,
 };
