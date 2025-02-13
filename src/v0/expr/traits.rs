@@ -119,7 +119,7 @@ pub(crate) trait BinaryOperationExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
+pub(crate) trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
     fn inner(&self) -> &S;
     fn inner_mut(&mut self) -> &mut S;
 
