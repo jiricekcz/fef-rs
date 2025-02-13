@@ -3,9 +3,9 @@ use std::convert::Infallible;
 use thiserror::Error;
 
 use crate::v0::{
-    config::error::ConfigurationReadError,
+    config::error::{ConfigurationReadError, ConfigurationWriteError},
     expr::error::{ExprReadWithComposerError, ExprWriteWithDecomposerError},
-    metadata::error::MetadataReadError,
+    metadata::error::{FromIteratorMetadataWriteError, MetadataReadError, MetadataWriteError},
     raw::error::VariableLengthEnumError,
     tokens::error::FileContentTypeTokenError,
 };
@@ -33,6 +33,21 @@ pub enum RawFormulaReadError {
 pub enum RawFormulaWriteError<E: std::error::Error> {
     #[error("failed to write expression")]
     ExprWriteError(#[from] ExprWriteWithDecomposerError<E>),
+    #[error("failed to write major version")]
+    VersionWriteError(VariableLengthEnumError),
+    #[error("failed to write file content type token")]
+    TokenError(#[from] FileContentTypeTokenError),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum SingleFormulaWriteError<E: std::error::Error, EM: std::error::Error> {
+    #[error("failed to write expression")]
+    ExprWriteError(#[from] ExprWriteWithDecomposerError<E>),
+    #[error("failed to write a configuration")]
+    ConfigurationWriteError(#[from] ConfigurationWriteError),
+    #[error("failed to write metadata")]
+    MetadataWriteError(#[from] FromIteratorMetadataWriteError<EM>),
     #[error("failed to write major version")]
     VersionWriteError(VariableLengthEnumError),
     #[error("failed to write file content type token")]

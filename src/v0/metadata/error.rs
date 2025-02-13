@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use thiserror::Error;
 
 use crate::v0::{
@@ -63,4 +65,13 @@ pub enum MetadataReadError {
     HeaderError(MetadataHeaderReadError),
     #[error("failed to read metadata record")]
     RecordError(MetadataRecordReadError),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum FromIteratorMetadataWriteError<E: std::error::Error + Debug> {
+    #[error("an error occurred in user provided iterator")]
+    IteratorError(E),
+    #[error("an error occurred while writing metadata")]
+    MetadataWriteError(#[from] MetadataWriteError),
 }

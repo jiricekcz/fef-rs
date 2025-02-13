@@ -1,20 +1,13 @@
-use std::{convert::Infallible, fmt::Debug, io::Write};
-
-use thiserror::Error;
+use std::{convert::Infallible, io::Write};
 
 use crate::v0::{
     config::Config,
-    metadata::{error::MetadataWriteError, MetadataHeader, MetadataRecord},
+    metadata::{
+        error::{FromIteratorMetadataWriteError, MetadataWriteError},
+        MetadataHeader, MetadataRecord,
+    },
     traits::WriteTo,
 };
-
-#[derive(Error, Debug)]
-pub enum FromIteratorMetadataWriteError<E: std::error::Error + Debug> {
-    #[error("an error occurred in user provided iterator")]
-    IteratorError(E),
-    #[error("an error occurred while writing metadata")]
-    MetadataWriteError(#[from] MetadataWriteError),
-}
 
 impl<E: std::error::Error> From<Infallible> for FromIteratorMetadataWriteError<E> {
     fn from(_: Infallible) -> Self {
