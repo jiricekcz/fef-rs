@@ -1,7 +1,7 @@
 use crate::{
     common::traits::private::Sealed,
     v0::{
-        config::{Config, ReadConfigurationOutput},
+        config::{Config, OverridableConfig},
         expr::ExprTree,
         metadata::MetadataRecord,
     },
@@ -10,7 +10,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct SingleFormulaFile {
     pub(crate) expression: ExprTree,
-    pub(crate) configuration: ReadConfigurationOutput,
+    pub(crate) configuration: OverridableConfig,
     pub(crate) metadata: Vec<MetadataRecord>,
 }
 

@@ -57,6 +57,28 @@ impl OverridableConfig {
         self.integer_format.is_some()
     }
 
+    /// Returns the integer format as an Option reference.
+    pub fn integer_format_as_option_ref(&self) -> &Option<IntFormat> {
+        &self.integer_format
+    }
+
+    /// Returns the integer format as a mutable Option reference.
+    ///
+    /// Mutating the value will change the value in the configuration.
+    ///
+    /// # Example
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, IntFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// *config.integer_format_as_option_mut() = Some(IntFormat::U8);
+    ///
+    /// assert_eq!(config.integer_format(), IntFormat::U8);
+    /// ```
+    pub fn integer_format_as_option_mut(&mut self) -> &mut Option<IntFormat> {
+        &mut self.integer_format
+    }
+
     /// Overrides the float format with the given value.
     pub fn override_float_format(&mut self, format: FloatFormat) {
         self.float_format = Some(format);
@@ -65,6 +87,28 @@ impl OverridableConfig {
     /// Returns whether the float format is overridden.
     pub fn is_float_format_overridden(&self) -> bool {
         self.float_format.is_some()
+    }
+
+    /// Returns the float format as an Option reference.
+    pub fn float_format_as_option_ref(&self) -> &Option<FloatFormat> {
+        &self.float_format
+    }
+
+    /// Returns the float format as a mutable Option reference.
+    ///
+    /// Mutating the value will change the value in the configuration.
+    ///
+    /// # Example
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, FloatFormat, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// *config.float_format_as_option_mut() = Some(FloatFormat::default());
+    ///
+    /// assert_eq!(config.float_format(), FloatFormat::default());
+    /// ```
+    pub fn float_format_as_option_mut(&mut self) -> &mut Option<FloatFormat> {
+        &mut self.float_format
     }
 
     /// Overrides the configuration with another OverridableConfig.
