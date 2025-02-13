@@ -3,8 +3,11 @@ use std::convert::Infallible;
 use thiserror::Error;
 
 use crate::v0::{
-    config::error::ConfigurationReadError, expr::error::ExprReadWithComposerError,
-    metadata::error::MetadataReadError, tokens::error::FileContentTypeTokenError,
+    config::error::ConfigurationReadError,
+    expr::error::{ExprReadWithComposerError, ExprWriteWithDecomposerError},
+    metadata::error::MetadataReadError,
+    raw::error::VariableLengthEnumError,
+    tokens::error::FileContentTypeTokenError,
 };
 
 #[derive(Error, Debug)]
@@ -23,6 +26,17 @@ pub enum SingleFormulaReadError {
 pub enum RawFormulaReadError {
     #[error("failed to read expression")]
     ExprReadError(#[from] ExprReadWithComposerError<Infallible>),
+}
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum RawFormulaWriteError<E: std::error::Error> {
+    #[error("failed to write expression")]
+    ExprWriteError(#[from] ExprWriteWithDecomposerError<E>),
+    #[error("failed to write major version")]
+    VersionWriteError(VariableLengthEnumError),
+    #[error("failed to write file content type token")]
+    TokenError(#[from] FileContentTypeTokenError),
 }
 
 #[derive(Error, Debug)]

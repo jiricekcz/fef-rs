@@ -33,7 +33,7 @@ impl<'a> DecompositionRefContainer<'a, ExprTree> for ExprTreeDecompositionRefCon
         self.storage_ref.inner()
     }
 }
-struct ExprTreeDecomposer {}
+pub(crate) struct ExprTreeDecomposer {}
 impl Decomposer<ExprTree> for ExprTreeDecomposer {
     type Error = std::convert::Infallible;
     fn decompose_as_ref<'a>(
