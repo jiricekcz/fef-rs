@@ -2,7 +2,7 @@ pub mod error;
 mod header;
 mod record;
 mod records;
-pub mod traits;
+pub(crate) mod traits;
 
 pub use header::MetadataHeader;
 pub use record::MetadataRecord;
