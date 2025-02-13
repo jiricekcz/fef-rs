@@ -400,7 +400,7 @@ where
             VariableLengthEnumStorage::U64(u64_value) => {
                 let value = *u64_value;
 
-                let digits = value.ilog2() + 1; // Number of digits in the value
+                let digits = if value == 0 { 1 } else { value.ilog2() + 1 }; // Number of digits in the value
                 let byte_count = digits.div_ceil(7); // 7 bits per byte
 
                 let mut bytes = Vec::with_capacity(byte_count as usize);
