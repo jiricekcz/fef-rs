@@ -9,11 +9,13 @@ use crate::{
         tokens::ExprToken,
     },
 };
-
+/// [True literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/True%20Literal.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprTrueLiteral<S: Sized> {
     _phantom: std::marker::PhantomData<S>,
 }
+
+/// [False literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/False%20Literal.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprFalseLiteral<S: Sized> {
     _phantom: std::marker::PhantomData<S>,
