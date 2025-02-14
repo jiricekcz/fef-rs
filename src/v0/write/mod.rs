@@ -1,3 +1,4 @@
+//! Writing [FEF](https://github.com/jiricekcz/fef-specification/blob/main/README.md) structures into byte streams.
 mod configuration;
 mod expression;
 mod file;
