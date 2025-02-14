@@ -66,3 +66,15 @@ impl<S: Sized> EnumExpr<S> for ExprVariable<S> {
         &self.id
     }
 }
+
+impl<S: Sized> AsRef<VariableLengthEnum> for ExprVariable<S> {
+    fn as_ref(&self) -> &VariableLengthEnum {
+        &self.id
+    }
+}
+
+impl<S: Sized> AsMut<VariableLengthEnum> for ExprVariable<S> {
+    fn as_mut(&mut self) -> &mut VariableLengthEnum {
+        &mut self.id
+    }
+}

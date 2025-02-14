@@ -5,7 +5,7 @@ use crate::v0::expr::Expr;
 use crate::v0::raw::Float;
 use crate::v0::tokens::ExprToken;
 
-/// Represents a float literal expression in the FEF specification.
+/// [Float literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Float%20Literal.md) in FEF.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExprFloatLiteral<S: Sized> {
     value: Float,
