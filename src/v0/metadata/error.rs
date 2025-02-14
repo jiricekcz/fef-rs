@@ -1,5 +1,5 @@
 //! Error types for metadata module.
-use std::fmt::Debug;
+use std::{convert::Infallible, fmt::Debug};
 
 use thiserror::Error;
 
@@ -90,5 +90,11 @@ impl MetadataIdentifierOutOfRangeError {
             identifier,
             range: 0x100000..=0x1FFFFF,
         }
+    }
+}
+
+impl<E: std::error::Error> From<Infallible> for FromIteratorMetadataWriteError<E> {
+    fn from(_: Infallible) -> Self {
+        unreachable!()
     }
 }

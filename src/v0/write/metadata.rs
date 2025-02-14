@@ -9,11 +9,6 @@ use crate::v0::{
     traits::WriteTo,
 };
 
-impl<E: std::error::Error> From<Infallible> for FromIteratorMetadataWriteError<E> {
-    fn from(_: Infallible) -> Self {
-        unreachable!()
-    }
-}
 pub fn write_metadata<
     'a,
     W: ?Sized + Write,
