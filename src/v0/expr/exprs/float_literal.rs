@@ -67,8 +67,10 @@ impl<S: Sized> ExprObj<S> for ExprFloatLiteral<S> {
     }
 }
 
-impl<S: Sized> FloatExpr<S> for ExprFloatLiteral<S> {
-    fn float(&self) -> &Float {
+impl<S: Sized> AsRef<Float> for ExprFloatLiteral<S> {
+    fn as_ref(&self) -> &Float {
         &self.value
     }
 }
+
+impl<S: Sized> FloatExpr<S> for ExprFloatLiteral<S> {}

@@ -80,7 +80,7 @@ pub(crate) trait EnumExpr<S: Sized>:
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
 pub(crate) trait IntExpr<S: Sized>:
-    Sealed + Into<Integer> + TryFrom<Integer> + AsRef<Integer> + AsMut<Integer>
+    Sealed + Into<Integer> + TryFrom<Integer> + AsRef<Integer>
 {
     fn integer(&self) -> &Integer {
         self.as_ref()
@@ -94,8 +94,12 @@ pub(crate) trait IntExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait FloatExpr<S: Sized>: Sealed + Into<Float> + TryFrom<Float> {
-    fn float(&self) -> &Float;
+pub(crate) trait FloatExpr<S: Sized>:
+    Sealed + Into<Float> + TryFrom<Float> + AsRef<Float>
+{
+    fn float(&self) -> &Float {
+        self.as_ref()
+    }
 }
 
 /// A trait for all expression objects that hold no value.

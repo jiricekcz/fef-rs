@@ -67,10 +67,4 @@ impl<S: Sized> AsRef<Integer> for ExprIntLiteral<S> {
     }
 }
 
-impl<S: Sized> AsMut<Integer> for ExprIntLiteral<S> {
-    fn as_mut(&mut self) -> &mut Integer {
-        &mut self.value
-    }
-}
-
 impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {}
