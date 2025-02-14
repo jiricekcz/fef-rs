@@ -1,4 +1,4 @@
-//! Expression part of the [FEF standard](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md).
+//! [Expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) part of the FEF standard.
 //!
 //! FEF stores the formula as an expression tree in prefix notation.
 //! This library provides great modularity when it comes to storing expressions in memory using the [`Expr`] enum.
