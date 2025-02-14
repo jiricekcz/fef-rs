@@ -6,7 +6,7 @@ use crate::v0::{
     traits::ReadFrom,
 };
 
-/// Reads a file from a reader to memory.
+/// Reads a [file](https://github.com/jiricekcz/fef-specification/blob/main/README.md) from a reader to memory.
 ///
 /// This is a convenience method that reads a file from a reader entirely into memory. It is supposed
 /// to suit most use cases, but if you need more control over the reading process, you will probably have
@@ -22,7 +22,7 @@ pub fn read_file<R: ?Sized + Read, C: ?Sized + Config>(
     File::read_from(reader, configuration)
 }
 
-/// Reads a file from a reader to memory using the default configuration.
+/// Reads a [file](https://github.com/jiricekcz/fef-specification/blob/main/README.md) from a reader to memory using the default configuration.
 ///
 /// This is useful when dealing with arbitrary files, that expect default configuration.
 ///
