@@ -79,8 +79,12 @@ pub(crate) trait EnumExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait IntExpr<S: Sized>: Sealed + Into<Integer> + TryFrom<Integer> {
-    fn integer(&self) -> &Integer;
+pub(crate) trait IntExpr<S: Sized>:
+    Sealed + Into<Integer> + TryFrom<Integer> + AsRef<Integer> + AsMut<Integer>
+{
+    fn integer(&self) -> &Integer {
+        self.as_ref()
+    }
 }
 
 /// A trait for all float expression objects.
