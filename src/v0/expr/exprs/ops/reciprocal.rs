@@ -10,11 +10,13 @@ use crate::{
     },
 };
 
+/// [Reciprocal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Reciprocal.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprReciprocal<S: Sized> {
     operand: S,
 }
 
+/// Creates a reciprocal expression from its operand.
 impl<S: Sized> From<S> for ExprReciprocal<S> {
     fn from(operand: S) -> Self {
         Self { operand }
@@ -49,8 +51,20 @@ impl<S: Sized> ExprObj<S> for ExprReciprocal<S> {
     }
 }
 
-impl<S: Sized> UnaryOperationExpr<S> for ExprReciprocal<S> {
-    fn inner(&self) -> &S {
+impl<S: Sized> AsRef<S> for ExprReciprocal<S> {
+    fn as_ref(&self) -> &S {
         &self.operand
+    }
+}
+
+impl<S: Sized> AsMut<S> for ExprReciprocal<S> {
+    fn as_mut(&mut self) -> &mut S {
+        &mut self.operand
+    }
+}
+
+impl<S: Sized> UnaryOperationExpr<S> for ExprReciprocal<S> {
+    fn into_inner(self) -> S {
+        self.operand
     }
 }
