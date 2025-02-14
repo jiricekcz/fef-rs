@@ -5,7 +5,7 @@ use crate::v0::{
     traits::ReadFrom,
 };
 
-/// Reads a configuration from a byte stream using some configuration.
+/// Reads a [configuration](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md) from a byte stream using some configuration.
 ///
 /// This is the most generic method for reading configuration. It assumes
 /// that your application has some sort of default configuration that you
@@ -45,7 +45,7 @@ pub fn parse_configuration<R: ?Sized + Read, C: ?Sized + Config>(
     OverridableConfig::read_from(byte_stream, configuration)
 }
 
-/// Reads a configuration from a byte stream using the default configuration.
+/// Reads a [configuration](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md) from a byte stream using the default configuration.
 ///
 /// This is the most common way of reading configurations of files you know
 /// nothing about. It uses the default configuration provided by the standard.
