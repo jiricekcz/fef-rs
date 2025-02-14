@@ -1,3 +1,27 @@
+//! Traits for expressions and their parsing/writing.
+//!
+//! # Sealed Traits
+//! Some traits are sealed. That means they are not intended to be implemented outside of this crate. Currently this is achieved by using a private trait bound for the
+//! implementation of the trait. This is considered a workaround until sealed traits are stabilized in Rust. If the way sealed traits are implemented in rust will be
+//! compatible with our current workaround, a switch will be made to the official way of sealing traits.
+//!
+//! You can determine, whether a trait is sealed by looking at the trait signature, if it contains the `Sealed` trait.
+//!
+//! Sealed trait:
+//! ```rust
+//! # use crate::common::traits::private::Sealed;
+//! pub trait MyTrait: Sealed {
+//!     // Trait body
+//! }
+//! ```
+//!
+//! Non-sealed trait:
+//! ```rust
+//! pub trait MyTrait {
+//!    // Trait body
+//! }
+//! ```
+
 use std::io::{Read, Write};
 
 use crate::{
@@ -105,15 +129,79 @@ pub(crate) trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
 
 macro_rules! compose_expr {
     ($name:ident, $type:ty) => {
+        /// Composes this expression type into the storage type `S`.
+        ///
+        /// Has default implementation that calls [`compose_default`](Self::compose_default), but can be overridden for specific expression types.
         fn $name(&mut self, expr: $type) -> Result<S, ComposeError<Self::Error>> {
             self.compose_default(expr)
         }
     };
 }
 
+/// Object use for composing expressions into their storage type.
+///
+/// # Type Parameters
+/// * `S`: The type of the storage of child expressions of this expression.
+///
+/// # Usage
+/// When parsing expressions, you may want to specify how child expressions are composed into their storage type (and also specify the type `S` itself).
+/// The implementation of the compositing logic is injected into the parsing process by passing an object that implements this trait.
+///
+/// It is important to note, that if you are okay with the default [`ExprTree`](crate::v0::expr::ExprTree) type, you do not need to worry about this trait at all.
+///
+/// ## Implementing a Composer
+/// This trait has two types of methods:
+/// * [`compose_default`](Composer::compose_default) - This method is called when no specific method is implemented for a given expression type.
+/// * `compose_[expr]` - These methods are called when a specific method is implemented for a given expression type.
+///
+/// If you want to treat all expression types the same, you can implement `compose_default` and default implementations of all compose methods will call this method.
+///
+/// If you want to treat some expression types differently (e.g. direct evaluation), you can implement the specific compose method for that expression type.
+///
+/// # Composition Error
+/// It is expected, that some composition strategies may be fallible. You can specify the error type using the associated type `Error`.
+///
+/// # Backwards Compatibility and Breaking Changes
+/// To ensure backwards compatibility when adding new expression types, all compose methods have a default implementation that calls `compose_default`.
+///
+/// # Examples
+/// Composer for an `ExprTreeRc`, which is a reference counted version of the [`ExprTree`](crate::v0::expr::ExprTree):
+/// ```rust
+/// # use std::rc::Rc;
+/// # use fef::v0::expr::{Expr, traits::{Composer, ExprObj}, error::ComposeError};
+/// struct ExprTreeRc {
+///     inner: Rc<Expr<ExprTreeRc>>,
+/// }
+///
+/// struct ExprTreeRcComposer {}
+/// impl Composer<ExprTreeRc> for ExprTreeRcComposer {
+///    type Error = std::convert::Infallible;
+///     
+///     fn compose_default<E: ExprObj<ExprTreeRc>>(
+///         &mut self, expr: E
+///     ) -> Result<ExprTreeRc, ComposeError<Self::Error>> {
+///        Ok(ExprTreeRc {
+///           inner: Rc::new(expr.into_expr()),
+///       })
+///    }
+/// }
+/// ```
+///
+/// # Data Passing
+///
+/// You might be asking why parsing methods take a reference to the composer object, not just a generic type parameter.
+/// This allows you to save some data in the composer object and use it in the parsing process. This data can even be mutated (all compose functions take a mutable reference to the composer object).
 pub trait Composer<S: Sized> {
     type Error: std::error::Error;
 
+    /// Composes the given expression into the storage type `S`.
+    ///
+    /// This method has by default no information about the expression type. It is better to implement the specific compose methods for each expression type,
+    /// if you want to treat them differently. If, however, it is unavoidable, you can call the `Into::<Expr<S>>::into()` method on the generic expression object
+    /// to convert it into the [`Expr<S>`] enum and then use pattern matching to determine the expression type. This will however be slower and less maintainable, than
+    /// using the specific compose methods.
+    ///
+    /// Default implementation of this method just returns `Err`.
     #[inline]
     #[allow(unused_variables)]
     fn compose_default<E: ExprObj<S>>(&mut self, expr: E) -> Result<S, ComposeError<Self::Error>> {
@@ -121,7 +209,6 @@ pub trait Composer<S: Sized> {
             DefaultComposeError::ComposeNotImplemented,
         ))
     }
-
     compose_expr!(compose_variable, ExprVariable<S>);
     compose_expr!(compose_true_literal, ExprTrueLiteral<S>);
     compose_expr!(compose_false_literal, ExprFalseLiteral<S>);
