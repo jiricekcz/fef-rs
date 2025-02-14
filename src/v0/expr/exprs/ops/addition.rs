@@ -10,18 +10,21 @@ use crate::{
     },
 };
 
+/// [Addition expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Addition.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprAddition<S: Sized> {
     lhs: S,
     rhs: S,
 }
 
+/// Creates an addition expression from its left-hand side and right-hand side.
 impl<S: Sized> From<(S, S)> for ExprAddition<S> {
     fn from((lhs, rhs): (S, S)) -> Self {
         Self { lhs, rhs }
     }
 }
 
+/// Converts the addition expression into its left-hand side and right-hand side.
 impl<S: Sized> Into<(S, S)> for ExprAddition<S> {
     fn into(self) -> (S, S) {
         (self.lhs, self.rhs)
