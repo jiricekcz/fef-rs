@@ -1,4 +1,9 @@
 //! Parsing of a fef byte stream
+//!
+//! FEF as a format is intended to be embedded in other formats (most often that will be the [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) part).
+//! For that reason this library exposes function for parsing top level FEF structures and gives emphasis on those.
+//! Function for reading files are also provided, but they are, for now, meant to serve the most common use cases only
+//! and do not provide the same level of control as the functions for parsing top level structures.
 mod configuration;
 mod expression;
 mod file;
