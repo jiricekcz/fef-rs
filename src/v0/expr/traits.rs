@@ -138,7 +138,7 @@ macro_rules! compose_expr {
     };
 }
 
-/// Object use for composing expressions into their storage type.
+/// Object used for composing expressions into their storage type.
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
@@ -245,18 +245,47 @@ pub(crate) trait TryReadFromWithComposer<
     ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
 }
 
+/// Container for a reference to an expression.
+///
+/// For more information, see [`Decomposer`](crate::v0::expr::traits::Decomposer). This is chosen over
+/// [`AsRef`](std::convert::AsRef) because it allows for lifetime to be specified in the trait.
 pub trait DecompositionRefContainer<'a, S: Sized> {
     fn inner_as_ref(&self) -> &'a Expr<S>;
 }
 
+impl<'a, S: Sized> DecompositionRefContainer<'a, S> for &'a Expr<S> {
+    fn inner_as_ref(&self) -> &'a super::Expr<S> {
+        self
+    }
+}
+
+/// A trait for decomposing a storage type into an expression.
+///
+/// This trait is the inversion of the [`Composer`](crate::v0::expr::traits::Composer) trait. It has a simpler
+/// signature, as it only needs to decompose the storage type into an expression and cannot benefit from additional
+/// information about the expression type.
 pub trait Decomposer<S: Sized> {
     type Error: std::error::Error;
+    /// Decomposes the storage type into an expression.
+    ///
+    /// This method is expected to be fallible, as the storage type may not always be representable as an expression
+    /// this is why the error type is specified.
+    ///
+    /// The `decompose_as_ref` method takes an immutable reference to the storage type (so that it can be used after the decomposition).
+    /// This can be useful, as you can, for example, save an expression to a file, but still keep it in memory.
+    ///
+    /// # Return Type
+    /// In most applications, it will be simple to retrieve a `&'a Expr<S>` from `&'a S` (e.g. if `S` is Box<Expr<S>>).
+    /// In some cases, however, the reference cannot be so easily obtained and may require to be calculated by the decompose method.
+    /// This can produce additional data, that `&'a Expr<S>` cannot hold. This is why the return type is an `impl` trait, that implements
+    /// a method to get the reference to the decomposed expression. The returned object can have additional data or, for example, a [`Drop`] implementation.
+    ///
+    /// Note that `&'a Expr<S>` implements the required trait, so you can return a reference to the decomposed expression directly.
     fn decompose_as_ref<'a>(
         &mut self,
         storage_ref: &'a S,
     ) -> Result<impl DecompositionRefContainer<'a, S>, DecomposeError<Self::Error>>;
 }
-
 pub(crate) trait TryWriteToWithDecomposer<
     W: ?Sized + Write,
     S: Sized,

@@ -5,7 +5,7 @@ use crate::v0::{
     expr::{
         error::ExprWriteWithDecomposerError,
         traits::{Decomposer, DecompositionRefContainer, TryWriteToWithDecomposer},
-        Expr, ExprTree,
+        ExprTree,
     },
 };
 
@@ -25,14 +25,6 @@ pub fn write_expression<
     Ok(())
 }
 
-struct ExprTreeDecompositionRefContainer<'a> {
-    storage_ref: &'a ExprTree,
-}
-impl<'a> DecompositionRefContainer<'a, ExprTree> for ExprTreeDecompositionRefContainer<'a> {
-    fn inner_as_ref(&self) -> &'a Expr<ExprTree> {
-        self.storage_ref.inner()
-    }
-}
 pub(crate) struct ExprTreeDecomposer {}
 impl Decomposer<ExprTree> for ExprTreeDecomposer {
     type Error = std::convert::Infallible;
@@ -43,7 +35,7 @@ impl Decomposer<ExprTree> for ExprTreeDecomposer {
         impl DecompositionRefContainer<'a, ExprTree>,
         crate::v0::expr::error::DecomposeError<std::convert::Infallible>,
     > {
-        Ok(ExprTreeDecompositionRefContainer { storage_ref })
+        Ok(storage_ref.inner())
     }
 }
 
