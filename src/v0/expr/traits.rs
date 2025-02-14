@@ -113,17 +113,67 @@ pub(crate) trait PureExpr<S: Sized>: Sealed + From<()> {}
 
 /// A trait for all binary operation expression objects.
 ///
-/// This trait is sealed and cannot be implemented outside of this crate.
 /// It is used for all common behavior between expression objects that represent
-/// an operation between two expressions.
+/// an operation between two expressions and it is used mostly to ensure, that
+/// all binary operation expressions have all the necessary methods implemented.
+///
 /// Note, that all expressions can be connected using binary operations.
-pub(crate) trait BinaryOperationExpr<S: Sized>:
-    Sealed + Into<(S, S)> + From<(S, S)>
-{
+///
+/// # Type Parameters
+///
+/// * `S`: The type of the storage of child expressions of this expression.
+///
+/// # Sealed
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+pub trait BinaryOperationExpr<S: Sized>: Sealed + Into<(S, S)> + From<(S, S)> {
+    /// Returns a reference to the left-hand side of the binary operation.
+    ///
+    /// # Examples
+    /// Using addition of two [`isize`]s:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprAddition, traits::BinaryOperationExpr};
+    /// let addition = ExprAddition::from((1, 2));
+    ///
+    /// assert_eq!(addition.lhs(), &1);
+    /// ```
     fn lhs(&self) -> &S;
+
+    /// Returns a reference to the right-hand side of the binary operation.
+    ///
+    /// # Examples
+    /// Using addition of two [`isize`]s:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprAddition, traits::BinaryOperationExpr};
+    /// let addition = ExprAddition::from((1, 2));
+    ///
+    /// assert_eq!(addition.rhs(), &2);
+    /// ```
     fn rhs(&self) -> &S;
 
+    /// Returns a mutable reference to the left-hand side of the binary operation.
+    ///
+    /// # Examples
+    /// Using addition of two [`isize`]s:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprAddition, traits::BinaryOperationExpr};
+    /// let mut addition = ExprAddition::from((1, 2));
+    ///
+    /// *addition.lhs_mut() = 3;
+    /// assert_eq!(addition.lhs(), &3);
+    /// ```
     fn lhs_mut(&mut self) -> &mut S;
+
+    /// Returns a mutable reference to the right-hand side of the binary operation.
+    ///
+    /// # Examples
+    /// Using addition of two [`isize`]s:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprAddition, traits::BinaryOperationExpr};
+    /// let mut addition = ExprAddition::from((1, 2));
+    ///
+    /// *addition.rhs_mut() = 3;
+    /// assert_eq!(addition.rhs(), &3);
     fn rhs_mut(&mut self) -> &mut S;
 }
 
@@ -131,20 +181,58 @@ pub(crate) trait BinaryOperationExpr<S: Sized>:
 ///
 /// This trait is sealed and cannot be implemented outside of this crate.
 /// It is used for all common behavior between expression objects that represent
+/// an operation on a single expression and it is used mostly to ensure, that
+/// all unary operation expressions have all the necessary methods implemented.
+///
+/// Note, that all expressions can be connected using unary operations.
 ///
 /// # Type Parameters
+///
 /// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait UnaryOperationExpr<S: Sized>:
-    Sealed + From<S> + AsRef<S> + AsMut<S>
-{
+///
+/// # Sealed
+///
+/// This trait is sealed and cannot be implemented outside of this crate.
+pub trait UnaryOperationExpr<S: Sized>: Sealed + From<S> + AsRef<S> + AsMut<S> {
+    /// Returns a reference to the child expression of the unary operation.
+    ///
+    /// # Examples
+    /// Using negation of an [`isize`]:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprNegation, traits::UnaryOperationExpr};
+    /// let negation = ExprNegation::from(1);
+    ///
+    /// assert_eq!(negation.inner(), &1);
+    /// ```
     fn inner(&self) -> &S {
         self.as_ref()
     }
 
+    /// Returns a mutable reference to the child expression of the unary operation.
+    ///
+    /// # Examples
+    /// Using negation of an [`isize`]:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprNegation, traits::UnaryOperationExpr};
+    /// let mut negation = ExprNegation::from(1);
+    ///
+    /// *negation.inner_mut() = 2;
+    /// assert_eq!(negation.inner(), &2);
+    /// ```
     fn inner_mut(&mut self) -> &mut S {
         self.as_mut()
     }
 
+    /// Converts into the child expression of the unary operation.
+    ///
+    /// # Examples
+    /// Using negation of an [`isize`]:
+    /// ```rust
+    /// # use fef::v0::expr::{ExprNegation, traits::UnaryOperationExpr};
+    /// let negation = ExprNegation::from(1);
+    /// let inner = negation.into_inner();
+    /// assert_eq!(inner, 1);
+    /// ```
     fn into_inner(self) -> S;
 }
 
