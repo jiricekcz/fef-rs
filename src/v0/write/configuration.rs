@@ -16,6 +16,9 @@ macro_rules! write_enum_configuration {
     }};
 }
 
+/// Write a configuration to a byte stream.
+///
+/// Writes any configuration to byte stream by writing all values.
 pub fn write_configuration<W: ?Sized + Write, C: ?Sized + Config>(
     writer: &mut W,
     configuration: &C,
