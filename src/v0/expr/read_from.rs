@@ -7,6 +7,9 @@
 //!
 //! This module should never leak any implementation details. It will probably be very macro heavy and
 //! subject to a lot of refactoring.
+//!
+//! It is imperative to keep the garbage code contained and private as an implementation detail.
+//! It is possible future updates to rust will allow for more concise implementations.
 use std::io::Read;
 
 use crate::v0::{
