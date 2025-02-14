@@ -247,9 +247,10 @@ pub(crate) trait TryReadFromWithComposer<
 
 /// Container for a reference to an expression.
 ///
-/// For more information, see [`Decomposer`](crate::v0::expr::traits::Decomposer). This is chosen over
-/// [`AsRef`](std::convert::AsRef) because it allows for lifetime to be specified in the trait.
+/// For more information, see [`Decomposer`]. This is chosen over
+/// [`AsRef`] because it allows for lifetime to be specified in the trait.
 pub trait DecompositionRefContainer<'a, S: Sized> {
+    /// Returns a reference to the decomposed expression.
     fn inner_as_ref(&self) -> &'a Expr<S>;
 }
 
@@ -261,7 +262,7 @@ impl<'a, S: Sized> DecompositionRefContainer<'a, S> for &'a Expr<S> {
 
 /// A trait for decomposing a storage type into an expression.
 ///
-/// This trait is the inversion of the [`Composer`](crate::v0::expr::traits::Composer) trait. It has a simpler
+/// This trait is the inversion of the [`Composer`] trait. It has a simpler
 /// signature, as it only needs to decompose the storage type into an expression and cannot benefit from additional
 /// information about the expression type.
 pub trait Decomposer<S: Sized> {
@@ -275,7 +276,7 @@ pub trait Decomposer<S: Sized> {
     /// This can be useful, as you can, for example, save an expression to a file, but still keep it in memory.
     ///
     /// # Return Type
-    /// In most applications, it will be simple to retrieve a `&'a Expr<S>` from `&'a S` (e.g. if `S` is Box<Expr<S>>).
+    /// In most applications, it will be simple to retrieve a `&'a Expr<S>` from `&'a S` (e.g. if `S` is `Box<Expr<S>>`).
     /// In some cases, however, the reference cannot be so easily obtained and may require to be calculated by the decompose method.
     /// This can produce additional data, that `&'a Expr<S>` cannot hold. This is why the return type is an `impl` trait, that implements
     /// a method to get the reference to the decomposed expression. The returned object can have additional data or, for example, a [`Drop`] implementation.
