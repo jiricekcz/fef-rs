@@ -4,6 +4,11 @@
 //! For that reason this library exposes function for parsing top level FEF structures and gives emphasis on those.
 //! Function for reading files are also provided, but they are, for now, meant to serve the most common use cases only
 //! and do not provide the same level of control as the functions for parsing top level structures.
+//!
+//! # Common Interface
+//!
+//! All parsing is done on a byte stream (`&mut R` where `R: std::io::Read`). When it makes sense, the parsing is also done
+//! sequentially, so that the whole byte stream does not need to be loaded into memory at once.
 mod configuration;
 mod expression;
 mod file;
