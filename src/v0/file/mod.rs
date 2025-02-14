@@ -1,4 +1,4 @@
-//! Handling of the different file content types.
+//! Handling of the different [file content types](https://github.com/jiricekcz/fef-specification/blob/main/README.md).
 
 pub mod error;
 mod raw_formula;
