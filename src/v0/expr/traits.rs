@@ -131,8 +131,18 @@ pub(crate) trait BinaryOperationExpr<S: Sized>:
 ///
 /// # Type Parameters
 /// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait UnaryOperationExpr<S: Sized>: Sealed + From<S> {
-    fn inner(&self) -> &S;
+pub(crate) trait UnaryOperationExpr<S: Sized>:
+    Sealed + From<S> + AsRef<S> + AsMut<S>
+{
+    fn inner(&self) -> &S {
+        self.as_ref()
+    }
+
+    fn inner_mut(&mut self) -> &mut S {
+        self.as_mut()
+    }
+
+    fn into_inner(self) -> S;
 }
 
 macro_rules! compose_expr {
