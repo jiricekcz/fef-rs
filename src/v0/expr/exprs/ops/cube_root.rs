@@ -10,6 +10,7 @@ use crate::{
     },
 };
 
+/// [Cube root expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Cube%20Root.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprCubeRoot<S: Sized> {
     operand: S,
