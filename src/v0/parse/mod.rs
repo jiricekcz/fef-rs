@@ -1,4 +1,4 @@
-//! Parsing of a fef byte stream
+//! Parsing of a [FEF](https://github.com/jiricekcz/fef-specification/blob/main/README.md#format) byte stream
 //!
 //! FEF as a format is intended to be embedded in other formats (most often that will be the [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) part).
 //! For that reason this library exposes function for parsing top level FEF structures and gives emphasis on those.
