@@ -45,6 +45,10 @@ pub fn parse_expression<
     )
 }
 
+// TODO:
+// PLEASE FIX THIS PIECE OF SHIT EXAMPLE AS SOON AS MORE ERGONOMIC EXPRESSION BUILDING PATTERNS ARE AVAILABLE.
+// THIS IS VERY PAINFUL TO LOOK AT
+
 /// Parses an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) from a byte stream and returns it as an [`ExprTree`].
 ///
 /// This function is a convenience function that simplifies calling [`parse_expression`] with a composer that composes to an [`ExprTree`].
