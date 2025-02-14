@@ -15,6 +15,7 @@ use crate::{
         metadata::{
             error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
+            MetadataRecord,
         },
         tokens::{error::MetadataTokenError, MetadataToken},
         traits::WriteTo,
@@ -102,5 +103,11 @@ impl<W: ?Sized + Write> WriteTo<W> for ReservedMetadataRecord {
             ReservedMetadataRecord::Custom(record) => record.write_to(writer, configuration),
             ReservedMetadataRecord::ThirdParty(record) => record.write_to(writer, configuration),
         }
+    }
+}
+
+impl Into<MetadataRecord> for ReservedMetadataRecord {
+    fn into(self) -> MetadataRecord {
+        MetadataRecord::Reserved(self)
     }
 }

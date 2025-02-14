@@ -7,6 +7,7 @@ use crate::{
         metadata::{
             error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
+            MetadataRecord,
         },
         raw::VariableLengthEnum,
         tokens::{error::MetadataTokenError, MetadataToken},
@@ -62,5 +63,11 @@ impl<W: ?Sized + Write> WriteTo<W> for UnknownMetadataRecordObj {
         VariableLengthEnum::from(self.data.len()).write_to(writer, configuration)?;
         writer.write_all(&self.data)?;
         Ok(())
+    }
+}
+
+impl Into<MetadataRecord> for UnknownMetadataRecordObj {
+    fn into(self) -> MetadataRecord {
+        MetadataRecord::Unknown(self)
     }
 }

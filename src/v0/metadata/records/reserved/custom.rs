@@ -16,6 +16,8 @@ use crate::{
         traits::{ReadFrom, WriteTo},
     },
 };
+
+use super::ReservedMetadataRecord;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Metadata record with identifier reserved for custom use by any implementor.
 ///
@@ -135,5 +137,11 @@ impl CustomReservedMetadataRecordObj {
     /// Returns the data of the custom reserved metadata record.
     pub fn data(&self) -> &[u8] {
         &self.data
+    }
+}
+
+impl Into<ReservedMetadataRecord> for CustomReservedMetadataRecordObj {
+    fn into(self) -> ReservedMetadataRecord {
+        ReservedMetadataRecord::Custom(self)
     }
 }

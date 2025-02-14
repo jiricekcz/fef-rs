@@ -13,6 +13,8 @@ use crate::{
         traits::{ReadFrom, WriteTo},
     },
 };
+
+use super::ReservedMetadataRecord;
 /// Metadata record with identifier reserved for third-party extensions to the FEF specification.
 ///
 /// In general, handling of third-party metadata records is determined by the third-party extension.
@@ -60,5 +62,11 @@ impl<W: ?Sized + Write> WriteTo<W> for ThirdPartyReservedMetadataRecordObj {
         VariableLengthEnum::from(self.data.len()).write_to(writer, configuration)?;
         writer.write_all(&self.data)?;
         Ok(())
+    }
+}
+
+impl Into<ReservedMetadataRecord> for ThirdPartyReservedMetadataRecordObj {
+    fn into(self) -> ReservedMetadataRecord {
+        ReservedMetadataRecord::ThirdParty(self)
     }
 }

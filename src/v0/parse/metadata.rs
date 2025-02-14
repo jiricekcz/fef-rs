@@ -24,7 +24,7 @@ use crate::v0::{
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let bytes: Vec<u8> = vec![
 ///     0x02, // 2 records
-///     0x13, // together 5 bytes
+///     0x13, // together 19 bytes
 ///     0x01, // Name record
 ///         0x08, // Total name record length
 ///         0x07, // String length

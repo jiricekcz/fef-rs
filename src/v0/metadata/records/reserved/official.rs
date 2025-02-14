@@ -14,6 +14,8 @@ use crate::{
     },
 };
 
+use super::ReservedMetadataRecord;
+
 /// Metadata record with identifier reserved for official use by the FEF specification.
 ///
 /// These keys are reserved for future use by the FEF specification.
@@ -65,5 +67,11 @@ impl<W: ?Sized + Write> WriteTo<W> for OfficialReservedMetadataRecordObj {
         VariableLengthEnum::from(self.data.len()).write_to(writer, configuration)?;
         writer.write_all(&self.data)?;
         Ok(())
+    }
+}
+
+impl Into<ReservedMetadataRecord> for OfficialReservedMetadataRecordObj {
+    fn into(self) -> ReservedMetadataRecord {
+        ReservedMetadataRecord::Official(self)
     }
 }
