@@ -11,11 +11,11 @@ use crate::v0::{
 
 /// Reads [metadata](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md) from a byte stream and returns it as an iterator.
 ///
-/// For most use cases, you will want to use the [`parse_metadata_as_vec`] function instead.
+/// For most use cases, you will want to use the [`read_metadata_as_vec`] function instead.
 ///
 /// # Example
 /// ```rust
-/// # use fef::v0::parse::parse_metadata;
+/// # use fef::v0::read::read_metadata;
 /// # use fef::v0::config::DEFAULT_CONFIG;
 /// # use fef::v0::metadata::MetadataRecord;
 /// # use fef::v0::raw::VariableLengthEnum;
@@ -38,7 +38,7 @@ use crate::v0::{
 /// ];
 ///
 /// let mut reader = &mut bytes.as_slice();
-/// let mut metadata = parse_metadata(&mut reader, &DEFAULT_CONFIG)?;
+/// let mut metadata = read_metadata(&mut reader, &DEFAULT_CONFIG)?;
 ///
 ///
 /// assert_eq!(metadata.next().ok_or("first record exists")??, MetadataRecord::Name(
@@ -61,7 +61,7 @@ use crate::v0::{
 /// assert!(reader.is_empty()); // Padding was read and disregarded
 /// # Ok(())
 /// # }
-pub fn parse_metadata<'a, 'b, R: ?Sized + Read, C: ?Sized + Config>(
+pub fn read_metadata<'a, 'b, R: ?Sized + Read, C: ?Sized + Config>(
     reader: &'a mut R,
     configuration: &'b C,
 ) -> Result<
@@ -115,12 +115,12 @@ impl<'a, 'b, R: ?Sized + Read, C: ?Sized + Config> Drop for MetadataIterator<'a,
 
 /// Reads [metadata](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md) from a byte stream and returns it as a vector.
 ///
-/// The generic [`parse_metadata`] function parses metadata as a lazy iterator. That can be useful, however most of the time you will want to read
+/// The generic [`read_metadata`] function reads metadata as a lazy iterator. That can be useful, however most of the time you will want to read
 /// all the metadata at once. This function does exactly that.
 ///
 /// # Example
 /// ```rust
-/// # use fef::v0::parse::parse_metadata_as_vec;
+/// # use fef::v0::read::read_metadata_as_vec;
 /// # use fef::v0::config::DEFAULT_CONFIG;
 /// # use fef::v0::metadata::MetadataRecord;
 /// # use fef::v0::raw::VariableLengthEnum;
@@ -143,7 +143,7 @@ impl<'a, 'b, R: ?Sized + Read, C: ?Sized + Config> Drop for MetadataIterator<'a,
 /// ];
 ///
 /// let mut reader = &mut bytes.as_slice();
-/// let metadata = parse_metadata_as_vec(&mut reader, &DEFAULT_CONFIG)?;
+/// let metadata = read_metadata_as_vec(&mut reader, &DEFAULT_CONFIG)?;
 ///
 /// assert_eq!(metadata.len(), 2);
 ///
@@ -164,12 +164,12 @@ impl<'a, 'b, R: ?Sized + Read, C: ?Sized + Config> Drop for MetadataIterator<'a,
 /// assert!(reader.is_empty()); // Padding was read and disregarded
 /// # Ok(())
 /// # }
-pub fn parse_metadata_as_vec<R: ?Sized + Read, C: ?Sized + Config>(
+pub fn read_metadata_as_vec<R: ?Sized + Read, C: ?Sized + Config>(
     reader: &mut R,
     configuration: &C,
 ) -> Result<Vec<MetadataRecord>, MetadataReadError> {
     let mut records = Vec::new();
-    for record in parse_metadata(reader, configuration)? {
+    for record in read_metadata(reader, configuration)? {
         records.push(record?);
     }
     Ok(records)

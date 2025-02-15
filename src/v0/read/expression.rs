@@ -8,13 +8,13 @@ use crate::v0::{
         Expr, ExprTree,
     },
 };
-/// Parses an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) from a byte stream using a composer.
+/// Reads an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) from a byte stream using a composer.
 ///
 /// Reads an expression in the FEF (prefix) format from the byte stream and composes it into a custom type using the [composer](crate::v0::expr::traits::Composer).
-/// Whenever an expression is parsed in the proces, the appropriate method of the composer is used to convert this expression into `S`. This value is then used
-/// to parse parent expressions. The most common type for `S` is probably `Box<Expr<S>>` (an in memory tree) - yielding a recursive type `Expr<Box<Expr<Box<Expr<...>>>>>`.
-/// Since it is not possible to express this type directly in Rust, the [`ExprTree`] type is provided, which provides this functionality. If you want to parse to
-/// [`ExprTree`], use the [`parse_expression_into_tree`] function.
+/// Whenever an expression is read in the proces, the appropriate method of the composer is used to convert this expression into `S`. This value is then used
+/// to read parent expressions. The most common type for `S` is probably `Box<Expr<S>>` (an in memory tree) - yielding a recursive type `Expr<Box<Expr<Box<Expr<...>>>>>`.
+/// Since it is not possible to express this type directly in Rust, the [`ExprTree`] type is provided, which provides this functionality. If you want to read to
+/// [`ExprTree`], use the [`read_expression_into_tree`] function.
 ///
 /// # Type parameters
 ///
@@ -28,12 +28,7 @@ use crate::v0::{
 /// # Usage
 ///
 /// For usage, see the [`Composer`] trait.
-pub fn parse_expression<
-    R: ?Sized + Read,
-    C: ?Sized + Config,
-    S: Sized,
-    CP: ?Sized + Composer<S>,
->(
+pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Sized + Composer<S>>(
     byte_stream: &mut R,
     config: &C,
     composer: &mut CP,
@@ -49,15 +44,15 @@ pub fn parse_expression<
 // PLEASE FIX THIS PIECE OF SHIT EXAMPLE AS SOON AS MORE ERGONOMIC EXPRESSION BUILDING PATTERNS ARE AVAILABLE.
 // THIS IS VERY PAINFUL TO LOOK AT
 
-/// Parses an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) from a byte stream and returns it as an [`ExprTree`].
+/// Reads an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) from a byte stream and returns it as an [`ExprTree`].
 ///
-/// This function is a convenience function that simplifies calling [`parse_expression`] with a composer that composes to an [`ExprTree`].
-/// For more information on parsing expressions, see the [`parse_expression`] function.
+/// This function is a convenience function that simplifies calling [`read_expression`] with a composer that composes to an [`ExprTree`].
+/// For more information on parsing expressions, see the [`read_expression`] function.
 ///
 /// # Example
 /// Parsing the quadratic formula expression:
 /// ```rust
-/// # use fef::v0::parse::parse_expression_into_tree;
+/// # use fef::v0::read::read_expression_into_tree;
 /// # use fef::v0::config::DEFAULT_CONFIG;
 /// # use fef::v0::expr::ExprTree;
 /// # use fef::v0::expr::Expr;
@@ -142,17 +137,17 @@ pub fn parse_expression<
 ///
 ///
 /// let mut reader = &mut bytes.as_slice();
-/// let expr = parse_expression_into_tree(&mut reader, &DEFAULT_CONFIG)?;
+/// let expr = read_expression_into_tree(&mut reader, &DEFAULT_CONFIG)?;
 ///
 /// assert_eq!(fraction, expr);
 /// # Ok(())
 /// # }
-pub fn parse_expression_into_tree<R: ?Sized + Read, C: ?Sized + Config>(
+pub fn read_expression_into_tree<R: ?Sized + Read, C: ?Sized + Config>(
     byte_stream: &mut R,
     config: &C,
 ) -> Result<ExprTree, ExprReadWithComposerError<std::convert::Infallible>> {
     let mut composer = ExprTreeComposer {};
-    parse_expression(byte_stream, config, &mut composer)
+    read_expression(byte_stream, config, &mut composer)
 }
 
 struct ExprTreeComposer {}

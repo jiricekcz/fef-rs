@@ -11,11 +11,11 @@ use crate::v0::{
 /// that your application has some sort of default configuration that you
 /// want to use instead of the default configuration provided by the standard.
 ///
-/// Other than that, it functions the same as [`parse_configuration_with_default_configuration`].
+/// Other than that, it functions the same as [`read_configuration_with_default_configuration`].
 ///
 /// # Example
 /// ```rust
-/// # use fef::v0::parse::parse_configuration;
+/// # use fef::v0::read::read_configuration;
 /// # use fef::v0::config::Config;
 /// # use fef::v0::config::IntFormat;
 /// # use fef::v0::config::FloatFormat;
@@ -31,14 +31,14 @@ use crate::v0::{
 /// // Edit the configuration to your liking
 ///
 /// let mut reader = &mut bytes.as_slice();
-/// let config = parse_configuration(&mut reader, &config)?;
+/// let config = read_configuration(&mut reader, &config)?;
 ///
 /// assert_eq!(config.integer_format(), IntFormat::I16);
 /// assert_eq!(config.float_format(), FloatFormat::F32);
 /// # assert!(reader.is_empty());
 /// # Ok(())
 /// # }
-pub fn parse_configuration<R: ?Sized + Read, C: ?Sized + Config>(
+pub fn read_configuration<R: ?Sized + Read, C: ?Sized + Config>(
     byte_stream: &mut R,
     configuration: &C,
 ) -> Result<OverridableConfig, ConfigurationReadError> {
@@ -52,7 +52,7 @@ pub fn parse_configuration<R: ?Sized + Read, C: ?Sized + Config>(
 ///
 /// # Example
 /// ```rust
-/// # use fef::v0::parse::parse_configuration_with_default_configuration;
+/// # use fef::v0::read::read_configuration_with_default_configuration;
 /// # use fef::v0::config::Config;
 /// # use fef::v0::config::IntFormat;
 /// # use fef::v0::config::FloatFormat;
@@ -64,15 +64,15 @@ pub fn parse_configuration<R: ?Sized + Read, C: ?Sized + Config>(
 /// ];
 ///
 /// let mut reader = &mut bytes.as_slice();
-/// let config = parse_configuration_with_default_configuration(&mut reader)?;
+/// let config = read_configuration_with_default_configuration(&mut reader)?;
 ///
 /// assert_eq!(config.integer_format(), IntFormat::I16);
 /// assert_eq!(config.float_format(), FloatFormat::F32);
 /// # assert!(reader.is_empty());
 /// # Ok(())
 /// # }
-pub fn parse_configuration_with_default_configuration<R: ?Sized + Read>(
+pub fn read_configuration_with_default_configuration<R: ?Sized + Read>(
     byte_stream: &mut R,
 ) -> Result<OverridableConfig, ConfigurationReadError> {
-    parse_configuration(byte_stream, &DEFAULT_CONFIG)
+    read_configuration(byte_stream, &DEFAULT_CONFIG)
 }

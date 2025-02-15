@@ -2,7 +2,7 @@ use super::Config;
 
 /// Configuration object with default values.
 ///
-/// It is useful for example to parse the configuration of a given file.
+/// It is useful for example to read the configuration of a given file.
 ///
 /// # Example
 /// All of the configuration values are set to their default values.

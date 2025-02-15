@@ -35,7 +35,7 @@ macro_rules! write_enum_configuration {
 /// fef::v0::write::configuration::write_configuration(&mut writer, &configuration)?;
 ///
 /// let reader = &mut writer.as_slice();
-/// let read_configuration = fef::v0::read::configuration::parse_configuration_with_default_configuration(reader)?;
+/// let read_configuration = fef::v0::read::configuration::read_configuration_with_default_configuration(reader)?;
 /// # Ok(())
 /// # }
 pub fn write_configuration<W: ?Sized + Write, C: ?Sized + Config>(
