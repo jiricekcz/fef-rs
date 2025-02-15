@@ -24,18 +24,24 @@ macro_rules! write_enum_configuration {
 ///
 /// ```rust
 /// # use fef::v0::config::{Config, IntFormat, FloatFormat, OverridableConfig};
+/// # use fef::v0::write::write_configuration;
+/// # use fef::v0::read::read_configuration_with_default_configuration;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let mut configuration = OverridableConfig::default();
 ///
-/// configuration.set_integer_format(IntFormat::Int8);
-/// configuration.set_float_format(FloatFormat::Float32);
+/// configuration.override_integer_format(IntFormat::I8);
+/// configuration.override_float_format(FloatFormat::F32);
 ///
 /// let mut writer = Vec::new();
 ///
-/// fef::v0::write::configuration::write_configuration(&mut writer, &configuration)?;
+/// write_configuration(&mut writer, &configuration)?;
 ///
 /// let reader = &mut writer.as_slice();
-/// let read_configuration = fef::v0::read::configuration::read_configuration_with_default_configuration(reader)?;
+/// let read_configuration = read_configuration_with_default_configuration(reader)?;
+///
+/// assert_eq!(read_configuration.integer_format(), configuration.integer_format());
+/// assert_eq!(read_configuration.float_format(), configuration.float_format());
+///
 /// # Ok(())
 /// # }
 pub fn write_configuration<W: ?Sized + Write, C: ?Sized + Config>(
