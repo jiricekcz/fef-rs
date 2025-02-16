@@ -15,7 +15,7 @@ use super::{traits::ExprObj, *};
 /// ```rust
 /// # use fef::v0::expr::{Expr, ExprVariable};
 /// # use fef::v0::raw::VariableLengthEnum;
-/// let expr = Expr::Variable(ExprVariable::from(VariableLengthEnum::from(0)));
+/// let expr: Expr<()> = Expr::Variable(ExprVariable::from(VariableLengthEnum::from(0)));
 ///
 /// match expr {
 ///    Expr::Variable(inner) => assert!(true),

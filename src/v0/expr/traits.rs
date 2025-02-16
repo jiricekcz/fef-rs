@@ -8,8 +8,8 @@
 //! You can determine, whether a trait is sealed by looking at the trait signature, if it contains the `Sealed` trait.
 //!
 //! Sealed trait:
-//! ```rust
-//! # use crate::common::traits::private::Sealed;
+//! ```compile_fail
+//! # use fef::common::traits::private::Sealed;
 //! pub trait MyTrait: Sealed {
 //!     // Trait body
 //! }

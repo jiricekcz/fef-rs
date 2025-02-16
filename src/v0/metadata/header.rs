@@ -163,7 +163,7 @@ impl MetadataHeader {
     /// # Example
     ///
     /// ```rust
-    /// # use fef::v0::metadata::header::MetadataHeader;
+    /// # use fef::v0::metadata::MetadataHeader;
     /// let header = MetadataHeader::new(10, 100);
     ///
     /// assert_eq!(header.record_count(), 10);
