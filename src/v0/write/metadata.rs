@@ -9,7 +9,7 @@ use crate::v0::{
     traits::WriteTo,
 };
 
-/// Writes metadata to a byte stream.
+/// Writes [metadata](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md) to a byte stream.
 ///
 /// Reads from an iterator of metadata records and writes them to a writer.
 /// Most of the time, you will want to use [`write_metadata_from_vec`] instead,
@@ -41,7 +41,7 @@ pub fn write_metadata<
     Ok(())
 }
 
-/// Writes metadata from a [`Vec`] to a byte stream.
+/// Writes [metadata](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md) from a [`Vec`] to a byte stream.
 ///
 /// This is a convenience function that writes metadata from a [`Vec`] to a byte stream.
 /// It calculates the number of records and the byte length of the records for you.

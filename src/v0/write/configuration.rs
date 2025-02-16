@@ -16,7 +16,7 @@ macro_rules! write_enum_configuration {
     }};
 }
 
-/// Write a [configuration](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md) to a byte stream.
+/// Writes a [configuration](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md) to a byte stream.
 ///
 /// Writes any [`Config`] to byte stream by writing all values.
 ///
