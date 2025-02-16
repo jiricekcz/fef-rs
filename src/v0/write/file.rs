@@ -58,14 +58,14 @@ pub fn write_expression_tree_as_raw_formula<W: ?Sized + Write, C: ?Sized + Confi
 /// Writes a [single formula](https://github.com/jiricekcz/fef-specification/blob/main/file_content_types/Single%20Formula.md) file to a byte stream.
 ///
 /// # Generic Types
-///     - `'a` - lifetime of a reference to a metadata record.
-///     - `EM` - Error type, that occurs when metadata iterator fails.
-///     - `S` - Child expression storage type of the formula.
-///     - `W` - Writer type.
-///     - `C` - Configuration type.
-///     - `CW` - Type of configuration to be written (can be different than the one used to write it)
-///     - `MI` - Metadata iterator
-///     - `DP` - Decomposer type.
+/// * `'a` - lifetime of a reference to a metadata record.
+/// * `EM` - Error type, that occurs when metadata iterator fails.
+/// * `S` - Child expression storage type of the formula.
+/// * `W` - Writer type.
+/// * `C` - Configuration type.
+/// * `CW` - Type of configuration to be written (can be different than the one used to write it)
+/// * `MI` - Metadata iterator
+/// * `DP` - Decomposer type.
 ///
 /// Most of the time, you  want to use the [`write_metadata_vec_expression_tree_as_single_formula`] function.
 pub fn write_single_formula<
