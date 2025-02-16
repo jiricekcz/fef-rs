@@ -1,6 +1,8 @@
 //! Writing [FEF](https://github.com/jiricekcz/fef-specification/blob/main/README.md) structures into byte streams.
 //!
-//!
+//! Collection of functions that write FEF structures into byte streams. In almost every case, these will be the main
+//! functions you will use to interact with this library. Often basic and more advanced functions are provided for
+//! convenience and flexibility.
 mod configuration;
 mod expression;
 mod file;
