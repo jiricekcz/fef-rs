@@ -15,16 +15,28 @@ use crate::{
         metadata::{
             error::{MetadataRecordReadError, MetadataRecordWriteError},
             traits::MetadataRecordObj,
+            MetadataRecord,
         },
         tokens::{error::MetadataTokenError, MetadataToken},
         traits::WriteTo,
     },
 };
 
+/// Metadata record with identifier unknown to the library, but reserved for future use. See [specification](https://github.com/jiricekcz/fef-specification/blob/main/metadata/Metadata.md#defined-metadata-keys)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum ReservedMetadataRecord {
+    /// Official reserved metadata record.
+    ///
+    /// These keys are reserved for future use by the FEF specification.
     Official(OfficialReservedMetadataRecordObj),
+    /// Custom reserved metadata record.
+    ///
+    /// These keys are reserved for custom use by any implementor.
     Custom(CustomReservedMetadataRecordObj),
+    /// Third-party reserved metadata record.
+    ///
+    /// These keys are reserved for use by third-party extensions to the FEF specification.
     ThirdParty(ThirdPartyReservedMetadataRecordObj),
 }
 impl Sealed for ReservedMetadataRecord {}
@@ -91,5 +103,11 @@ impl<W: ?Sized + Write> WriteTo<W> for ReservedMetadataRecord {
             ReservedMetadataRecord::Custom(record) => record.write_to(writer, configuration),
             ReservedMetadataRecord::ThirdParty(record) => record.write_to(writer, configuration),
         }
+    }
+}
+
+impl Into<MetadataRecord> for ReservedMetadataRecord {
+    fn into(self) -> MetadataRecord {
+        MetadataRecord::Reserved(self)
     }
 }

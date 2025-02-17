@@ -1,3 +1,5 @@
+//! Handling of the different [file content types](https://github.com/jiricekcz/fef-specification/blob/main/README.md).
+
 pub mod error;
 mod raw_formula;
 mod read_from;
@@ -13,10 +15,13 @@ use crate::common::traits::private::Sealed;
 
 use super::{tokens::FileContentTypeToken, traits::ReadFrom};
 
+/// A file as defined by the [FEF specification](https://github.com/jiricekcz/fef-specification/blob/main/README.md).
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
 pub enum File {
+    /// A raw formula file. See [`RawFormulaFile`].
     RawFormula(RawFormulaFile),
+    /// A single formula file. See [`SingleFormulaFile`].
     SingleFormula(SingleFormulaFile),
 }
 
@@ -24,6 +29,10 @@ impl Sealed for File {}
 
 impl<R: ?Sized + Read> ReadFrom<R> for File {
     type ReadError = FileReadError;
+
+    /// Reads a file from a reader. Expects the version has already been read.
+    ///
+    /// It reads the file content type token and then reads the file based on the token.
     fn read_from<C: ?Sized + super::config::Config>(
         reader: &mut R,
         configuration: &C,

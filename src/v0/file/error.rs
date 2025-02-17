@@ -1,3 +1,5 @@
+//! Errors for interpretation of FEF files.
+
 use std::convert::Infallible;
 
 use thiserror::Error;

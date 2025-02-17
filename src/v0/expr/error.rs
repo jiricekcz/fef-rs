@@ -1,3 +1,4 @@
+//! Error types for expression reading, writing, composing, and decomposing.
 use std::convert::Infallible;
 
 use thiserror::Error;

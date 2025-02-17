@@ -119,7 +119,7 @@ impl Sealed for VariableLengthEnum {}
 /// # use fef::v0::raw::VariableLengthEnum;
 /// # use fef::v0::traits::ReadFrom;
 /// # use std::io::Read;
-/// # fn main() -> Result<(), std::error::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let configuration = fef::v0::config::OverridableConfig::default();
 /// let file: Vec<u8> = vec![0x81, 0x80, 0x00, 0x12];
 /// let mut file_reader = &mut file.as_slice();
@@ -174,17 +174,16 @@ impl Sealed for VariableLengthEnum {}
 /// # }
 /// ```
 ///
-/// Reading from a passed `&mut Bytes<R>`:
+/// Reading from a passed `&mut Read<R>`:
 /// ```rust
 /// # use fef::v0::raw::VariableLengthEnum;
 /// # use std::io::Read;
-/// # use std::io::Bytes;
 /// # use fef::v0::traits::ReadFrom;
 /// # use fef::v0::config::Config;
 ///
-/// fn read_two_variable_length_enums<R: std::io::Read + ?Sized, C: Config>(reader: &mut R, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), std::error::Error> {
-///     let enum1 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?; // Notice the reborrowing here
-///     let enum2 = VariableLengthEnum::read_from(&mut *reader, & *configuration)?;
+/// fn read_two_variable_length_enums<R: std::io::Read + ?Sized, C: Config>(reader: &mut R, configuration: &C) -> Result<(VariableLengthEnum, VariableLengthEnum), Box<dyn std::error::Error>> {
+///     let enum1 = VariableLengthEnum::read_from(reader, configuration)?; // Notice the reborrowing here
+///     let enum2 = VariableLengthEnum::read_from(reader,configuration)?;
 ///
 ///     Ok((enum1, enum2))
 /// }
@@ -401,7 +400,7 @@ where
             VariableLengthEnumStorage::U64(u64_value) => {
                 let value = *u64_value;
 
-                let digits = value.ilog2() + 1; // Number of digits in the value
+                let digits = if value == 0 { 1 } else { value.ilog2() + 1 }; // Number of digits in the value
                 let byte_count = digits.div_ceil(7); // 7 bits per byte
 
                 let mut bytes = Vec::with_capacity(byte_count as usize);

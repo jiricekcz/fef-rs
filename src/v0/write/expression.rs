@@ -5,10 +5,16 @@ use crate::v0::{
     expr::{
         error::ExprWriteWithDecomposerError,
         traits::{Decomposer, DecompositionRefContainer, TryWriteToWithDecomposer},
-        Expr, ExprTree,
+        ExprTree,
     },
 };
 
+/// Writes an [expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Expression.md) to a byte stream.
+///
+/// This function writes an expression to a byte stream using a [`Decomposer`] to decompose children of expressions
+/// into their respective parts. This is useful when writing expressions that are not in memory trees, but are
+/// instead stored in a different format. Most of the time, you will want to use the [`write_expression_tree`] function,
+/// which writes an [`ExprTree`] to a byte stream.
 pub fn write_expression<
     W: ?Sized + Write,
     S: Sized,
@@ -25,14 +31,6 @@ pub fn write_expression<
     Ok(())
 }
 
-struct ExprTreeDecompositionRefContainer<'a> {
-    storage_ref: &'a ExprTree,
-}
-impl<'a> DecompositionRefContainer<'a, ExprTree> for ExprTreeDecompositionRefContainer<'a> {
-    fn inner_as_ref(&self) -> &'a Expr<ExprTree> {
-        self.storage_ref.inner()
-    }
-}
 pub(crate) struct ExprTreeDecomposer {}
 impl Decomposer<ExprTree> for ExprTreeDecomposer {
     type Error = std::convert::Infallible;
@@ -43,10 +41,54 @@ impl Decomposer<ExprTree> for ExprTreeDecomposer {
         impl DecompositionRefContainer<'a, ExprTree>,
         crate::v0::expr::error::DecomposeError<std::convert::Infallible>,
     > {
-        Ok(ExprTreeDecompositionRefContainer { storage_ref })
+        Ok(storage_ref.inner())
     }
 }
 
+/// Writes an [`ExprTree`] to a byte stream.
+///
+/// This function is a convenience function that simplifies calling [`write_expression`] with a decomposer that decomposes
+/// an [`ExprTree`]. In most cases, you will want to use this function.
+///
+/// # Example
+///
+/// Writing the pythagorean theorem expression:
+/// ```rust
+/// # use fef::v0::write::write_expression_tree;
+/// # use fef::v0::config::DEFAULT_CONFIG;
+/// # use fef::v0::expr::ExprTree;
+/// # use fef::v0::expr::Expr;
+/// # use fef::v0::expr::ExprVariable;
+/// # use fef::v0::expr::ExprSquare;
+/// # use fef::v0::expr::ExprAddition;
+/// # use fef::v0::expr::ExprSquareRoot;
+/// # use fef::v0::raw::VariableLengthEnum;
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let a: ExprTree = Expr::<ExprTree>::Variable(ExprVariable::from(VariableLengthEnum::from(0)).into()).into();
+/// let b: ExprTree = Expr::<ExprTree>::Variable(ExprVariable::from(VariableLengthEnum::from(1)).into()).into();
+///
+/// let a_squared: ExprTree = Expr::<ExprTree>::Square(ExprSquare::from(a).into()).into();
+/// let b_squared: ExprTree = Expr::<ExprTree>::Square(ExprSquare::from(b).into()).into();
+///
+/// let c_squared: ExprTree = Expr::<ExprTree>::Addition(ExprAddition::from((a_squared, b_squared)).into()).into();
+/// let c: ExprTree = Expr::<ExprTree>::SquareRoot(ExprSquareRoot::from((c_squared)).into()).into();
+///
+///
+/// let mut writer = Vec::new();
+/// write_expression_tree(&mut writer, &c, &DEFAULT_CONFIG)?;
+///
+/// let expected_bytes: Vec<u8> = vec![
+///     0x22, // Square root
+///         0x10, // Add  
+///             0x20, // Square
+///                 0x04, 0x00, // Variable 0 (a)
+///             0x20, // Square
+///                 0x04, 0x01, // Variable 1 (b)
+/// ];
+///
+/// assert_eq!(writer, expected_bytes);
+/// # Ok(())
+/// # }
 pub fn write_expression_tree<W: ?Sized + Write, C: ?Sized + Config>(
     byte_stream: &mut W,
     tree: &ExprTree,

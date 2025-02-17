@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::error::FileContentTypeTokenError;
-
+/// File content type identifier.
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
 pub enum FileContentTypeToken {

@@ -10,18 +10,21 @@ use crate::{
     },
 };
 
+/// [Power expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Power.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprPower<S: Sized> {
     lhs: S,
     rhs: S,
 }
 
+/// Creates a power expression from its left-hand side and right-hand side.
 impl<S: Sized> From<(S, S)> for ExprPower<S> {
     fn from((lhs, rhs): (S, S)) -> Self {
         Self { lhs, rhs }
     }
 }
 
+/// Converts the power expression into its left-hand side and right-hand side.
 impl<S: Sized> Into<(S, S)> for ExprPower<S> {
     fn into(self) -> (S, S) {
         (self.lhs, self.rhs)
@@ -63,5 +66,13 @@ impl<S: Sized> BinaryOperationExpr<S> for ExprPower<S> {
 
     fn rhs(&self) -> &S {
         &self.rhs
+    }
+
+    fn lhs_mut(&mut self) -> &mut S {
+        &mut self.lhs
+    }
+
+    fn rhs_mut(&mut self) -> &mut S {
+        &mut self.rhs
     }
 }

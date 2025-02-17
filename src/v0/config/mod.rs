@@ -1,3 +1,5 @@
+//! Configuration of the FEF parser based on the [specification](https://github.com/jiricekcz/fef-specification/blob/main/configuration/Configuration.md)
+
 mod configurations;
 mod default;
 pub mod error;
@@ -9,7 +11,5 @@ pub use configurations::*;
 pub use default::DefaultConfig;
 pub use default::DEFAULT_CONFIG;
 pub use overridable_config::OverridableConfig;
-pub use read_configuration::ConfigurationValue;
-pub use read_configuration::ReadConfigurationOutput;
 pub use traits::Config;
 pub(crate) use traits::EnumConfiguration;

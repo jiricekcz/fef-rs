@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use crate::{
-    common::{stream_utils::skip_bytes, traits::private::Sealed},
+    common::stream_utils::skip_bytes,
     v0::{raw::VariableLengthEnum, tokens::ConfigToken, traits::ReadFrom},
 };
 
@@ -10,97 +10,7 @@ use super::{
     OverridableConfig,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ReadConfigurationOutput {
-    pub(crate) integer_format: Option<IntFormat>,
-    pub(crate) float_format: Option<FloatFormat>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ConfigurationValue<T: Default + Copy> {
-    Unset,
-    Set(T),
-}
-
-impl<T: Default + Copy> From<Option<T>> for ConfigurationValue<T> {
-    fn from(value: Option<T>) -> Self {
-        match value {
-            Some(value) => ConfigurationValue::Set(value),
-            None => ConfigurationValue::Unset,
-        }
-    }
-}
-impl<T: Default + Copy> From<ConfigurationValue<T>> for Option<T> {
-    fn from(value: ConfigurationValue<T>) -> Self {
-        match value {
-            ConfigurationValue::Set(value) => Some(value),
-            ConfigurationValue::Unset => None,
-        }
-    }
-}
-impl<T: Default + Copy> Default for ConfigurationValue<T> {
-    fn default() -> Self {
-        ConfigurationValue::Set(T::default())
-    }
-}
-
-impl<T: Default + Copy> ConfigurationValue<T> {
-    pub const fn is_set(&self) -> bool {
-        matches!(self, ConfigurationValue::Set(_))
-    }
-    pub const fn is_unset(&self) -> bool {
-        !self.is_set()
-    }
-    pub fn into_value(self) -> T {
-        match self {
-            ConfigurationValue::Set(value) => value,
-            ConfigurationValue::Unset => T::default(),
-        }
-    }
-    pub const fn as_ref(&self) -> Option<&T> {
-        match self {
-            ConfigurationValue::Set(value) => Some(value),
-            ConfigurationValue::Unset => None,
-        }
-    }
-    pub const fn as_mut(&mut self) -> Option<&mut T> {
-        match self {
-            ConfigurationValue::Set(value) => Some(value),
-            ConfigurationValue::Unset => None,
-        }
-    }
-    pub const fn set(&mut self, value: T) {
-        *self = ConfigurationValue::Set(value);
-    }
-    pub fn set_default(&mut self) {
-        *self = ConfigurationValue::Set(T::default());
-    }
-    pub const fn unset(&mut self) {
-        *self = ConfigurationValue::Unset;
-    }
-}
-
-impl ReadConfigurationOutput {
-    pub fn integer_format_state(&self) -> ConfigurationValue<IntFormat> {
-        self.integer_format.into()
-    }
-
-    pub fn float_format_state(&self) -> ConfigurationValue<FloatFormat> {
-        self.float_format.into()
-    }
-}
-
-impl Default for ReadConfigurationOutput {
-    fn default() -> Self {
-        ReadConfigurationOutput {
-            integer_format: None,
-            float_format: None,
-        }
-    }
-}
-impl Sealed for ReadConfigurationOutput {}
-
-impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
+impl<R: ?Sized + Read> ReadFrom<R> for OverridableConfig {
     type ReadError = ConfigurationReadError;
     fn read_from<C: ?Sized + Config>(
         reader: &mut R,
@@ -110,7 +20,7 @@ impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
             VariableLengthEnum::read_from(reader, configuration)?.try_into()?;
 
         let mut remaining = config_count;
-        let mut output = ReadConfigurationOutput::default();
+        let mut output = OverridableConfig::default();
 
         while remaining > 0 {
             // Looping through the number of configurations given by the first VariableLengthEnum (config_count)
@@ -119,15 +29,6 @@ impl<R: ?Sized + Read> ReadFrom<R> for ReadConfigurationOutput {
         }
 
         Ok(output)
-    }
-}
-
-impl Config for ReadConfigurationOutput {
-    fn float_format(&self) -> FloatFormat {
-        self.float_format_state().into_value()
-    }
-    fn integer_format(&self) -> IntFormat {
-        self.integer_format_state().into_value()
     }
 }
 
@@ -151,7 +52,7 @@ fn skip_non_enum_configuration<R: Read + ?Sized>(
 fn read_one_config<R: Read + ?Sized, C: ?Sized + Config>(
     reader: &mut R,
     configuration: &C,
-    output: &mut ReadConfigurationOutput,
+    output: &mut OverridableConfig,
 ) -> Result<(), ConfigurationReadError> {
     let config_token_identifier = VariableLengthEnum::read_from(reader, configuration)?;
 
@@ -215,26 +116,17 @@ fn read_enum_configuration<R: ?Sized + Read, C: ?Sized + Config>(
     reader: &mut R,
     configuration: &C,
     config_token: ConfigToken,
-    output: &mut ReadConfigurationOutput,
+    output: &mut OverridableConfig,
 ) -> Result<(), ConfigurationReadError> {
     match config_token {
         ConfigToken::IntFormat => {
             let int_format = read_enum_configuration!(IntFormat, reader, configuration);
-            output.integer_format = Some(int_format);
+            output.override_integer_format(int_format);
         }
         ConfigToken::FloatFormat => {
             let float_format = read_enum_configuration!(FloatFormat, reader, configuration);
-            output.float_format = Some(float_format);
+            output.override_float_format(float_format);
         }
     }
     Ok(())
-}
-
-impl Into<OverridableConfig> for ReadConfigurationOutput {
-    fn into(self) -> OverridableConfig {
-        OverridableConfig {
-            integer_format: self.integer_format,
-            float_format: self.float_format,
-        }
-    }
 }

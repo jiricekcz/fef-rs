@@ -1,3 +1,5 @@
+//! Error structures describing possible errors when using configuration structures provided
+
 use thiserror::Error;
 
 use crate::v0::{

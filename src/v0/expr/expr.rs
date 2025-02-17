@@ -4,10 +4,25 @@ use super::{traits::ExprObj, *};
 
 /// Represents any expression in the FEF specification.
 ///
+/// # Type parameters
+///
+/// - `S`: The type of the expression's sub-expressions, if it has any. If you don't care about this, consider using [`ExprTree`] instead.
+///
 /// # Non-exhaustive
 /// To allow for adding of new expression types without breaking existing code, this enum is marked as [non-exhaustive](https://doc.rust-lang.org/reference/attributes/type_system.html#the-non_exhaustive-attribute).  
 ///
 /// # Examples
+/// ```rust
+/// # use fef::v0::expr::{Expr, ExprVariable};
+/// # use fef::v0::raw::VariableLengthEnum;
+/// let expr: Expr<()> = Expr::Variable(ExprVariable::from(VariableLengthEnum::from(0)));
+///
+/// match expr {
+///    Expr::Variable(inner) => assert!(true),
+///    _ => assert!(false),
+/// }
+/// ```
+///
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr<S: Sized> {
@@ -109,11 +124,10 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
 ///
 /// # Examples
 /// ```
-/// use crate::v0::expr::{Expr, ExprTree, ExprVariable};
-/// use crate::v0::raw::VariableLengthEnum;
-///
+/// # use fef::v0::expr::{Expr, ExprTree, ExprVariable};
+/// # use fef::v0::raw::VariableLengthEnum;
 /// // Example of converting an Expr to an ExprTree
-/// let expr = Expr::Variable(ExprVariable::new(VariableLengthEnum::from(0)));
+/// let expr = Expr::Variable(ExprVariable::from(VariableLengthEnum::from(0)));
 /// let expr_tree: ExprTree = expr.into();
 ///
 /// // Example of converting an ExprTree back to an Expr

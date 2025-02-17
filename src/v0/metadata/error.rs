@@ -1,4 +1,5 @@
-use std::fmt::Debug;
+//! Error types for metadata module.
+use std::{convert::Infallible, fmt::Debug};
 
 use thiserror::Error;
 
@@ -74,4 +75,26 @@ pub enum FromIteratorMetadataWriteError<E: std::error::Error + Debug> {
     IteratorError(E),
     #[error("an error occurred while writing metadata")]
     MetadataWriteError(#[from] MetadataWriteError),
+}
+
+#[derive(Error, Debug)]
+#[error("metadata identifier {identifier} is out of range [{}..={}]", range.start(), range.end())]
+pub struct MetadataIdentifierOutOfRangeError {
+    pub identifier: u32,
+    pub range: std::ops::RangeInclusive<u32>,
+}
+
+impl MetadataIdentifierOutOfRangeError {
+    pub(crate) fn custom_key(identifier: u32) -> Self {
+        Self {
+            identifier,
+            range: 0x100000..=0x1FFFFF,
+        }
+    }
+}
+
+impl<E: std::error::Error> From<Infallible> for FromIteratorMetadataWriteError<E> {
+    fn from(_: Infallible) -> Self {
+        unreachable!()
+    }
 }

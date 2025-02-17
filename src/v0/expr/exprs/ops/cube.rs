@@ -10,11 +10,13 @@ use crate::{
     },
 };
 
+/// [Cube expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Cube.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprCube<S: Sized> {
     operand: S,
 }
 
+/// Creates a cube expression from its operand.
 impl<S: Sized> From<S> for ExprCube<S> {
     fn from(operand: S) -> Self {
         Self { operand }
@@ -49,8 +51,20 @@ impl<S: Sized> ExprObj<S> for ExprCube<S> {
     }
 }
 
-impl<S: Sized> UnaryOperationExpr<S> for ExprCube<S> {
-    fn inner(&self) -> &S {
+impl<S: Sized> AsRef<S> for ExprCube<S> {
+    fn as_ref(&self) -> &S {
         &self.operand
+    }
+}
+
+impl<S: Sized> AsMut<S> for ExprCube<S> {
+    fn as_mut(&mut self) -> &mut S {
+        &mut self.operand
+    }
+}
+
+impl<S: Sized> UnaryOperationExpr<S> for ExprCube<S> {
+    fn into_inner(self) -> S {
+        self.operand
     }
 }

@@ -10,11 +10,13 @@ use crate::{
     },
 };
 
+/// [Negation expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Negation.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprNegation<S: Sized> {
     operand: S,
 }
 
+/// Creates a negation expression from its operand.
 impl<S: Sized> From<S> for ExprNegation<S> {
     fn from(inner: S) -> Self {
         Self { operand: inner }
@@ -49,8 +51,20 @@ impl<S: Sized> ExprObj<S> for ExprNegation<S> {
     }
 }
 
-impl<S: Sized> UnaryOperationExpr<S> for ExprNegation<S> {
-    fn inner(&self) -> &S {
+impl<S: Sized> AsRef<S> for ExprNegation<S> {
+    fn as_ref(&self) -> &S {
         &self.operand
+    }
+}
+
+impl<S: Sized> AsMut<S> for ExprNegation<S> {
+    fn as_mut(&mut self) -> &mut S {
+        &mut self.operand
+    }
+}
+
+impl<S: Sized> UnaryOperationExpr<S> for ExprNegation<S> {
+    fn into_inner(self) -> S {
+        self.operand
     }
 }

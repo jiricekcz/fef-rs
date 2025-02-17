@@ -61,8 +61,10 @@ impl<S: Sized> Into<Integer> for ExprIntLiteral<S> {
     }
 }
 
-impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {
-    fn integer(&self) -> &Integer {
+impl<S: Sized> AsRef<Integer> for ExprIntLiteral<S> {
+    fn as_ref(&self) -> &Integer {
         &self.value
     }
 }
+
+impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {}

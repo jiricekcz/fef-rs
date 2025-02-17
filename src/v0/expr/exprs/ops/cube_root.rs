@@ -10,11 +10,13 @@ use crate::{
     },
 };
 
+/// [Cube root expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Cube%20Root.md) in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprCubeRoot<S: Sized> {
     operand: S,
 }
 
+/// Creates a cube root expression from its operand.
 impl<S: Sized> From<S> for ExprCubeRoot<S> {
     fn from(operand: S) -> Self {
         Self { operand }
@@ -49,8 +51,20 @@ impl<S: Sized> ExprObj<S> for ExprCubeRoot<S> {
     }
 }
 
-impl<S: Sized> UnaryOperationExpr<S> for ExprCubeRoot<S> {
-    fn inner(&self) -> &S {
+impl<S: Sized> AsRef<S> for ExprCubeRoot<S> {
+    fn as_ref(&self) -> &S {
         &self.operand
+    }
+}
+
+impl<S: Sized> AsMut<S> for ExprCubeRoot<S> {
+    fn as_mut(&mut self) -> &mut S {
+        &mut self.operand
+    }
+}
+
+impl<S: Sized> UnaryOperationExpr<S> for ExprCubeRoot<S> {
+    fn into_inner(self) -> S {
+        self.operand
     }
 }
