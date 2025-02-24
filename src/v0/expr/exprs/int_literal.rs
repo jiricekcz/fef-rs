@@ -1,70 +1,88 @@
-use crate::{
-    common::traits::private::Sealed,
-    v0::{
-        expr::{
-            error::NonMatchingExprError,
-            traits::{ExprObj, IntExpr},
-            Expr,
-        },
-        raw::Integer,
-        tokens::ExprToken,
-    },
-};
-
-/// [Integer literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Integer%20Literal.md) in FEF.
+/// [Unsigned integer literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Integer%20Literal.md) in FEF.
+///
+/// Represents all unsigned integer literals in FEF.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ExprIntLiteral<S: Sized> {
-    _phantom: std::marker::PhantomData<S>,
-    value: Integer,
+pub struct ExprUnsignedIntLiteral<S: Sized> {
+    _marker: std::marker::PhantomData<S>,
+    value: u64,
 }
 
-impl<S: Sized> Sealed for ExprIntLiteral<S> {}
-
-impl<S: Sized> TryFrom<Expr<S>> for ExprIntLiteral<S> {
-    type Error = NonMatchingExprError;
-
-    fn try_from(value: Expr<S>) -> Result<Self, Self::Error> {
-        match value {
-            Expr::IntLiteral(v) => Ok(v),
-            _ => Err(NonMatchingExprError {
-                expected: ExprToken::IntLiteral,
-                found: value.token(),
-            }),
-        }
+/// [Signed integer literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Integer%20Literal.md) in FEF.
+///
+/// Represents all signed integer literals in FEF.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ExprSignedIntLiteral<S: Sized> {
+    _marker: std::marker::PhantomData<S>,
+    value: i64,
+}
+/// Implementation of from<int> traits for integer literals.
+///
+/// Module is used for strict scoping of the macro enforced by the compiler.
+mod from_impl {
+    use super::*;
+    /// Implements the conversion from any integer type to the integer literal expression.
+    macro_rules! implement_from_int {
+        ($struct:ty, $from:ty) => {
+            impl<S: Sized> From<$from> for $struct {
+                fn from(value: $from) -> Self {
+                    Self {
+                        _marker: std::marker::PhantomData,
+                        value: value as _,
+                    }
+                }
+            }
+        };
     }
+
+    implement_from_int!(ExprUnsignedIntLiteral<S>, u64);
+    implement_from_int!(ExprUnsignedIntLiteral<S>, u32);
+    implement_from_int!(ExprUnsignedIntLiteral<S>, u16);
+    implement_from_int!(ExprUnsignedIntLiteral<S>, u8);
+
+    implement_from_int!(ExprSignedIntLiteral<S>, i64);
+    implement_from_int!(ExprSignedIntLiteral<S>, i32);
+    implement_from_int!(ExprSignedIntLiteral<S>, i16);
+    implement_from_int!(ExprSignedIntLiteral<S>, i8);
 }
 
-impl<S: Sized> Into<Expr<S>> for ExprIntLiteral<S> {
-    fn into(self) -> Expr<S> {
-        Expr::IntLiteral(self)
+/// Implementation of try_into<int> traits for integer literals.
+///
+/// Module is used for strict scoping of the macro enforced by the compiler.
+mod try_into {
+    use super::*;
+    /// Implements the conversion from integer literal expression to any signed integer type.
+    macro_rules! implement_try_into_signed_int {
+        ($struct:ty, $into:ty) => {
+            impl<S: Sized> TryInto<$into> for $struct {
+                type Error = <$into as TryFrom<i64>>::Error;
+
+                fn try_into(self) -> Result<$into, Self::Error> {
+                    self.value.try_into()
+                }
+            }
+        };
     }
-}
 
-impl<S: Sized> ExprObj<S> for ExprIntLiteral<S> {
-    fn token(&self) -> ExprToken {
-        ExprToken::IntLiteral
+    implement_try_into_signed_int!(ExprSignedIntLiteral<S>, i64);
+    implement_try_into_signed_int!(ExprSignedIntLiteral<S>, i32);
+    implement_try_into_signed_int!(ExprSignedIntLiteral<S>, i16);
+    implement_try_into_signed_int!(ExprSignedIntLiteral<S>, i8);
+
+    /// Implements the conversion from integer literal expression to any unsigned integer type.
+    macro_rules! implement_try_into_unsigned_int {
+        ($struct:ty, $into:ty) => {
+            impl<S: Sized> TryInto<$into> for $struct {
+                type Error = <$into as TryFrom<u64>>::Error;
+
+                fn try_into(self) -> Result<$into, Self::Error> {
+                    self.value.try_into()
+                }
+            }
+        };
     }
-}
 
-impl<S: Sized> From<Integer> for ExprIntLiteral<S> {
-    fn from(value: Integer) -> Self {
-        Self {
-            _phantom: std::marker::PhantomData,
-            value,
-        }
-    }
+    implement_try_into_unsigned_int!(ExprUnsignedIntLiteral<S>, u64);
+    implement_try_into_unsigned_int!(ExprUnsignedIntLiteral<S>, u32);
+    implement_try_into_unsigned_int!(ExprUnsignedIntLiteral<S>, u16);
+    implement_try_into_unsigned_int!(ExprUnsignedIntLiteral<S>, u8);
 }
-
-impl<S: Sized> Into<Integer> for ExprIntLiteral<S> {
-    fn into(self) -> Integer {
-        self.value
-    }
-}
-
-impl<S: Sized> AsRef<Integer> for ExprIntLiteral<S> {
-    fn as_ref(&self) -> &Integer {
-        &self.value
-    }
-}
-
-impl<S: Sized> IntExpr<S> for ExprIntLiteral<S> {}
