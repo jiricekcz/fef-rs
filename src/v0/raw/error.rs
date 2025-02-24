@@ -2,8 +2,6 @@
 
 use thiserror::Error;
 
-use super::Integer;
-
 /// Errors that can occur while reading an integer from a byte stream.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -89,21 +87,6 @@ pub enum IntegerWriteError {
     StreamError {
         #[from]
         source: std::io::Error,
-    },
-    #[error("configuration provided doesn't allow for writing of this integer. When using the best option {source}")]
-    IncompatibleConfiguration {
-        #[from]
-        source: IntegerConversionError,
-    },
-}
-
-#[derive(Debug, Error)]
-#[non_exhaustive]
-pub enum IntegerConversionError {
-    #[error("value {value} is out of range [{}..={}]", range.start(), range.end())]
-    OutOfRange {
-        value: Integer,
-        range: std::ops::RangeInclusive<Integer>,
     },
 }
 

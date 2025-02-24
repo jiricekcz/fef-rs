@@ -27,7 +27,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprVariable<S> {
         match value {
             Expr::Variable(v) => Ok(v),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Variable,
+                expected: vec![ExprToken::Variable],
                 found: value.token(),
             }),
         }

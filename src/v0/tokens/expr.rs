@@ -15,8 +15,6 @@ use super::error::ExprTokenError;
 #[non_exhaustive]
 pub enum ExprToken {
     Variable = 0x04,
-    IntLiteral = 0x08,
-    FloatLiteral = 0x09,
     TrueLiteral = 0x0A,
     FalseLiteral = 0x0B,
     Addition = 0x10,
@@ -34,6 +32,16 @@ pub enum ExprToken {
     SquareRoot = 0x22,
     CubeRoot = 0x23,
     Reciprocal = 0x24,
+    SignedIntLiteral8 = 0x30,
+    SignedIntLiteral16 = 0x31,
+    SignedIntLiteral32 = 0x33,
+    SignedIntLiteral64 = 0x34,
+    UnsignedIntLiteral8 = 0x38,
+    UnsignedIntLiteral16 = 0x39,
+    UnsignedIntLiteral32 = 0x3B,
+    UnsignedIntLiteral64 = 0x3CF,
+    BinaryFloatLiteral32 = 0x42,
+    BinaryFloatLiteral64 = 0x43,
 }
 
 impl std::fmt::Display for ExprToken {

@@ -13,10 +13,7 @@
 use std::io::Read;
 
 use crate::v0::{
-    config::Config,
-    expr::error::ExprReadError,
-    raw::{Float, Integer, VariableLengthEnum},
-    tokens::ExprToken,
+    config::Config, expr::error::ExprReadError, raw::VariableLengthEnum, tokens::ExprToken,
     traits::ReadFrom,
 };
 
@@ -25,10 +22,10 @@ use super::{
     traits::{
         BinaryOperationExpr, Composer, PureExpr, TryReadFromWithComposer, UnaryOperationExpr,
     },
-    Expr, ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
-    ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
-    ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction,
-    ExprTrueLiteral, ExprVariable,
+    Expr, ExprAddition, ExprBinaryFloat32Literal, ExprBinaryFloat64Literal, ExprCube, ExprCubeRoot,
+    ExprDivision, ExprFalseLiteral, ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication,
+    ExprNegation, ExprPower, ExprReciprocal, ExprRoot, ExprSignedIntLiteral, ExprSquare,
+    ExprSquareRoot, ExprSubtraction, ExprTrueLiteral, ExprUnsignedIntLiteral, ExprVariable,
 };
 
 macro_rules! impl_read_from_pure_expr {

@@ -32,7 +32,7 @@ use crate::{
             error::{ComposeError, DefaultComposeError, ExprReadWithComposerError},
             Expr, ExprTrueLiteral,
         },
-        raw::{Float, Integer, VariableLengthEnum},
+        raw::VariableLengthEnum,
         tokens::ExprToken,
     },
 };
@@ -40,8 +40,9 @@ use crate::{
 use super::{
     error::{DecomposeError, ExprWriteWithDecomposerError},
     ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
-    ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
-    ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction, ExprVariable,
+    ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation, ExprPower,
+    ExprReciprocal, ExprRoot, ExprSignedIntLiteral, ExprSquare, ExprSquareRoot, ExprSubtraction,
+    ExprUnsignedIntLiteral, ExprVariable,
 };
 
 /// A trait for all expression objects.
@@ -70,36 +71,6 @@ pub(crate) trait EnumExpr<S: Sized>:
     Sealed + TryFrom<VariableLengthEnum> + Into<VariableLengthEnum>
 {
     fn variable_length_enum(&self) -> &VariableLengthEnum;
-}
-
-/// A trait for all integer expression objects.
-///
-/// This trait is sealed and cannot be implemented outside of this crate.
-/// It is used for all common behavior between integer expression objects.
-///
-/// # Type Parameters
-/// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait IntExpr<S: Sized>:
-    Sealed + Into<Integer> + TryFrom<Integer> + AsRef<Integer>
-{
-    fn integer(&self) -> &Integer {
-        self.as_ref()
-    }
-}
-
-/// A trait for all float expression objects.
-///
-/// This trait is sealed and cannot be implemented outside of this crate.
-/// It is used for all common behavior between float expression objects.
-///
-/// # Type Parameters
-/// * `S`: The type of the storage of child expressions of this expression.
-pub(crate) trait FloatExpr<S: Sized>:
-    Sealed + Into<Float> + TryFrom<Float> + AsRef<Float>
-{
-    fn float(&self) -> &Float {
-        self.as_ref()
-    }
 }
 
 /// A trait for all expression objects that hold no value.
@@ -322,7 +293,8 @@ pub trait Composer<S: Sized> {
     compose_expr!(compose_true_literal, ExprTrueLiteral<S>);
     compose_expr!(compose_false_literal, ExprFalseLiteral<S>);
     compose_expr!(compose_float_literal, ExprFloatLiteral<S>);
-    compose_expr!(compose_int_literal, ExprIntLiteral<S>);
+    compose_expr!(compose_signed_int_literal, ExprSignedIntLiteral<S>);
+    compose_expr!(compose_unsigned_int_literal, ExprUnsignedIntLiteral<S>);
     compose_expr!(compose_addition, ExprAddition<S>);
     compose_expr!(compose_subtraction, ExprSubtraction<S>);
     compose_expr!(compose_multiplication, ExprMultiplication<S>);
