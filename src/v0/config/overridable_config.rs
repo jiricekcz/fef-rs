@@ -21,6 +21,21 @@ impl Sealed for OverridableConfig {}
 impl Config for OverridableConfig {}
 
 impl OverridableConfig {
+    /// Overrides the configuration with another OverridableConfig.
+    /// If the other configuration has a value set, it will override the value in this configuration.
+    /// If the other configuration does not have a value set, the value in this configuration will remain unchanged.
+    ///
+    /// # Example
+    /// ```rust
+    /// # use fef::v0::config::{DefaultConfig, OverridableConfig, Config};
+    /// let mut config = OverridableConfig::default();
+    ///
+    /// let mut other = OverridableConfig::default();
+    ///
+    /// config.override_with(&other);
+    /// ```
+    pub fn override_with(&mut self, _other: &OverridableConfig) {}
+
     pub(crate) fn from_config_full_override<C: ?Sized + Config>(_config: &C) -> Self {
         OverridableConfig {}
     }
