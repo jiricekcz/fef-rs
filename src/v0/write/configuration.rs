@@ -13,14 +13,11 @@ use crate::v0::{
 /// # Example
 ///
 /// ```rust
-/// # use fef::v0::config::{Config, IntFormat, FloatFormat, OverridableConfig};
+/// # use fef::v0::config::{Config, OverridableConfig};
 /// # use fef::v0::write::write_configuration;
 /// # use fef::v0::read::read_configuration_with_default_configuration;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let mut configuration = OverridableConfig::default();
-///
-/// configuration.override_integer_format(IntFormat::I8);
-/// configuration.override_float_format(FloatFormat::F32);
 ///
 /// let mut writer = Vec::new();
 ///
@@ -29,16 +26,14 @@ use crate::v0::{
 /// let reader = &mut writer.as_slice();
 /// let read_configuration = read_configuration_with_default_configuration(reader)?;
 ///
-/// assert_eq!(read_configuration.integer_format(), configuration.integer_format());
-/// assert_eq!(read_configuration.float_format(), configuration.float_format());
-///
+/// # assert!(reader.is_empty());
 /// # Ok(())
 /// # }
 pub fn write_configuration<W: ?Sized + Write, C: ?Sized + Config>(
     writer: &mut W,
     configuration: &C,
 ) -> Result<(), ConfigurationWriteError> {
-    let record_count = VariableLengthEnum::from(2);
+    let record_count = VariableLengthEnum::from(0);
 
     record_count.write_to(writer, configuration)?;
 
