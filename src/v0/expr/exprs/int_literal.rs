@@ -26,7 +26,7 @@ pub struct ExprSignedIntLiteral<S: Sized> {
     _marker: std::marker::PhantomData<S>,
     pub(crate) value: i64,
 }
-/// Implementation of from<int> traits for integer literals.
+/// Implementation of `from<int>` traits for integer literals.
 ///
 /// Module is used for strict scoping of the macro enforced by the compiler.
 mod from_impl {
@@ -56,7 +56,7 @@ mod from_impl {
     implement_from_int!(ExprSignedIntLiteral<S>, i8);
 }
 
-/// Implementation of try_into<int> traits for integer literals.
+/// Implementation of `try_into<int>` traits for integer literals.
 ///
 /// Module is used for strict scoping of the macro enforced by the compiler.
 mod try_into {
