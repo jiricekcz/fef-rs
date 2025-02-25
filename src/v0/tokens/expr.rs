@@ -83,8 +83,6 @@ impl TryFrom<usize> for ExprToken {
     fn try_from(value: usize) -> Result<Self, Self::Error> {
         match value {
             0x04 => Ok(ExprToken::Variable),
-            0x08 => Ok(ExprToken::IntLiteral),
-            0x09 => Ok(ExprToken::FloatLiteral),
             0x0A => Ok(ExprToken::TrueLiteral),
             0x0B => Ok(ExprToken::FalseLiteral),
             0x10 => Ok(ExprToken::Addition),
@@ -102,6 +100,16 @@ impl TryFrom<usize> for ExprToken {
             0x22 => Ok(ExprToken::SquareRoot),
             0x23 => Ok(ExprToken::CubeRoot),
             0x24 => Ok(ExprToken::Reciprocal),
+            0x30 => Ok(ExprToken::SignedIntLiteral8),
+            0x31 => Ok(ExprToken::SignedIntLiteral16),
+            0x33 => Ok(ExprToken::SignedIntLiteral32),
+            0x34 => Ok(ExprToken::SignedIntLiteral64),
+            0x38 => Ok(ExprToken::UnsignedIntLiteral8),
+            0x39 => Ok(ExprToken::UnsignedIntLiteral16),
+            0x3B => Ok(ExprToken::UnsignedIntLiteral32),
+            0x3C => Ok(ExprToken::UnsignedIntLiteral64),
+            0x42 => Ok(ExprToken::BinaryFloatLiteral32),
+            0x43 => Ok(ExprToken::BinaryFloatLiteral64),
             _ => Err(
                 fef::tokens::error::ExprTokenError::IdentifierNotRecognized {
                     identifier: value.into(),
