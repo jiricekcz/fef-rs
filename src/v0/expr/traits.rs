@@ -39,10 +39,10 @@ use crate::{
 
 use super::{
     error::{DecomposeError, ExprWriteWithDecomposerError},
-    ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
-    ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation, ExprPower,
-    ExprReciprocal, ExprRoot, ExprSignedIntLiteral, ExprSquare, ExprSquareRoot, ExprSubtraction,
-    ExprUnsignedIntLiteral, ExprVariable,
+    ExprAddition, ExprBinaryFloat32Literal, ExprBinaryFloat64Literal, ExprCube, ExprCubeRoot,
+    ExprDivision, ExprFalseLiteral, ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication,
+    ExprNegation, ExprPower, ExprReciprocal, ExprRoot, ExprSignedIntLiteral, ExprSquare,
+    ExprSquareRoot, ExprSubtraction, ExprUnsignedIntLiteral, ExprVariable,
 };
 
 /// A trait for all expression objects.
@@ -292,7 +292,8 @@ pub trait Composer<S: Sized> {
     compose_expr!(compose_variable, ExprVariable<S>);
     compose_expr!(compose_true_literal, ExprTrueLiteral<S>);
     compose_expr!(compose_false_literal, ExprFalseLiteral<S>);
-    compose_expr!(compose_float_literal, ExprFloatLiteral<S>);
+    compose_expr!(compose_binary_float_32_literal, ExprBinaryFloat32Literal<S>);
+    compose_expr!(compose_binary_float_64_literal, ExprBinaryFloat64Literal<S>);
     compose_expr!(compose_signed_int_literal, ExprSignedIntLiteral<S>);
     compose_expr!(compose_unsigned_int_literal, ExprUnsignedIntLiteral<S>);
     compose_expr!(compose_addition, ExprAddition<S>);
@@ -323,6 +324,21 @@ pub(crate) trait TryReadFromWithComposer<
         byte_stream: &mut R,
         config: &C,
         composer: &mut CP,
+    ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
+}
+
+pub(crate) trait TryReadFromWithComposerAndLength<
+    R: ?Sized + Read,
+    S: Sized,
+    C: ?Sized + Config,
+    CP: ?Sized + Composer<S>,
+>
+{
+    fn try_read_with_composer(
+        byte_stream: &mut R,
+        config: &C,
+        composer: &mut CP,
+        byte_length: usize,
     ) -> Result<S, ExprReadWithComposerError<CP::Error>>;
 }
 
