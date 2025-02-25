@@ -46,7 +46,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprModulo<S> {
         match expr {
             Expr::Modulo(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Modulo,
+                expected: vec![ExprToken::Modulo],
                 found: expr.token(),
             }),
         }

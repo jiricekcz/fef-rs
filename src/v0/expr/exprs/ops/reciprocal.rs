@@ -38,7 +38,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprReciprocal<S> {
         match expr {
             Expr::Reciprocal(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Reciprocal,
+                expected: vec![ExprToken::Reciprocal],
                 found: expr.token(),
             }),
         }

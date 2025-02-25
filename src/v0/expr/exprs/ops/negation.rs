@@ -38,7 +38,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprNegation<S> {
         match expr {
             Expr::Negation(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Negation,
+                expected: vec![ExprToken::Negation],
                 found: expr.token(),
             }),
         }

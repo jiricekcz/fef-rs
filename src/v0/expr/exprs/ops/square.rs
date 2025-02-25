@@ -38,7 +38,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprSquare<S> {
         match expr {
             Expr::Square(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Square,
+                expected: vec![ExprToken::Square],
                 found: expr.token(),
             }),
         }
