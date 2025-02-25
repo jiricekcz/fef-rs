@@ -17,24 +17,16 @@ use crate::v0::{
 /// ```rust
 /// # use fef::v0::read::read_configuration;
 /// # use fef::v0::config::Config;
-/// # use fef::v0::config::IntFormat;
-/// # use fef::v0::config::FloatFormat;
 /// # use fef::v0::config::OverridableConfig;
+/// # use fef::v0::config::DEFAULT_CONFIG;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let bytes: Vec<u8> = vec![
-///     0x02, // 2 configurations
-///     0x01, 0x01, // Integer format: `i16`,
-///     0x00, 0x01, // Float format: `f32`,
+///     0x00, // 0 configurations
 /// ];
 ///
-/// let config = OverridableConfig::default();
-/// // Edit the configuration to your liking
-///
 /// let mut reader = &mut bytes.as_slice();
-/// let config = read_configuration(&mut reader, &config)?;
+/// let config = read_configuration(&mut reader, &DEFAULT_CONFIG)?;
 ///
-/// assert_eq!(config.integer_format(), IntFormat::I16);
-/// assert_eq!(config.float_format(), FloatFormat::F32);
 /// # assert!(reader.is_empty());
 /// # Ok(())
 /// # }
@@ -54,20 +46,13 @@ pub fn read_configuration<R: ?Sized + Read, C: ?Sized + Config>(
 /// ```rust
 /// # use fef::v0::read::read_configuration_with_default_configuration;
 /// # use fef::v0::config::Config;
-/// # use fef::v0::config::IntFormat;
-/// # use fef::v0::config::FloatFormat;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let bytes: Vec<u8> = vec![
-///     0x02, // 2 configurations
-///     0x01, 0x01, // Integer format: `i16`,
-///     0x00, 0x01, // Float format: `f32`,
+///     0x00, // 0 configurations
 /// ];
 ///
 /// let mut reader = &mut bytes.as_slice();
 /// let config = read_configuration_with_default_configuration(&mut reader)?;
-///
-/// assert_eq!(config.integer_format(), IntFormat::I16);
-/// assert_eq!(config.float_format(), FloatFormat::F32);
 /// # assert!(reader.is_empty());
 /// # Ok(())
 /// # }

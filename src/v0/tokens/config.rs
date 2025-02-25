@@ -5,10 +5,7 @@ use super::error::ConfigTokenError;
 /// Configuration key identifiers.
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 #[non_exhaustive]
-pub enum ConfigToken {
-    FloatFormat = 0x00,
-    IntFormat = 0x01,
-}
+pub enum ConfigToken {}
 
 impl ConfigToken {
     pub fn is_enum_configuration(&self) -> bool {
@@ -38,8 +35,6 @@ impl TryFrom<usize> for ConfigToken {
     type Error = ConfigTokenError;
     fn try_from(value: usize) -> Result<Self, Self::Error> {
         match value {
-            0x00 => Ok(ConfigToken::FloatFormat),
-            0x01 => Ok(ConfigToken::IntFormat),
             _ => Err(ConfigTokenError::IdentifierNotRecognized {
                 identifier: value.into(),
             }),
@@ -48,10 +43,9 @@ impl TryFrom<usize> for ConfigToken {
 }
 
 impl std::fmt::Display for ConfigToken {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConfigToken::FloatFormat => write!(f, "Float Format"),
-            ConfigToken::IntFormat => write!(f, "Integer Format"),
+            _ => todo!("Implement Display when configurations are added"),
         }
     }
 }

@@ -15,9 +15,9 @@ use crate::v0::{
 };
 
 #[derive(Debug, Error)]
-#[error("expected {expected}, but found {found}.")]
+#[error("expected {expected:?}, but found {found}.")]
 pub struct NonMatchingExprError {
-    pub expected: ExprToken,
+    pub expected: Vec<ExprToken>,
     pub found: ExprToken,
 }
 

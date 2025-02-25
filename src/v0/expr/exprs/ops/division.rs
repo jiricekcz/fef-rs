@@ -46,7 +46,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprDivision<S> {
         match expr {
             Expr::Division(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Division,
+                expected: vec![ExprToken::Division],
                 found: expr.token(),
             }),
         }

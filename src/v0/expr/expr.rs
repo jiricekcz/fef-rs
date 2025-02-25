@@ -29,11 +29,17 @@ pub enum Expr<S: Sized> {
     /// Variable expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprVariable).
     Variable(ExprVariable<S>),
 
-    /// Integer literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprIntLiteral).
-    IntLiteral(ExprIntLiteral<S>),
+    /// Integer literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprSignedIntLiteral).
+    SignedIntLiteral(ExprSignedIntLiteral<S>),
 
-    /// Float literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprFloatLiteral).
-    FloatLiteral(ExprFloatLiteral<S>),
+    /// Unsigned integer literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprUnsignedIntLiteral).
+    UnsignedIntLiteral(ExprUnsignedIntLiteral<S>),
+
+    /// Float literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprBinaryFloat32Literal).
+    BinaryFloat32Literal(ExprBinaryFloat32Literal<S>),
+
+    /// Float literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprBinaryFloat64Literal).
+    BinaryFloat64Literal(ExprBinaryFloat64Literal<S>),
 
     /// True literal expression as defined in the FEF specification. See more [here](crate::v0::expr::ExprTrueLiteral).
     TrueLiteral(ExprTrueLiteral<S>),
@@ -93,8 +99,10 @@ impl<S: Sized> ExprObj<S> for Expr<S> {
     fn token(&self) -> ExprToken {
         match self {
             Expr::Variable(inner) => ExprObj::<S>::token(inner),
-            Expr::IntLiteral(inner) => ExprObj::<S>::token(inner),
-            Expr::FloatLiteral(inner) => ExprObj::<S>::token(inner),
+            Expr::SignedIntLiteral(inner) => ExprObj::<S>::token(inner),
+            Expr::UnsignedIntLiteral(inner) => ExprObj::<S>::token(inner),
+            Expr::BinaryFloat32Literal(inner) => ExprObj::<S>::token(inner),
+            Expr::BinaryFloat64Literal(inner) => ExprObj::<S>::token(inner),
             Expr::TrueLiteral(inner) => ExprObj::<S>::token(inner),
             Expr::FalseLiteral(inner) => ExprObj::<S>::token(inner),
             Expr::Addition(inner) => ExprObj::<S>::token(inner),

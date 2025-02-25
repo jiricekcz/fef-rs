@@ -46,7 +46,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprPower<S> {
         match expr {
             Expr::Power(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Power,
+                expected: vec![ExprToken::Power],
                 found: expr.token(),
             }),
         }

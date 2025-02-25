@@ -5,7 +5,7 @@ mod ops;
 mod variable;
 
 pub use bool_literals::{ExprFalseLiteral, ExprTrueLiteral};
-pub use float_literal::ExprFloatLiteral;
-pub use int_literal::ExprIntLiteral;
+pub use float_literal::{ExprBinaryFloat32Literal, ExprBinaryFloat64Literal};
+pub use int_literal::{ExprSignedIntLiteral, ExprUnsignedIntLiteral};
 pub use ops::*;
 pub use variable::ExprVariable;

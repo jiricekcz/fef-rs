@@ -1,17 +1,22 @@
 use std::io::Write;
 
-use crate::v0::{config::Config, tokens::ExprToken, traits::WriteTo};
+use crate::v0::{
+    config::Config,
+    raw::error::{FloatWriteError, IntegerWriteError},
+    tokens::ExprToken,
+    traits::WriteTo,
+};
 
 use super::{
     error::{ExprWriteError, ExprWriteWithDecomposerError},
     traits::{
-        BinaryOperationExpr, Decomposer, DecompositionRefContainer, EnumExpr, ExprObj, FloatExpr,
-        IntExpr, TryWriteToWithDecomposer, UnaryOperationExpr,
+        BinaryOperationExpr, Decomposer, DecompositionRefContainer, EnumExpr, ExprObj,
+        TryWriteToWithDecomposer, UnaryOperationExpr,
     },
-    Expr, ExprAddition, ExprCube, ExprCubeRoot, ExprDivision, ExprFalseLiteral, ExprFloatLiteral,
-    ExprIntDivision, ExprIntLiteral, ExprIntRoot, ExprModulo, ExprMultiplication, ExprNegation,
-    ExprPower, ExprReciprocal, ExprRoot, ExprSquare, ExprSquareRoot, ExprSubtraction,
-    ExprTrueLiteral, ExprVariable,
+    Expr, ExprAddition, ExprBinaryFloat32Literal, ExprBinaryFloat64Literal, ExprCube, ExprCubeRoot,
+    ExprDivision, ExprFalseLiteral, ExprIntDivision, ExprIntRoot, ExprModulo, ExprMultiplication,
+    ExprNegation, ExprPower, ExprReciprocal, ExprRoot, ExprSignedIntLiteral, ExprSquare,
+    ExprSquareRoot, ExprSubtraction, ExprTrueLiteral, ExprUnsignedIntLiteral, ExprVariable,
 };
 
 macro_rules! impl_try_write_to_with_decomposer_for_unary_expr {
@@ -117,36 +122,136 @@ impl_try_write_to_with_decomposer_for_binary_expr!(ExprRoot<S>);
 impl_try_write_to_with_decomposer_for_binary_expr!(ExprIntRoot<S>);
 impl_try_write_to_with_decomposer_for_binary_expr!(ExprModulo<S>);
 
+const U8_MIN: u64 = u8::MIN as u64;
+const U8_MAX: u64 = u8::MAX as u64;
+const U16_MIN: u64 = u16::MIN as u64;
+const U16_MAX: u64 = u16::MAX as u64;
+const U32_MIN: u64 = u32::MIN as u64;
+const U32_MAX: u64 = u32::MAX as u64;
+const U64_MIN: u64 = u64::MIN;
+const U64_MAX: u64 = u64::MAX;
 impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
-    TryWriteToWithDecomposer<W, S, C, DP> for ExprIntLiteral<S>
+    TryWriteToWithDecomposer<W, S, C, DP> for ExprUnsignedIntLiteral<S>
 {
     fn try_write_with_decomposer(
         &self,
         writer: &mut W,
-        config: &C,
+        _config: &C,
         _decomposer: &mut DP,
     ) -> Result<(), ExprWriteWithDecomposerError<<DP as Decomposer<S>>::Error>> {
-        let value = self.integer();
-        value
-            .write_to(writer, config)
-            .map_err(|e| ExprWriteError::from(e))?;
+        match self.value {
+            U8_MIN..=U8_MAX => {
+                let buffer = (self.value as u8).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            U16_MIN..=U16_MAX => {
+                let buffer = (self.value as u16).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            U32_MIN..=U32_MAX => {
+                let buffer = (self.value as u32).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            U64_MIN..=U64_MAX => {
+                let buffer = self.value.to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+        }
+    }
+}
+
+const I8_MIN: i64 = i8::MIN as i64;
+const I8_MAX: i64 = i8::MAX as i64;
+const I16_MIN: i64 = i16::MIN as i64;
+const I16_MAX: i64 = i16::MAX as i64;
+const I32_MIN: i64 = i32::MIN as i64;
+const I32_MAX: i64 = i32::MAX as i64;
+const I64_MIN: i64 = i64::MIN;
+const I64_MAX: i64 = i64::MAX;
+impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
+    TryWriteToWithDecomposer<W, S, C, DP> for ExprSignedIntLiteral<S>
+{
+    fn try_write_with_decomposer(
+        &self,
+        writer: &mut W,
+        _config: &C,
+        _decomposer: &mut DP,
+    ) -> Result<(), ExprWriteWithDecomposerError<<DP as Decomposer<S>>::Error>> {
+        match self.value {
+            I8_MIN..=I8_MAX => {
+                let buffer = (self.value as i8).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            I16_MIN..=I16_MAX => {
+                let buffer = (self.value as i16).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            I32_MIN..=I32_MAX => {
+                let buffer = (self.value as i32).to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+            I64_MIN..=I64_MAX => {
+                let buffer = self.value.to_be_bytes();
+                writer
+                    .write_all(&buffer)
+                    .map_err(|e| ExprWriteError::IntegersWriteError(IntegerWriteError::from(e)))?;
+                Ok(())
+            }
+        }
+    }
+}
+
+impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
+    TryWriteToWithDecomposer<W, S, C, DP> for ExprBinaryFloat32Literal<S>
+{
+    fn try_write_with_decomposer(
+        &self,
+        writer: &mut W,
+        _config: &C,
+        _decomposer: &mut DP,
+    ) -> Result<(), ExprWriteWithDecomposerError<<DP as Decomposer<S>>::Error>> {
+        let buffer = self.value.to_be_bytes();
+        writer
+            .write_all(&buffer)
+            .map_err(|e| ExprWriteError::FloatsWriteError(FloatWriteError::from(e)))?;
         Ok(())
     }
 }
 
 impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>>
-    TryWriteToWithDecomposer<W, S, C, DP> for ExprFloatLiteral<S>
+    TryWriteToWithDecomposer<W, S, C, DP> for ExprBinaryFloat64Literal<S>
 {
     fn try_write_with_decomposer(
         &self,
         writer: &mut W,
-        config: &C,
+        _config: &C,
         _decomposer: &mut DP,
     ) -> Result<(), ExprWriteWithDecomposerError<<DP as Decomposer<S>>::Error>> {
-        let value = self.float();
-        value
-            .write_to(writer, config)
-            .map_err(|e| ExprWriteError::from(e))?;
+        let buffer = self.value.to_be_bytes();
+        writer
+            .write_all(&buffer)
+            .map_err(|e| ExprWriteError::FloatsWriteError(FloatWriteError::from(e)))?;
         Ok(())
     }
 }
@@ -165,8 +270,18 @@ impl<W: ?Sized + Write, S: Sized, C: ?Sized + Config, DP: ?Sized + Decomposer<S>
             .write_to(writer, config)
             .map_err(|e| ExprWriteError::from(e))?;
         match self {
-            Expr::IntLiteral(expr) => expr.try_write_with_decomposer(writer, config, decomposer),
-            Expr::FloatLiteral(expr) => expr.try_write_with_decomposer(writer, config, decomposer),
+            Expr::UnsignedIntLiteral(expr) => {
+                expr.try_write_with_decomposer(writer, config, decomposer)
+            }
+            Expr::SignedIntLiteral(expr) => {
+                expr.try_write_with_decomposer(writer, config, decomposer)
+            }
+            Expr::BinaryFloat32Literal(expr) => {
+                expr.try_write_with_decomposer(writer, config, decomposer)
+            }
+            Expr::BinaryFloat64Literal(expr) => {
+                expr.try_write_with_decomposer(writer, config, decomposer)
+            }
             Expr::TrueLiteral(expr) => expr.try_write_with_decomposer(writer, config, decomposer),
             Expr::FalseLiteral(expr) => expr.try_write_with_decomposer(writer, config, decomposer),
             Expr::Variable(expr) => expr.try_write_with_decomposer(writer, config, decomposer),

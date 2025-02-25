@@ -58,7 +58,7 @@ pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Size
 /// # use fef::v0::expr::Expr;
 /// # use fef::v0::expr::ExprFalseLiteral;
 /// # use fef::v0::expr::ExprVariable;
-/// # use fef::v0::expr::ExprIntLiteral;
+/// # use fef::v0::expr::ExprUnsignedIntLiteral;
 /// # use fef::v0::expr::ExprAddition;
 /// # use fef::v0::expr::ExprSubtraction;
 /// # use fef::v0::expr::ExprMultiplication;
@@ -67,7 +67,6 @@ pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Size
 /// # use fef::v0::expr::ExprSquare;
 /// # use fef::v0::expr::ExprNegation;
 /// # use fef::v0::raw::VariableLengthEnum;
-/// # use fef::v0::raw::Integer;
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let bytes: Vec<u8> = vec![
 ///     0x13, // Divide
@@ -79,12 +78,12 @@ pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Size
 ///                    0x20, // Square
 ///                        0x04, 0x01, // Variable 1 (b)
 ///                    0x12, // Multiply
-///                       0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, // Number 4
+///                       0x38, 0x04, // Number 4
 ///                       0x12, // Multiply
 ///                           0x04, 0x00, // Variable 0 (a)
 ///                           0x04, 0x02, // Variable 2 (c)    
 ///         0x12, // Multiply
-///             0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // Number 2
+///             0x38, 0x02, // Number 2
 ///             0x04, 0x00, // Variable 0 (a)
 /// ];
 ///
@@ -92,11 +91,11 @@ pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Size
 /// let b: ExprTree = Expr::<ExprTree>::Variable(VariableLengthEnum::from(1).into()).into();
 /// let c: ExprTree = Expr::<ExprTree>::Variable(VariableLengthEnum::from(2).into()).into();
 ///
-/// let four: ExprTree = Expr::<ExprTree>::IntLiteral(
-///     ExprIntLiteral::from(Integer::from(4))
+/// let four: ExprTree = Expr::<ExprTree>::UnsignedIntLiteral(
+///     ExprUnsignedIntLiteral::from(4u64)
 /// ).into();
-/// let two: ExprTree = Expr::<ExprTree>::IntLiteral(
-///     ExprIntLiteral::from(Integer::from(2))
+/// let two: ExprTree = Expr::<ExprTree>::UnsignedIntLiteral(
+///     ExprUnsignedIntLiteral::from(2u64)
 /// ).into();
 ///
 /// let ac: ExprTree = Expr::<ExprTree>::Multiplication(
@@ -142,6 +141,7 @@ pub fn read_expression<R: ?Sized + Read, C: ?Sized + Config, S: Sized, CP: ?Size
 /// assert_eq!(fraction, expr);
 /// # Ok(())
 /// # }
+/// ```
 pub fn read_expression_into_tree<R: ?Sized + Read, C: ?Sized + Config>(
     byte_stream: &mut R,
     config: &C,

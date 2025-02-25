@@ -7,11 +7,8 @@ use super::Config;
 /// # Example
 /// All of the configuration values are set to their default values.
 /// ```rust
-/// # use fef::v0::config::{IntFormat, FloatFormat, DefaultConfig, Config};
+/// # use fef::v0::config::{DefaultConfig, Config};
 /// let config = DefaultConfig::new();
-///
-/// assert_eq!(config.float_format(), FloatFormat::default());
-/// assert_eq!(config.integer_format(), IntFormat::default());
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DefaultConfig {}

@@ -46,7 +46,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprSubtraction<S> {
         match expr {
             Expr::Subtraction(expr) => Ok(expr),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::Subtraction,
+                expected: vec![ExprToken::Subtraction],
                 found: expr.token(),
             }),
         }

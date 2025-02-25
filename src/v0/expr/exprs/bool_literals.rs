@@ -46,7 +46,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprTrueLiteral<S> {
         match value {
             Expr::TrueLiteral(v) => Ok(v),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::TrueLiteral,
+                expected: vec![ExprToken::TrueLiteral],
                 found: value.token(),
             }),
         }
@@ -59,7 +59,7 @@ impl<S: Sized> TryFrom<Expr<S>> for ExprFalseLiteral<S> {
         match value {
             Expr::FalseLiteral(v) => Ok(v),
             _ => Err(NonMatchingExprError {
-                expected: ExprToken::FalseLiteral,
+                expected: vec![ExprToken::FalseLiteral],
                 found: value.token(),
             }),
         }
