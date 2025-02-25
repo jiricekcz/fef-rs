@@ -5,11 +5,3 @@ use crate::{
 
 /// Configuration requirements for a FEF parser.
 pub trait Config {}
-
-pub(crate) trait EnumConfiguration:
-    Sealed + Copy + Default + Eq + TryFrom<VariableLengthEnum>
-{
-    fn token() -> ConfigToken;
-
-    fn value(&self) -> usize;
-}

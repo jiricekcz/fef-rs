@@ -11,4 +11,3 @@ pub use default::DefaultConfig;
 pub use default::DEFAULT_CONFIG;
 pub use overridable_config::OverridableConfig;
 pub use traits::Config;
-pub(crate) use traits::EnumConfiguration;
