@@ -5,10 +5,7 @@ use crate::{
     v0::{raw::VariableLengthEnum, tokens::ConfigToken, traits::ReadFrom},
 };
 
-use super::{
-    default::DEFAULT_CONFIG, error::ConfigurationReadError, Config, FloatFormat, IntFormat,
-    OverridableConfig,
-};
+use super::{default::DEFAULT_CONFIG, error::ConfigurationReadError, Config, OverridableConfig};
 
 impl<R: ?Sized + Read> ReadFrom<R> for OverridableConfig {
     type ReadError = ConfigurationReadError;
@@ -30,15 +27,6 @@ impl<R: ?Sized + Read> ReadFrom<R> for OverridableConfig {
 
         Ok(output)
     }
-}
-
-macro_rules! read_enum_configuration {
-    ($configuration_type:ty, $reader:ident, $config:ident) => {{
-        let variable_length_enum: VariableLengthEnum =
-            VariableLengthEnum::read_from($reader, $config)?;
-        let int_format = <$configuration_type>::try_from(variable_length_enum)?;
-        int_format
-    }};
 }
 
 fn skip_non_enum_configuration<R: Read + ?Sized>(
@@ -113,20 +101,10 @@ fn match_config_token_identifier<R: ?Sized + Read, C: ?Sized + Config>(
 }
 
 fn read_enum_configuration<R: ?Sized + Read, C: ?Sized + Config>(
-    reader: &mut R,
-    configuration: &C,
+    _reader: &mut R,
+    _configuration: &C,
     config_token: ConfigToken,
-    output: &mut OverridableConfig,
+    _output: &mut OverridableConfig,
 ) -> Result<(), ConfigurationReadError> {
-    match config_token {
-        ConfigToken::IntFormat => {
-            let int_format = read_enum_configuration!(IntFormat, reader, configuration);
-            output.override_integer_format(int_format);
-        }
-        ConfigToken::FloatFormat => {
-            let float_format = read_enum_configuration!(FloatFormat, reader, configuration);
-            output.override_float_format(float_format);
-        }
-    }
-    Ok(())
+    match config_token {}
 }
