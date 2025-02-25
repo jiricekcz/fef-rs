@@ -11,14 +11,14 @@ use crate::{
 /// [Float literal expression (binary 32-bit)](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Float%20Literal.md) in FEF.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExprBinaryFloat32Literal<S: Sized> {
-    value: f32,
+    pub(crate) value: f32,
     _marker: std::marker::PhantomData<S>,
 }
 
 /// [Float literal expression (binary 64-bit)](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Float%20Literal.md) in FEF.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExprBinaryFloat64Literal<S: Sized> {
-    value: f64,
+    pub(crate) value: f64,
     _marker: std::marker::PhantomData<S>,
 }
 

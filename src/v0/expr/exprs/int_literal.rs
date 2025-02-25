@@ -15,7 +15,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ExprUnsignedIntLiteral<S: Sized> {
     _marker: std::marker::PhantomData<S>,
-    value: u64,
+    pub(crate) value: u64,
 }
 
 /// [Signed integer literal expression](https://github.com/jiricekcz/fef-specification/blob/main/expressions/Integer%20Literal.md) in FEF.
@@ -24,7 +24,7 @@ pub struct ExprUnsignedIntLiteral<S: Sized> {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ExprSignedIntLiteral<S: Sized> {
     _marker: std::marker::PhantomData<S>,
-    value: i64,
+    pub(crate) value: i64,
 }
 /// Implementation of from<int> traits for integer literals.
 ///
