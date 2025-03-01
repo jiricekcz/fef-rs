@@ -19,7 +19,7 @@ use crate::{
 /// Applications should generally ignore unknown metadata records.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnknownMetadataRecordObj {
-    identifier: VariableLengthEnum,
+    pub(crate) identifier: VariableLengthEnum,
     data: Vec<u8>,
 }
 

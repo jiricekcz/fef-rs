@@ -35,7 +35,7 @@ use super::ReservedMetadataRecord;
 /// # }
 /// ```
 pub struct CustomReservedMetadataRecordObj {
-    identifier: u32,
+    pub(crate) identifier: u32,
     data: Vec<u8>,
 }
 

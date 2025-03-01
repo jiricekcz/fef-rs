@@ -89,6 +89,14 @@ impl ReservedMetadataRecord {
             _ => unreachable!(),
         }
     }
+
+    pub(crate) fn identifier(&self) -> u32 {
+        match self {
+            ReservedMetadataRecord::Official(record) => record.identifier,
+            ReservedMetadataRecord::Custom(record) => record.identifier,
+            ReservedMetadataRecord::ThirdParty(record) => record.identifier,
+        }
+    }
 }
 
 impl<W: ?Sized + Write> WriteTo<W> for ReservedMetadataRecord {

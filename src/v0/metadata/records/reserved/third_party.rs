@@ -20,7 +20,7 @@ use super::ReservedMetadataRecord;
 /// In general, handling of third-party metadata records is determined by the third-party extension.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ThirdPartyReservedMetadataRecordObj {
-    identifier: u32,
+    pub(crate) identifier: u32,
     data: Vec<u8>,
 }
 
