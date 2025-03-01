@@ -204,11 +204,28 @@ impl<W: ?Sized + Write> WriteTo<W> for MetadataRecord {
 
 impl MetadataRecord {
     pub(crate) fn byte_length(&self) -> usize {
-        match self {
+        let inner_length = match self {
             MetadataRecord::Name(record) => record.byte_length(),
             MetadataRecord::VariableName(record) => record.byte_length(),
             MetadataRecord::Reserved(record) => record.byte_length(),
             MetadataRecord::Unknown(record) => record.byte_length(),
-        }
+        };
+
+        let identifier: VariableLengthEnum = match self {
+            MetadataRecord::Name(_) => {
+                VariableLengthEnum::from(Into::<usize>::into(MetadataToken::Name))
+            }
+            MetadataRecord::VariableName(_) => {
+                VariableLengthEnum::from(Into::<usize>::into(MetadataToken::VariableName))
+            }
+            MetadataRecord::Reserved(record) => {
+                VariableLengthEnum::from(record.identifier() as usize)
+            }
+            MetadataRecord::Unknown(record) => record.identifier.to_owned(),
+        };
+
+        identifier.min_byte_length()
+            + inner_length
+            + VariableLengthEnum::min_byte_length_of_usize(inner_length)
     }
 }
