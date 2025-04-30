@@ -211,7 +211,7 @@ where
 {
     type ReadError = VariableLengthEnumError;
 
-    fn read_from<C: ?Sized + Config>(reader: &mut R, _: &C) -> Result<Self, Self::ReadError> {
+    fn read_from<C: ?Sized + Config>(reader: &mut R, config: &C) -> Result<Self, Self::ReadError> {
         let mut byte_vec = Vec::new();
         let mut accumulator: Option<u64> = Some(0);
 
@@ -221,24 +221,29 @@ where
             reader.read_exact(&mut bytes)?;
             let byte = bytes[0];
 
-            if byte == 0x80 && byte_vec.is_empty() {
+            if byte == 0x80 && accumulator.is_none_or(|acc| acc == 0) {
                 // Leading 0x80 is ignored
                 // This is only padding as defined in the FEF specification, so we ignore it
                 continue;
             }
 
-            // We save the value to both the accumulator and the byte_vec, choosing later which one to use
-            byte_vec.push(byte);
-
             accumulator = if let Some(inner) = accumulator {
                 if inner.leading_zeros() < 7 {
-                    // If the accumulator has less than 7 leading zeros, shifting it left by 7 bits would overflow
+                    // Value is too large to fit into a u64, we need to store it in a Vec<u8>
+                    if byte_vec.is_empty() {
+                        // If the vec is empty, we will add bytes from the accumulator to it
+                        let inner_as_vre: VariableLengthEnum =
+                            VariableLengthEnum::from(inner as usize);
+                        inner_as_vre.write_to(&mut byte_vec, config)?; // Write the accumulator to the vec
+                    }
+                    byte_vec.push(byte);
                     None
                 } else {
                     // We have enough space to shift the accumulator left by 7 bits and add the new byte
                     Some(inner << 7 | (byte & 0x7F) as u64)
                 }
             } else {
+                byte_vec.push(byte);
                 None
             };
 

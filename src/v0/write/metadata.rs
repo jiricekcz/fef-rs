@@ -65,7 +65,7 @@ pub fn write_metadata<
 ///
 /// let expected_result: Vec<u8> = vec![
 ///     0x02, // 2 records
-///     0x0B, // together 5 bytes
+///     0x0F, // together 15 bytes
 ///     0x01, // Name record
 ///         0x08, // Total name record length
 ///         0x07, // String length
